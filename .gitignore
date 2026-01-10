@@ -1,0 +1,44 @@
+####################################
+# OS
+####################################
+.DS_Store
+Thumbs.db
+
+####################################
+# IDEs / Editors
+####################################
+.idea/
+.vscode/
+*.iml
+
+####################################
+# Spring Boot / Java
+####################################
+ExamBackend/target/
+ExamBackend/.classpath
+ExamBackend/.project
+ExamBackend/.settings/
+
+*.log
+
+####################################
+# React / Node
+####################################
+ExamFrontend/node_modules/
+ExamFrontend/build/
+ExamFrontend/dist/
+
+# Env files (DO NOT COMMIT SECRETS)
+ExamFrontend/.e nv
+ExamFrontend/.env.local
+ExamFrontend/.env.development.local
+ExamFrontend/.env.test.local
+ExamFrontend/.env.production.local
+
+####################################
+# Misc
+####################################
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+

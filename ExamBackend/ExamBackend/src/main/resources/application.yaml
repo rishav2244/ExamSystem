@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: ExamBackend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/examdb
+    username: examadmin
+    password: examadmin
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true #Apparently it helps with debugging.
+
+server:
+  port: 8080
