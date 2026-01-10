@@ -1,0 +1,22 @@
+/* body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+} */
+/* index.css */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: 'Arial', sans-serif;
+  background: rgb(255, 255, 255)
+}
+
+#root{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
