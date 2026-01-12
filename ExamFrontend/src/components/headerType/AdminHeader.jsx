@@ -9,11 +9,16 @@ export const AdminHeader = () => {
     };
 
     return (
-        <div
-            className="adminHeader">
-                <h4>Welcome, {name}</h4>
-                <button
-                onClick={handleLogout}>Log out</button>
-        </div>
+        <header className="admin-header">
+            <h4 className="admin-header__welcome">
+                Welcome, <span>{name}</span>
+            </h4>
+            <button
+                className="admin-header__logout"
+                onClick={handleLogout}
+            >
+                Log out
+            </button>
+        </header>
     )
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useCSVReader } from 'react-papaparse';
 
 export const CSVUploader = ({ onDataLoaded }) => {

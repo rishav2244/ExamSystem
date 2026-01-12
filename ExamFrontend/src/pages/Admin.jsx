@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { CSVUploader } from '../components/buttonType/CSVUploader';
 import { DataTable } from '../components/tableType/DataTable';
 import { AdminHeader } from '../components/headerType/AdminHeader';
+import { CreateExamCard } from '../components/cardType/CreateExamCard';
 
 export const Admin = () => {
   const [data, setData] = useState([]);
@@ -26,8 +27,9 @@ export const Admin = () => {
     <div
     className="AdminOverall">
       <AdminHeader></AdminHeader>
-      <CSVUploader onDataLoaded={setData} />
-      {data.length > 0 && <DataTable data={data} />}
+      <CreateExamCard></CreateExamCard>
+      {/* <CSVUploader onDataLoaded={setData} />
+      {data.length > 0 && <DataTable data={data} />} */}
     </div>
   );
 };
