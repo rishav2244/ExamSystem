@@ -1,13 +1,13 @@
-import React from 'react';
-
 export const DataTable = ({ data }) => {
   const [headers, ...rows] = data;
+
+  const reqHeaders = headers.slice(0, 6);
 
   return (
     <table>
       <thead>
         <tr>
-          {headers.map((header, index) => (
+          {reqHeaders.map((header, index) => (
             <th key={index}>{header}</th>
           ))}
         </tr>
@@ -16,7 +16,7 @@ export const DataTable = ({ data }) => {
       <tbody>
         {rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
-            {row.map((cell, cellIndex) => (
+            {row.slice(0, 6).map((cell, cellIndex) => (
               <td key={cellIndex}>{cell}</td>
             ))}
           </tr>

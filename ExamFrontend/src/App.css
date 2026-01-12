@@ -1,25 +1,33 @@
-/* .App {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-} */
-/* App.css */
-
 .App {
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   font-family: 'Arial', sans-serif;
+}
+
+/* .App {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  font-family: 'Arial', sans-serif;
+} */
+
+.AdminOverall{
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
 }
 
 .login-card {
   background-color: #ffffff;
   padding: 40px 30px;
   border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   width: 350px;
   text-align: center;
 }
@@ -59,4 +67,15 @@
   margin-top: 15px;
   color: rgba(14, 14, 14, 0.885);
   font-weight: 500;
+}
+
+.adminHeader{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1%;
+}
+
+thead{
+  text-align: left;
 }

@@ -17,7 +17,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* protected */}
-          <Route element={<ProtectedRoute />}>
+          <Route element={<ProtectedRoute />}> 
             <Route path="/user" element={<Candidate />} />
 
             {/* admin-only */}
