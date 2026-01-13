@@ -53,7 +53,7 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
         // console.log(examData);
 
         try {
-            
+
             const examDetailsJSON = {
                 title: examData.title,
                 duration: Number(examData.duration),
@@ -98,41 +98,55 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                     <form
                         onSubmit={handleExamCreation}
                     >
-                        <label htmlFor="title">Title</label>
-                        <input type="text"
-                            name="title"
-                            id="title"
-                            placeholder="Title"
-                            value={examData.title}
-                            onChange={handleChange} />
+                        <div
+                            className="form-group">
+                            <label htmlFor="title">Title</label>
+                            <input type="text"
+                                name="title"
+                                id="title"
+                                placeholder="Title"
+                                value={examData.title}
+                                onChange={handleChange} />
+                        </div>
 
-                        <label htmlFor="duration">Duration</label>
-                        <input type="text"
-                            name="duration"
-                            id="duration"
-                            value={examData.duration}
-                            onChange={handleChange}
-                            placeholder="Title" />
+                        <div
+                            className="form-group">
+                            <label htmlFor="duration">Duration</label>
+                            <input type="text"
+                                name="duration"
+                                id="duration"
+                                value={examData.duration}
+                                onChange={handleChange}
+                                placeholder="Title" />
+                        </div>
 
-                        <label htmlFor="startTime">Start time</label>
-                        <input
-                            type="datetime-local"
-                            name="startTime"
-                            id="startTime"
-                            placeholder="Title"
-                            value={examData.startTime}
-                            onChange={handleChange} />
+                        <div
+                            className="form-group">
+                            <label htmlFor="startTime">Start time</label>
+                            <input
+                                type="datetime-local"
+                                name="startTime"
+                                id="startTime"
+                                placeholder="Title"
+                                value={examData.startTime}
+                                onChange={handleChange} />
+                        </div>
 
-                        <label htmlFor="endTime">End time</label>
-                        <input
-                            type="datetime-local"
-                            name="endTime"
-                            id="endTime"
-                            placeholder="Title"
-                            value={examData.endTime}
-                            onChange={handleChange} />
+                        <div
+                            className="form-group">
+                            <label htmlFor="endTime">End time</label>
+                            <input
+                                type="datetime-local"
+                                name="endTime"
+                                id="endTime"
+                                placeholder="Title"
+                                value={examData.endTime}
+                                onChange={handleChange} />
+                        </div>
 
-                        <button type="submit">Create</button>
+                        <button 
+                        type="submit"
+                        className="form-submit">Create</button>
                     </form>
                 </div>
             </div>
