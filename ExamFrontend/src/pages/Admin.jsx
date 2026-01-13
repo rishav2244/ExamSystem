@@ -1,30 +1,3 @@
-// import { useState } from 'react';
-// import { CSVUploader } from '../components/buttonType/CSVUploader';
-// import { DataTable } from '../components/tableType/DataTable';
-// import { AdminHeader } from '../components/headerType/AdminHeader';
-// import { CreateExamCard } from '../components/cardType/CreateExamCard';
-// import { CreateExamModal } from './CreateExamModal';
-
-// export const Admin = () => {
-//   const [data, setData] = useState([]);
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-
-//   return (
-//     <div
-//       className="AdminOverall">
-//       <AdminHeader></AdminHeader>
-//       <CreateExamCard
-//       onClick={() => {setIsModalOpen(true)}}></CreateExamCard>
-//       {isModalOpen && (
-//         <CreateExamModal
-//           onClose={() => setIsModalOpen(false)} />
-//       )}
-//       {/* <CSVUploader onDataLoaded={setData} />
-//       {data.length > 0 && <DataTable data={data} />} */}
-//     </div>
-//   );
-// };
-
 import { useEffect, useState } from 'react';
 import { AdminHeader } from '../components/headerType/AdminHeader';
 import { CreateExamCard } from '../components/cardType/CreateExamCard';
@@ -56,20 +29,24 @@ export const Admin = () => {
             className="AdminOverall">
             <AdminHeader></AdminHeader>
 
-            {listExams.map((exam) => (
-                <ExamCard
-                    key={exam.id}
-                    examName={exam.title}
-                    examStatus={exam.status}
-                />
-            ))}
+            <div
+                className="CardArea">
+                <CreateExamCard
+                    onClick={() => { setIsModalOpen(true) }}></CreateExamCard>
 
-            <CreateExamCard
-                onClick={() => { setIsModalOpen(true) }}></CreateExamCard>
+                {listExams.map((exam) => (
+                    <ExamCard
+                        key={exam.id}
+                        examName={exam.title}
+                        examStatus={exam.status}
+                    />
+                ))}
+            </div>
+
             {isModalOpen && (
                 <CreateExamModal
-                    onClose={() => setIsModalOpen(false)} 
-                    onExamCreated={fetchExams}/>
+                    onClose={() => setIsModalOpen(false)}
+                    onExamCreated={fetchExams} />
             )}
         </div>
     );

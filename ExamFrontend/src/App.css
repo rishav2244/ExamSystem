@@ -25,6 +25,14 @@
   flex-direction: column;
 }
 
+.CardArea{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .login-card {
   background-color: #ffffff;
   padding: 40px 30px;
@@ -159,6 +167,37 @@ thead {
 
 .CreateExamCard:active {
   background-color: #d0d0d0;
+}
+
+.ExamCard {
+
+  width: 10vw;
+  height: 20vh;
+
+  display: flex;
+  flex-direction: column;
+
+  margin: 24px;
+  padding: 16px;
+
+  border: 2px solid #374151;
+  border-radius: 10px;
+
+  background-color: rgb(202, 213, 134);
+
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.ExamCard:hover {
+  background-color: rgb(192, 208, 88);
+}
+
+.ExamCard:active {
+  background-color: rgb(157, 179, 18);
 }
 
 .modal-backdrop {
