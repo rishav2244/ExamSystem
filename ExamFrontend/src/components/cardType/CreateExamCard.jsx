@@ -1,7 +1,8 @@
-export const CreateExamCard = () => {
+export const CreateExamCard = ({onClick}) => {
     return (
         <button
-        className="ExamCard">
+            className="CreateExamCard"
+            onClick={onClick}>
             <h2>
                 Create exam
             </h2>

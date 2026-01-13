@@ -13,4 +13,5 @@ public class CreateExamDTO {
     private Instant startTime;
     private Instant endTime;
     private String status;
+    private String createdBy;
 }

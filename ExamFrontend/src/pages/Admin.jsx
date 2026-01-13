@@ -19,15 +19,22 @@ import { CSVUploader } from '../components/buttonType/CSVUploader';
 import { DataTable } from '../components/tableType/DataTable';
 import { AdminHeader } from '../components/headerType/AdminHeader';
 import { CreateExamCard } from '../components/cardType/CreateExamCard';
+import { CreateExamModal } from './CreateExamModal';
 
 export const Admin = () => {
   const [data, setData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div
-    className="AdminOverall">
+      className="AdminOverall">
       <AdminHeader></AdminHeader>
-      <CreateExamCard></CreateExamCard>
+      <CreateExamCard
+      onClick={() => {setIsModalOpen(true)}}></CreateExamCard>
+      {isModalOpen && (
+        <CreateExamModal
+          onClose={() => setIsModalOpen(false)} />
+      )}
       {/* <CSVUploader onDataLoaded={setData} />
       {data.length > 0 && <DataTable data={data} />} */}
     </div>
