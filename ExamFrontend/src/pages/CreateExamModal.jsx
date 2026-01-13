@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 import { createExam } from "../api/api";
 
-export const CreateExamModal = ({ onClose }) => {
+export const CreateExamModal = ({ onClose, onExamCreated }) => {
 
     const { email } = useContext(AuthenticationContext);
 
@@ -75,6 +75,7 @@ export const CreateExamModal = ({ onClose }) => {
             );
 
             alert("Exam created successfully!");
+            onExamCreated();
             onClose();
         } catch (err) {
             console.error(err);
