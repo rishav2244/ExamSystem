@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 import Papa from "papaparse";
+import { ExamQuestion } from "../components/FYIType/ExamQuestion";
 
 export const ExamDetailsModal = ({ onClose }) => {
 
@@ -12,9 +13,14 @@ export const ExamDetailsModal = ({ onClose }) => {
         if (!csvFile) {
             return;
         }
+
         Papa.parse(csvFile, {
+            header: true,
+            skipEmptyLines: true,
+            transformHeader: (header) => header.trim(),
             complete: (resultant) => {
-                setCSVObj(resultant);
+                const transformed = transformCSV(resultant.data);
+                setCSVObj(transformed);
             },
             error: (err) => {
                 console.log(err.message);
@@ -22,9 +28,30 @@ export const ExamDetailsModal = ({ onClose }) => {
         });
     }
 
+    const transformCSV = (rows) => {
+        return rows.map((row) => {
+            const result = {
+                Question: row["Question"],
+                Ans: row["Correction Option"],
+                Marks: row["Marks"]
+            };
+
+            let optionIndex = 1;
+            Object.keys(row).forEach((key) => {
+                if (key.startsWith("Option")) {
+                    result[optionIndex] = row[key];
+                    optionIndex++;
+                }
+            });
+
+            return result;
+        });
+    };
+
+
     useEffect(() => {
         console.log(CSVObj);
-    },[CSVObj]);
+    }, [CSVObj]);
 
     return (
         <div className="modal-backdrop" onClick={onClose}>
@@ -40,6 +67,18 @@ export const ExamDetailsModal = ({ onClose }) => {
                     <input
                         onChange={handleExamCreation}
                         type="file" />
+
+                    {CSVObj && CSVObj.length > 0 && (
+                        <div className="exam-questions-container">
+                            {CSVObj.map((q, index) => (
+                                <ExamQuestion
+                                    key={index}
+                                    question={q}
+                                    index={index}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

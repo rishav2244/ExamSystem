@@ -28,10 +28,6 @@ public class Question {
     @Column(nullable = false)
     private int marks;
 
-    @OneToMany(
-            mappedBy = "question",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<Options> options;
+    @Column(nullable = false)
+    private String options;
 }

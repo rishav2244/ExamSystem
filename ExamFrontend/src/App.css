@@ -282,3 +282,25 @@ thead {
 .form-submit:hover {
   background-color: #1d4ed8;
 }
+
+.exam-questions-container {
+    margin-top: 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.exam-question {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.exam-question ul {
+    padding-left: 20px;
+}
+
+.exam-meta {
+    font-size: 0.9rem;
+    color: #555;
+}
