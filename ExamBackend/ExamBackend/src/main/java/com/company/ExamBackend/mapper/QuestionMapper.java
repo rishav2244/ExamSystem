@@ -1,29 +1,36 @@
 package com.company.ExamBackend.mapper;
 
-import com.company.ExamBackend.dto.QuestionResponseDTO;
+import com.company.ExamBackend.dto.OptionDTO;
+import com.company.ExamBackend.dto.QuestionDTO;
+import com.company.ExamBackend.model.Options;
 import com.company.ExamBackend.model.Question;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuestionMapper {
 
-    public static QuestionResponseDTO toDTO(Question entity) {
-        QuestionResponseDTO dto = new QuestionResponseDTO();
-        dto.setId(entity.getId());
-        dto.setText(entity.getText());
-        dto.setOptions(entity.getOptions());
-        dto.setCorrectOption(entity.getCorrectOption());
-        dto.setMarks(entity.getMarks());
+    public static Question toEntity(QuestionDTO dto) {
+        Question question = new Question();
+        question.setText(dto.getText());
+        question.setMarks(dto.getMarks());
 
-        return dto;
+        List<Options> options = dto.getOptions()
+                .stream()
+                .map(optionDTO -> toOptionEntity(optionDTO, question))
+                .collect(Collectors.toList());
+
+        question.setOptions(options);
+
+        return question;
     }
 
-    public static Question toEntity(QuestionResponseDTO dto) {
-        Question entity = new Question();
-        entity.setId(dto.getId());
-        entity.setText(dto.getText());
-        entity.setOptions(dto.getOptions());
-        entity.setCorrectOption(dto.getCorrectOption());
-        entity.setMarks(dto.getMarks());
-
-        return entity;
+    private static Options toOptionEntity(OptionDTO dto, Question question) {
+        Options option = new Options();
+        option.setQuestion(question);
+        option.setOptionIndex(dto.getIndex());
+        option.setText(dto.getText());
+        option.setCorrect(dto.isCorrect());
+        return option;
     }
 }

@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { AdminHeader } from '../components/headerType/AdminHeader';
 import { CreateExamCard } from '../components/cardType/CreateExamCard';
 import { CreateExamModal } from './CreateExamModal';
+import { ExamDetailsModal } from './ExamDetailsModal';
 import { ExamCard } from '../components/cardType/ExamCard';
 import { getExams } from '../api/api';
 
 export const Admin = () => {
     const [listExams, setListExams] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
     const fetchExams = async () => {
         try {
@@ -32,21 +34,27 @@ export const Admin = () => {
             <div
                 className="CardArea">
                 <CreateExamCard
-                    onClick={() => { setIsModalOpen(true) }}></CreateExamCard>
+                    onClick={() => { setIsCreateModalOpen(true) }}></CreateExamCard>
 
                 {listExams.map((exam) => (
                     <ExamCard
                         key={exam.id}
                         examName={exam.title}
                         examStatus={exam.status}
+                        onClick={() => { setIsDetailsModalOpen(true) }}
                     />
                 ))}
             </div>
 
-            {isModalOpen && (
+            {isCreateModalOpen && (
                 <CreateExamModal
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => setIsCreateModalOpen(false)}
                     onExamCreated={fetchExams} />
+            )}
+
+            {isDetailsModalOpen && (
+                <ExamDetailsModal
+                    onClose={() => setIsDetailsModalOpen(false)}/>
             )}
         </div>
     );

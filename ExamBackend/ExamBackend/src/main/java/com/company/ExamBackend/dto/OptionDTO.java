@@ -3,12 +3,10 @@ package com.company.ExamBackend.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class QuestionDTO {
+public class OptionDTO {
+    private String index;
     private String text;
-    private int marks;
-    private List<OptionDTO> options;
+    private boolean correct;
 }

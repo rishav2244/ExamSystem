@@ -25,17 +25,13 @@ public class Question {
     @Column(nullable = false)
     private String text;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "question_options",
-            joinColumns = @JoinColumn(name = "question_id")
-    )
-    @Column(name = "option_value")
-    private List<String> options;
-
-    @Column(nullable = false)
-    private String correctOption;
-
     @Column(nullable = false)
     private int marks;
+
+    @OneToMany(
+            mappedBy = "question",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Options> options;
 }

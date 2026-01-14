@@ -117,7 +117,7 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                                 id="duration"
                                 value={examData.duration}
                                 onChange={handleChange}
-                                placeholder="Title" />
+                                placeholder="Duration (Mins)" />
                         </div>
 
                         <div
@@ -127,7 +127,6 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                                 type="datetime-local"
                                 name="startTime"
                                 id="startTime"
-                                placeholder="Title"
                                 value={examData.startTime}
                                 onChange={handleChange} />
                         </div>
@@ -139,7 +138,6 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                                 type="datetime-local"
                                 name="endTime"
                                 id="endTime"
-                                placeholder="Title"
                                 value={examData.endTime}
                                 onChange={handleChange} />
                         </div>
