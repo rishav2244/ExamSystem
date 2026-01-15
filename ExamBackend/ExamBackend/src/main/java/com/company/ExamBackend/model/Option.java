@@ -5,30 +5,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class Question {
+public class Option {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "exam_id", nullable = false)
-    private Exam parentExam;
+    @JoinColumn(name = "question_id", nullable = false)
+    private Question question;
 
     @Column(nullable = false)
     private String text;
 
     @Column(nullable = false)
-    private int marks;
+    private boolean isCorrect = false;
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Option> options ;
+    @Column(nullable = false)
+    private int optionIndex;
 }

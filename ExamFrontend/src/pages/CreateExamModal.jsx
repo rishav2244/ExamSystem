@@ -50,6 +50,15 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
             alert("Duration is required");
             return;
         }
+        else if (examData.endTime < examData.startTime){
+            alert("Start date cannot be after end date.")
+            return;
+        }
+        else if (Number(examData.duration) <= 0)
+        {
+            alert("Duration cannot be negative or 0.")
+            return;
+        }
         // console.log(examData);
 
         try {

@@ -29,12 +29,12 @@ export const ExamDetailsModal = ({ onClose }) => {
     }
 
     const transformCSV = (rows) => {
-        return rows.map((row) => {
+        return rows.map((row) => {//We return result as our "nice" JSON.
             const result = {
                 Question: row["Question"],
                 Ans: row["Correction Option"],
                 Marks: row["Marks"]
-            };
+            };//We create these three attributes with these values from each row.
 
             let optionIndex = 1;
             Object.keys(row).forEach((key) => {
@@ -42,7 +42,7 @@ export const ExamDetailsModal = ({ onClose }) => {
                     result[optionIndex] = row[key];
                     optionIndex++;
                 }
-            });
+            });//Basically generates attributes based on index.
 
             return result;
         });
