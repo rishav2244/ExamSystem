@@ -9,7 +9,7 @@ import { getExams } from '../api/api';
 export const Admin = () => {
     const [listExams, setListExams] = useState([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [SelectedExam, setSelectedExam] = useState(null);
 
     const fetchExams = async () => {
         try {
@@ -41,7 +41,8 @@ export const Admin = () => {
                         key={exam.id}
                         examName={exam.title}
                         examStatus={exam.status}
-                        onClick={() => { setIsDetailsModalOpen(true) }}
+                        exam={exam}
+                        onClick={() => { setSelectedExam(exam) }}
                     />
                 ))}
             </div>
@@ -52,9 +53,10 @@ export const Admin = () => {
                     onExamCreated={fetchExams} />
             )}
 
-            {isDetailsModalOpen && (
+            {SelectedExam && (
                 <ExamDetailsModal
-                    onClose={() => setIsDetailsModalOpen(false)}/>
+                    exam = {SelectedExam}
+                    onClose={() => setSelectedExam(false)}/>
             )}
         </div>
     );

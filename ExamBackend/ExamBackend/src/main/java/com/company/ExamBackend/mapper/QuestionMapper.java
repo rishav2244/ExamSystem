@@ -50,9 +50,7 @@ public class QuestionMapper {
             option.setOptionIndex(oDto.getOptionIndex());
             option.setCorrect(oDto.getOptionIndex() == dto.getCorrectOptionIndex());
 
-            // ────────────────────────────── Very important!
-            option.setQuestion(question);   // ← set the back-reference!
-            // ──────────────────────────────
+            option.setQuestion(question);
 
             options.add(option);
         }

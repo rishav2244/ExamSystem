@@ -3,7 +3,7 @@ import { AuthenticationContext } from "../context/AuthenticationContext";
 import Papa from "papaparse";
 import { ExamQuestion } from "../components/FYIType/ExamQuestion";
 
-export const ExamDetailsModal = ({ onClose }) => {
+export const ExamDetailsModal = ({exam, onClose }) => {
 
     const { email } = useContext(AuthenticationContext);
     const [CSVObj, setCSVObj] = useState(null);
@@ -63,6 +63,12 @@ export const ExamDetailsModal = ({ onClose }) => {
                     ✕
                 </button>
                 <h2>Exam details</h2>
+                {exam && (
+                    <div className="exam-header">
+                        <h3>Exam ID: {exam.id}</h3>
+                        <h3>{exam.title}</h3>
+                    </div>
+                )}
                 <div>
                     <input
                         onChange={handleExamCreation}
