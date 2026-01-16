@@ -15,10 +15,6 @@ public class Option {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "question_id", nullable = false)
-    private Question question;
-
     @Column(nullable = false)
     private String text;
 
@@ -27,4 +23,8 @@ public class Option {
 
     @Column(nullable = false)
     private int optionIndex;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", nullable = false)
+    private Question question;
 }

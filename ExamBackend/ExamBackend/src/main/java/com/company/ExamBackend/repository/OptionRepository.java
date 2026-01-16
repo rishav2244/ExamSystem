@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public interface OptionRepository extends JpaRepository<Option, String> {
 
-    List<Option> findByQuestionId(String questionId);
-
-    long countByQuestionId(String questionId);
-
-    boolean existsByQuestionIdAndIsCorrectTrue(String questionId);
+//    List<Option> findByQuestionId(String questionId);
+//
+//    long countByQuestionId(String questionId);
+//
+//    boolean existsByQuestionIdAndIsCorrectTrue(String questionId);
 }
