@@ -1,6 +1,7 @@
 package com.company.ExamBackend.controller;
 
 import com.company.ExamBackend.dto.QuestionDTO;
+import com.company.ExamBackend.dto.QuestionResponseDTO;
 import com.company.ExamBackend.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,5 +21,13 @@ public class QuestionController {
 
         questionService.saveQuestions(examId, questions);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{examId}/questions")
+    public ResponseEntity<List<QuestionResponseDTO>> getExamQuestions(
+            @PathVariable String examId) {
+
+        List<QuestionResponseDTO> questions = questionService.getQuestionsForExam(examId);
+        return ResponseEntity.ok(questions);
     }
 }

@@ -304,3 +304,13 @@ thead {
     font-size: 0.9rem;
     color: #555;
 }
+
+.QuestionsSaveButton{
+    padding: "10px 24px";
+    background-color: "#4CAF50";
+    color: "white";
+    border: "none";
+    border-radius: "4px";
+    font-size: "16px";
+    cursor: "pointer";
+}

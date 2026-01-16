@@ -39,8 +39,6 @@ export const Admin = () => {
                 {listExams.map((exam) => (
                     <ExamCard
                         key={exam.id}
-                        examName={exam.title}
-                        examStatus={exam.status}
                         exam={exam}
                         onClick={() => { setSelectedExam(exam) }}
                     />

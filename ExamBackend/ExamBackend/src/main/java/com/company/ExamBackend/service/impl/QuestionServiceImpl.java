@@ -1,6 +1,7 @@
 package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.QuestionDTO;
+import com.company.ExamBackend.dto.QuestionResponseDTO;
 import com.company.ExamBackend.mapper.QuestionMapper;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.Question;
@@ -41,5 +42,17 @@ public class QuestionServiceImpl implements QuestionService {
 
         exam.setStatus("SAVED");
         examRepository.save(exam);
+    }
+
+    @Override
+    public List<QuestionResponseDTO> getQuestionsForExam(String examId) {
+        if (!examRepository.existsById(examId)) {
+            throw new RuntimeException("Exam not found");
+        }
+
+        List<Question> questions = questionRepository.findAllByParentExamIdOrderByIdAsc(examId);
+
+        // Just one clean line!
+        return QuestionMapper.toResponseDtoList(questions);
     }
 }

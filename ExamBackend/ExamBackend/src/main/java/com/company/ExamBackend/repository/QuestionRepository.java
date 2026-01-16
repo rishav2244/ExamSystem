@@ -13,4 +13,6 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
     long countByParentExamId(String examId);
 
     void deleteByParentExamId(String examId);
+
+    List<Question> findAllByParentExamIdOrderByIdAsc(String examId);
 }
