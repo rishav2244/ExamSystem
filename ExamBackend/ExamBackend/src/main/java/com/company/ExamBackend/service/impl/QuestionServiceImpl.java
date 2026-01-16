@@ -30,14 +30,16 @@ public class QuestionServiceImpl implements QuestionService {
             throw new RuntimeException("Exam not found");
         }
 
-        Exam exam = examRepository.getReferenceById(examId);  // ← like Users reference
+        Exam exam = examRepository.getReferenceById(examId);
 
         for (QuestionDTO dto : questionDTOs) {
             Question question = QuestionMapper.toEntity(dto);
             question.setParentExam(examRepository.getReferenceById(examId));
 
-            // Just this one save — cascade takes care of options
             questionRepository.save(question);
         }
+
+        exam.setStatus("SAVED");
+        examRepository.save(exam);
     }
 }
