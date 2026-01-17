@@ -54,7 +54,8 @@ export const Admin = () => {
             {SelectedExam && (
                 <ExamDetailsModal
                     exam = {SelectedExam}
-                    onClose={() => setSelectedExam(false)}/>
+                    onClose={() => setSelectedExam(false)}
+                    onQuestionsUploaded={fetchExams}/>
             )}
         </div>
     );

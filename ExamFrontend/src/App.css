@@ -183,7 +183,7 @@ thead {
   border: 2px solid #374151;
   border-radius: 10px;
 
-  background-color: rgb(202, 213, 134);
+  background-color: #e3f2fd;
 
   text-align: center;
   align-items: center;
@@ -193,11 +193,11 @@ thead {
 }
 
 .ExamCard:hover {
-  background-color: rgb(192, 208, 88);
+  background-color: #2196f3;
 }
 
 .ExamCard:active {
-  background-color: rgb(157, 179, 18);
+  background-color: #1976d2; 
 }
 
 .modal-backdrop {
@@ -306,11 +306,11 @@ thead {
 }
 
 .QuestionsSaveButton{
-    padding: "10px 24px";
-    background-color: "#4CAF50";
-    color: "white";
-    border: "none";
-    border-radius: "4px";
-    font-size: "16px";
-    cursor: "pointer";
+    padding: 10px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
 }

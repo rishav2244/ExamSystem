@@ -2,15 +2,14 @@ import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 import Papa from "papaparse";
 import { ExamQuestion } from "../components/FYIType/ExamQuestion";
-import { getExamQuestions, uploadExamQuestions } from "../api/api"; // ← import the new function
+import { getExamQuestions, uploadExamQuestions } from "../api/api";
 
-export const ExamDetailsModal = ({ exam, onClose }) => {
+export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const { email } = useContext(AuthenticationContext);
     const [CSVObj, setCSVObj] = useState(null);
     const [backendQuestions, setBackendQuestions] = useState([]);
     const isPending = exam?.status === "PENDING";
 
-    // Fetch existing questions when not pending
     useEffect(() => {
         if (isPending || !exam?.id) return;
 
@@ -24,7 +23,6 @@ export const ExamDetailsModal = ({ exam, onClose }) => {
             });
     }, [exam?.id, isPending]);
 
-    // Your existing CSV transformation
     const transformCSV = (rows) => {
         return rows.map((row) => {
             const result = {
@@ -61,7 +59,6 @@ export const ExamDetailsModal = ({ exam, onClose }) => {
         });
     };
 
-    // Transform backend data for display (your existing function)
     const transformBackendQuestions = (questions) => {
         return questions.map((q) => {
             const transformed = {
@@ -83,7 +80,6 @@ export const ExamDetailsModal = ({ exam, onClose }) => {
         });
     };
 
-    // Save button handler - uses existing CSVObj
     const handleSave = async () => {
         if (!CSVObj || CSVObj.length === 0) return;
 
@@ -95,6 +91,7 @@ export const ExamDetailsModal = ({ exam, onClose }) => {
             await uploadExamQuestions(exam.id, CSVObj);
             alert("Questions saved successfully!");
             setCSVObj(null); // optional: clear preview
+            onQuestionsUploaded();
             onClose();
         } catch (err) {
             alert("Failed to save questions. Please check console for details.");
