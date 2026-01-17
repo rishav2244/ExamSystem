@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 import Papa from "papaparse";
 import { ExamQuestion } from "../components/FYIType/ExamQuestion";
+import { ExamQuestionDraft } from "../components/FYIType/ExamQuestionDraft";
 import { getExamQuestions, uploadExamQuestions } from "../api/api";
 
 export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
@@ -41,6 +42,36 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         });
     };
 
+    const validateCSVData = (data) => {
+    if (!data || data.length === 0) return "The CSV file is empty.";
+
+    for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        const questionNum = i + 1;
+
+        // 1. Check Marks
+        if (isNaN(row["Marks"]) || row["Marks"].trim() === "") {
+            return `Row ${questionNum}: "Marks" must be a number.`;
+        }
+
+        // 2. Collect all available options for this row
+        const options = Object.keys(row)
+            .filter(key => key.startsWith("Option") && row[key]?.trim() !== "")
+            .map(key => row[key].trim());
+
+        if (options.length < 2) {
+            return `Row ${questionNum}: Must have at least 2 non-empty options.`;
+        }
+
+        // 3. THE CRITICAL CHECK: Does the 'Correction Option' match an actual Option?
+        const correctAns = row["Correction Option"]?.trim();
+        if (!options.includes(correctAns)) {
+            return `Row ${questionNum}: The "Correction Option" (${correctAns}) does not exactly match any of the provided options. Check for typos!`;
+        }
+    }
+    return null; 
+};
+
     const handleExamCreation = (e) => {
         const csvFile = e.target.files[0];
         if (!csvFile) return;
@@ -50,12 +81,31 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             skipEmptyLines: true,
             transformHeader: (header) => header.trim(),
             complete: (resultant) => {
+                const validationError = validateCSVData(resultant.data);
+
+                if (validationError) {
+                    alert(`Invalid CSV: ${validationError}`);
+                    e.target.value = null; // Reset the file input
+                    return;
+                }
+
                 const transformed = transformCSV(resultant.data);
                 setCSVObj(transformed);
             },
             error: (err) => {
-                console.log(err.message);
+                alert("Error parsing CSV: " + err.message);
             },
+        });
+    };
+
+    const handleQuestionUpdate = (qIndex, fieldKey, newValue) => {
+        setCSVObj((prevCSV) => {
+            return prevCSV.map((item, index) => {
+                if (index === qIndex) {
+                    return { ...item, [fieldKey]: newValue };
+                }
+                return item;
+            });
         });
     };
 
@@ -90,7 +140,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         try {
             await uploadExamQuestions(exam.id, CSVObj);
             alert("Questions saved successfully!");
-            setCSVObj(null); // optional: clear preview
+            setCSVObj(null);
             onQuestionsUploaded();
             onClose();
         } catch (err) {
@@ -122,14 +172,16 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                             <>
                                 <div className="exam-questions-container" style={{ margin: "20px 0" }}>
                                     {CSVObj.map((q, index) => (
-                                        <ExamQuestion key={index} question={q} index={index} />
+                                        <ExamQuestionDraft
+                                            key={index}
+                                            question={q}
+                                            index={index}
+                                            onChange={handleQuestionUpdate}
+                                        />
                                     ))}
                                 </div>
 
-                                <button
-                                    onClick={handleSave}
-                                    className="QuestionsSaveButton"
-                                >
+                                <button onClick={handleSave} className="QuestionsSaveButton">
                                     Save Questions to Exam
                                 </button>
                             </>
