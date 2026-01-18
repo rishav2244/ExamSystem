@@ -3,7 +3,7 @@ import { AuthenticationContext } from "../context/AuthenticationContext";
 import Papa from "papaparse";
 import { ExamQuestion } from "../components/FYIType/ExamQuestion";
 import { ExamQuestionDraft } from "../components/FYIType/ExamQuestionDraft";
-import { getExamQuestions, uploadExamQuestions } from "../api/api";
+import { getExamQuestions, uploadExamQuestions, publishExam } from "../api/api";
 
 export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const { email } = useContext(AuthenticationContext);
@@ -11,7 +11,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const [backendQuestions, setBackendQuestions] = useState([]);
     const isPending = exam?.status === "PENDING";
 
-    useEffect(() => {
+    useEffect(() => { //Loads questions as non-editable if pending.
         if (isPending || !exam?.id) return;
 
         getExamQuestions(exam.id)
@@ -24,7 +24,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             });
     }, [exam?.id, isPending]);
 
-    const transformCSV = (rows) => {
+    const transformCSV = (rows) => { //Transforms CSV to nice object
         return rows.map((row) => {
             const result = {
                 Question: row["Question"],
@@ -42,35 +42,62 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         });
     };
 
-    const validateCSVData = (data) => {
-    if (!data || data.length === 0) return "The CSV file is empty.";
+    const validateCSVData = (data) => {//Checks on upload level
+        if (!data || data.length === 0) return "The CSV file is empty.";
 
-    for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        const questionNum = i + 1;
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            const questionNum = i + 1;
 
-        // 1. Check Marks
-        if (isNaN(row["Marks"]) || row["Marks"].trim() === "") {
-            return `Row ${questionNum}: "Marks" must be a number.`;
+            if (isNaN(row["Marks"]) || row["Marks"].trim() === "") {
+                return `Row ${questionNum}: "Marks" must be a number.`;
+            }
+
+            const options = Object.keys(row)
+                .filter(key => key.startsWith("Option") && row[key]?.trim() !== "")
+                .map(key => row[key].trim());
+
+            if (options.length < 2) {
+                return `Row ${questionNum}: Must have at least 2 non-empty options.`;
+            }
+
+            const correctAns = row["Correction Option"]?.trim();
+            if (!options.includes(correctAns)) {
+                return `Row ${questionNum}: The "Correction Option" (${correctAns}) does not exactly match any of the provided options. Check for typos!`;
+            }
         }
+        return null;
+    };
 
-        // 2. Collect all available options for this row
-        const options = Object.keys(row)
-            .filter(key => key.startsWith("Option") && row[key]?.trim() !== "")
-            .map(key => row[key].trim());
+    const validateDraftData = (questions) => {
+        for (let i = 0; i < questions.length; i++) {
+            const q = questions[i];
+            const label = `Question ${i + 1}`;
 
-        if (options.length < 2) {
-            return `Row ${questionNum}: Must have at least 2 non-empty options.`;
+            if (!q.Question || q.Question.trim() === "") {
+                return `${label}: Question text cannot be empty.`;
+            }
+
+            if (q.Marks === "" || isNaN(q.Marks) || Number(q.Marks) < 0) {
+                return `${label}: Marks must be a positive number.`;
+            }
+
+            const optionKeys = Object.keys(q).filter(key => !isNaN(key));
+            if (optionKeys.length < 2) {
+                return `${label}: Must have at least 2 options.`;
+            }
+
+            const optionValues = optionKeys.map(k => q[k].trim());
+            if (optionValues.some(val => val === "")) {
+                return `${label}: One or more options are empty.`;
+            }
+
+            if (!optionValues.includes(q.Ans.trim())) {
+                return `${label}: The Correct Answer does not match any of the provided options.`;
+            }
         }
-
-        // 3. THE CRITICAL CHECK: Does the 'Correction Option' match an actual Option?
-        const correctAns = row["Correction Option"]?.trim();
-        if (!options.includes(correctAns)) {
-            return `Row ${questionNum}: The "Correction Option" (${correctAns}) does not exactly match any of the provided options. Check for typos!`;
-        }
-    }
-    return null; 
-};
+        return null; //Returns null if fine
+    };
 
     const handleExamCreation = (e) => {
         const csvFile = e.target.files[0];
@@ -85,7 +112,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
                 if (validationError) {
                     alert(`Invalid CSV: ${validationError}`);
-                    e.target.value = null; // Reset the file input
+                    e.target.value = null;
                     return;
                 }
 
@@ -130,8 +157,24 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         });
     };
 
+    const handleDeleteExam = async () => {
+        if (!window.confirm("ARE YOU SURE? This will permanently delete the exam and all its questions. This cannot be undone.")) {
+            return;
+        }
+
+        console.log("Delete triggered for exam ID:", exam.id);
+        // onQuestionsUploaded();
+        // onClose();
+    };
+
     const handleSave = async () => {
         if (!CSVObj || CSVObj.length === 0) return;
+
+        const error = validateDraftData(CSVObj);
+        if (error) {
+            alert(`Validation Error:\n${error}`);
+            return;
+        }
 
         if (!window.confirm("Do you want to save these questions to the exam?")) {
             return;
@@ -145,6 +188,25 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             onClose();
         } catch (err) {
             alert("Failed to save questions. Please check console for details.");
+        }
+    };
+
+    const handlePublish = async () => {
+        if (!window.confirm("Are you sure you want to publish this exam? Students will be able to see it immediately.")) {
+            return;
+        }
+
+        try {
+            console.log("Publishing exam ID:", exam.id);
+
+            await publishExam(exam.id);
+
+            alert("Exam published successfully!");
+            onQuestionsUploaded();
+            onClose();
+        } catch (err) {
+            alert("Failed to publish exam.");
+            console.error(err);
         }
     };
 
@@ -163,14 +225,14 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                     </div>
                 )}
 
-                {isPending ? (
-                    <div>
-                        <h3>Upload Questions (CSV)</h3>
-                        <input type="file" accept=".csv" onChange={handleExamCreation} />
+                <div className="modal-body">
+                    {isPending ? (
+                        <div className="upload-section">
+                            <h3>Upload Questions (CSV)</h3>
+                            <input type="file" accept=".csv" onChange={handleExamCreation} />
 
-                        {CSVObj && CSVObj.length > 0 && (
-                            <>
-                                <div className="exam-questions-container" style={{ margin: "20px 0" }}>
+                            {CSVObj && CSVObj.length > 0 && (
+                                <div className="exam-questions-container">
                                     {CSVObj.map((q, index) => (
                                         <ExamQuestionDraft
                                             key={index}
@@ -180,27 +242,44 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                         />
                                     ))}
                                 </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="view-section">
+                            <h3>Exam Questions</h3>
+                            {backendQuestions.length === 0 ? (
+                                <p>No questions loaded yet</p>
+                            ) : (
+                                <div className="exam-questions-container">
+                                    {backendQuestions.map((q, index) => (
+                                        <ExamQuestion key={index} question={q} index={index} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
 
-                                <button onClick={handleSave} className="QuestionsSaveButton">
-                                    Save Questions to Exam
-                                </button>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <div>
-                        <h3>Exam Questions</h3>
-                        {backendQuestions.length === 0 ? (
-                            <p>No questions loaded yet</p>
-                        ) : (
-                            <div className="exam-questions-container">
-                                {backendQuestions.map((q, index) => (
-                                    <ExamQuestion key={index} question={q} index={index} />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
+                <div className="modal-footer">
+                    <button
+                        onClick={handleDeleteExam}
+                        className="DeleteExamButton"
+                    >
+                        Delete Exam
+                    </button>
+
+                    {isPending && CSVObj && CSVObj.length > 0 && (
+                        <button onClick={handleSave} className="QuestionsSaveButton">
+                            Save Questions to Exam
+                        </button>
+                    )}
+
+                    {exam?.status === "SAVED" && (
+                        <button onClick={handlePublish} className="PublishExamButton">
+                            Publish Exam
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

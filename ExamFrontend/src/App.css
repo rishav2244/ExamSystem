@@ -305,12 +305,62 @@ thead {
     color: #555;
 }
 
-.QuestionsSaveButton{
-    padding: 10px 24px;
-    background-color: #4CAF50;
+/* --- NEW MODAL FOOTER STYLES --- */
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between; /* Pushes delete to left, save to right */
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px solid #e5e7eb; /* Subtle line to separate content */
+}
+
+.DeleteExamButton {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #ef4444; /* Match your logout button red */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.DeleteExamButton:hover {
+  background-color: #dc2626;
+}
+
+.DeleteExamButton:active {
+  transform: scale(0.97);
+}
+
+.QuestionsSaveButton {
+  padding: 10px 24px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.QuestionsSaveButton:hover {
+  background-color: #059669;
+}
+
+.PublishExamButton {
+    background-color: #28a745;
     color: white;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
-    font-size: 16px;
     cursor: pointer;
+}
+
+.PublishExamButton:hover {
+    background-color: #218838;
 }

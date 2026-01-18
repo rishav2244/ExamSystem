@@ -67,7 +67,7 @@ export const getExamQuestions = async (examId) => {
 export const uploadExamQuestions = async (examId, questions) => {
     try {
         const payload = questions.map((q) => {
-            // Build options array from numeric keys 1,2,3,4
+
             const options = [];
             for (let i = 1; i <= 4; i++) {
                 if (q[i]) {
@@ -78,7 +78,6 @@ export const uploadExamQuestions = async (examId, questions) => {
                 }
             }
 
-            // Find correct option index by matching text
             const correctOptionIndex = options.findIndex(
                 (opt) => opt.text.trim() === q.Ans.trim()
             );
@@ -86,7 +85,7 @@ export const uploadExamQuestions = async (examId, questions) => {
             return {
                 text: q.Question?.trim() || "",
                 marks: Number(q.Marks) || 1,
-                correctOptionIndex: correctOptionIndex >= 0 ? correctOptionIndex : 0, // fallback to 0 if not found
+                correctOptionIndex: correctOptionIndex >= 0 ? correctOptionIndex : 0,
                 options,
             };
         });
@@ -96,9 +95,19 @@ export const uploadExamQuestions = async (examId, questions) => {
             payload
         );
 
-        return response.data; // usually void, but good to return for future
+        return response.data;
     } catch (error) {
         console.error("Question upload failed:", error);
-        throw error; // let component handle error if needed
+        throw error;
+    }
+};
+
+export const publishExam = async (examId) => {
+    try {
+        const resp = await axios.post(`${API_URL}/exams/publishExam/${examId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Failed to publish exam:", err);
+        throw err;
     }
 };

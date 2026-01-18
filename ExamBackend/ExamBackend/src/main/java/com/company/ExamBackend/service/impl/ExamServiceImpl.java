@@ -3,6 +3,7 @@ package com.company.ExamBackend.service.impl;
 import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
+import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.mapper.ExamMapper;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.Users;
@@ -58,5 +59,13 @@ public class ExamServiceImpl implements ExamService {
     @Override
     public void deleteExam(String examId) {
         examRepository.deleteById(examId);
+    }
+
+    @Override
+    public void updateExam(String examId, String status) {
+        int rowsUpdated = examRepository.updateExamStatus(examId, status);
+        if (rowsUpdated == 0) {
+            throw new ExamNotFoundException("Exam not found with id: " + examId);
+        }
     }
 }

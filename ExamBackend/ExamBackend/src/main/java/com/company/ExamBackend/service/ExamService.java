@@ -10,4 +10,5 @@ public interface ExamService {
     List<ExamResponseDTO> getExams();
     List<ExamResponseDTO> getExamsByStatus(String status);
     void deleteExam(String id);
+    void updateExam(String examId, String status);
 }

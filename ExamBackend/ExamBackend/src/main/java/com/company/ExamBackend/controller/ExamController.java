@@ -17,22 +17,26 @@ public class ExamController {
     private final ExamService examService;
 
     @PostMapping("/createExam")
-    public ResponseEntity<ExamResponseDTO> createExam(
-            @RequestBody CreateExamDTO createExamDTO) {
+    public ResponseEntity<ExamResponseDTO> createExam(@RequestBody CreateExamDTO createExamDTO) {
 
         ExamResponseDTO response = examService.createExam(createExamDTO);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/getExams")
-    public ResponseEntity<List<ExamResponseDTO>> getExams(
-            @RequestParam(required = false) String status) {
+    public ResponseEntity<List<ExamResponseDTO>> getExams(@RequestParam(required = false) String status) {
 
         if (status != null && !status.isEmpty()) {
             return ResponseEntity.ok(examService.getExamsByStatus(status));
         }
 
         return ResponseEntity.ok(examService.getExams());
+    }
+
+    @PostMapping("/publishExam/{examId}")
+    public ResponseEntity<String> publishExam(@PathVariable String examId){
+        examService.updateExam(examId, "PUBLISHED");
+        return ResponseEntity.ok("Exam published");
     }
 
     @DeleteMapping("/delete/{examId}")
