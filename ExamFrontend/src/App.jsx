@@ -7,6 +7,8 @@ import AdminRoute from "./protections/AdminProtectedRoute";
 import { Login } from "./pages/Login";
 import { Candidate } from "./pages/Candidate";
 import { Admin } from "./pages/Admin";
+import { UserList } from "./pages/UserList";
+import { AdminLayout } from "./layouts/AdminLayout";
 
 function App() {
   return (
@@ -17,12 +19,21 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           {/* protected */}
-          <Route element={<ProtectedRoute />}> 
+          <Route element={<ProtectedRoute />}>
             <Route path="/user" element={<Candidate />} />
 
             {/* admin-only */}
             <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<Admin />} />
+
+              <Route path="/admin" element={<AdminLayout />}>
+
+                {/* index tag makes it default view */}
+                <Route index element={<Admin />} />
+
+                <Route path="exams" element={<Admin />} />
+
+                <Route path="users" element={<UserList />} />
+              </Route>
             </Route>
           </Route>
 

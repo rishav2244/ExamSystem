@@ -29,7 +29,6 @@ export const Admin = () => {
     return (
         <div
             className="AdminOverall">
-            <AdminHeader></AdminHeader>
 
             <div
                 className="CardArea">

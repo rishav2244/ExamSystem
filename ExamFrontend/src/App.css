@@ -92,22 +92,48 @@ thead {
 
 .admin-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 16px 24px;
-  margin-bottom: 24px;
-
+  align-items: center; /* This centers items vertically */
+  justify-content: flex-start; 
+  
+  height: 64px;
+  padding: 0 24px;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  /* Prevent header from being crushed in flex layouts */
+  flex-shrink: 0; 
+  box-sizing: border-box;
 }
 
 .admin-header__welcome {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1rem;
   color: #374151;
+  white-space: nowrap; /* Keeps name on one line */
+}
+
+.nav-item {
+  text-decoration: none;
+  color: #4b5563;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.nav-item:hover {
+  background-color: #f3f4f6;
+  color: #2563eb;
+}
+
+.admin-header__nav {
+  margin-left: auto; 
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 8px; /* Space between the two nav links */
 }
 
 .admin-header__welcome span {
@@ -116,18 +142,26 @@ thead {
 }
 
 .admin-header__logout {
+  margin-left: 20px;
+  /* Reset any browser defaults that might push it up */
+  margin-top: 0;
+  margin-bottom: 0;
+  
   padding: 8px 16px;
-  font-size: 0.9rem;
-  font-weight: 500;
-
+  height: fit-content; /* Ensures it doesn't try to fill the header height */
+  
+  font-size: 0.85rem;
+  font-weight: 600;
   color: #ffffff;
   background-color: #ef4444;
-
   border: none;
   border-radius: 6px;
   cursor: pointer;
-
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  
+  /* Vertical alignment insurance */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .admin-header__logout:hover {
@@ -138,7 +172,7 @@ thead {
   transform: scale(0.97);
 }
 
-.CreateExamCard {
+.CreateCard {
 
   width: 10vw;
   height: 20vh;
@@ -363,4 +397,18 @@ thead {
 
 .PublishExamButton:hover {
     background-color: #218838;
+}
+
+.UserListOverall {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.UserGroupsOverall {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
 }
