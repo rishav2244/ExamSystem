@@ -54,11 +54,12 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
             alert("Start date cannot be after end date.")
             return;
         }
-        else if (Number(examData.duration) <= 0)
+        else if (isNaN(examData.duration) || Number(examData.duration) <= 0)
         {
-            alert("Duration cannot be negative or 0.")
+            alert("Duration cannot be negative or 0 or non-numeric.")
             return;
         }
+        
         // console.log(examData);
 
         try {
