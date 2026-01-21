@@ -50,12 +50,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserHeavyDTO> getUsers() {
-        List<UserHeavyDTO> users = userRepository.findAll().stream().map(userMapper::toUserHeavy).toList();
-        return users;
+        return userRepository.findAllByRole("CANDIDATE")
+                .stream()
+                .map(userMapper::toUserHeavy)
+                .toList();
     }
 
     @Override
     public UserHeavyDTO getUserById(String id) {
-        return userMapper.toUserHeavy(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found.")));
+        return userMapper.
+                toUserHeavy(userRepository.
+                findById(id).
+                orElseThrow(() -> new UserNotFoundException("User not found.")));
     }
 }

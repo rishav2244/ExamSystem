@@ -1,6 +1,7 @@
 package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.CreateGroupDTO;
+import com.company.ExamBackend.dto.GrpMemberDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.model.GroupMember;
 import com.company.ExamBackend.model.UserGroup;
@@ -45,5 +46,25 @@ public class UserGroupServiceImpl  implements UserGroupService {
                 .toList();
 
         groupMemberRepository.saveAll(membersList);
+    }
+
+    @Override
+    public List<UserGroup> getAllUserGroups() {
+        return userGroupRepository.findAll();
+    }
+
+    @Override
+    public List<GrpMemberDTO> getMembersByGroupId(String groupId) {
+        List<GroupMember> members = groupMemberRepository.findByGroupId(groupId);
+
+        return members.stream().map(m -> {
+            GrpMemberDTO dto = new GrpMemberDTO();
+
+            dto.setId(m.getUser().getId());
+            dto.setName(m.getUser().getName());
+            dto.setEmail(m.getUser().getEmail());
+
+            return dto;
+        }).toList();
     }
 }
