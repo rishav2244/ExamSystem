@@ -2,6 +2,7 @@ package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.LoginRequestDTO;
 import com.company.ExamBackend.dto.RegisterRequestDTO;
+import com.company.ExamBackend.dto.UserHeavyDTO;
 import com.company.ExamBackend.dto.UserResponseDTO;
 import com.company.ExamBackend.exception.EmailExistsException;
 import com.company.ExamBackend.exception.EmailNotFoundException;
@@ -14,6 +15,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -42,5 +45,11 @@ public class UserServiceImpl implements UserService {
             throw new PasswordMismatchException("Password mismatch.");
         }
         return userMapper.toUserResponse(user);
+    }
+
+    @Override
+    public List<UserHeavyDTO> getUsers() {
+        List<UserHeavyDTO> users = userRepository.findAll().stream().map(userMapper::toUserHeavy).toList();
+        return users;
     }
 }
