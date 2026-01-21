@@ -12,4 +12,5 @@ public interface UserService
     UserResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO);
     UserResponseDTO registerAttempt(RegisterRequestDTO registerRequestDTO);
     List<UserHeavyDTO> getUsers();
+    UserHeavyDTO getUserById(String id);
 }

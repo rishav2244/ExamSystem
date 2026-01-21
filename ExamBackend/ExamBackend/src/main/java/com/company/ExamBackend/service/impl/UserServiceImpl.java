@@ -7,6 +7,7 @@ import com.company.ExamBackend.dto.UserResponseDTO;
 import com.company.ExamBackend.exception.EmailExistsException;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.exception.PasswordMismatchException;
+import com.company.ExamBackend.exception.UserNotFoundException;
 import com.company.ExamBackend.mapper.UserMapper;
 import com.company.ExamBackend.model.Users;
 import com.company.ExamBackend.repository.UserRepository;
@@ -51,5 +52,10 @@ public class UserServiceImpl implements UserService {
     public List<UserHeavyDTO> getUsers() {
         List<UserHeavyDTO> users = userRepository.findAll().stream().map(userMapper::toUserHeavy).toList();
         return users;
+    }
+
+    @Override
+    public UserHeavyDTO getUserById(String id) {
+        return userMapper.toUserHeavy(userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found.")));
     }
 }

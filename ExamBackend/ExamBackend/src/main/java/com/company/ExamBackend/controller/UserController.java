@@ -31,4 +31,9 @@ public class UserController {
     public ResponseEntity<List<UserHeavyDTO>> getUsers() {
         return ResponseEntity.ok(userService.getUsers());
     }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserHeavyDTO> getUser(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
+    }
 }
