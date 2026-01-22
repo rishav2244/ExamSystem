@@ -9,6 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"examId", "email"})
+})
 public class ExamCandidate
 {
     @Id

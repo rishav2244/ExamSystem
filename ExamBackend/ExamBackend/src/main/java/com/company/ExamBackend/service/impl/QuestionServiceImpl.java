@@ -49,10 +49,7 @@ public class QuestionServiceImpl implements QuestionService {
         if (!examRepository.existsById(examId)) {
             throw new RuntimeException("Exam not found");
         }
-
         List<Question> questions = questionRepository.findAllByParentExamIdOrderByIdAsc(examId);
-
-        // Just one clean line!
         return QuestionMapper.toResponseDtoList(questions);
     }
 }

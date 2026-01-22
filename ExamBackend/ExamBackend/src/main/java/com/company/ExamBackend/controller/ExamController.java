@@ -1,7 +1,10 @@
 package com.company.ExamBackend.controller;
 
+import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
+import com.company.ExamBackend.mapper.CandidateMapper;
+import com.company.ExamBackend.model.ExamCandidate;
 import com.company.ExamBackend.service.ExamService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +37,16 @@ public class ExamController {
     }
 
     @PostMapping("/publishExam/{examId}")
-    public ResponseEntity<String> publishExam(@PathVariable String examId){
+    public ResponseEntity<String> publishExam(@PathVariable String examId) {
         examService.updateExam(examId, "PUBLISHED");
         return ResponseEntity.ok("Exam published");
+    }
+
+    @PostMapping("/Candidates/{examId}/{groupId}")
+    public ResponseEntity<List<CandidateResponseDTO>> setCandidate(@PathVariable String examId, @PathVariable String groupId) {
+        List<ExamCandidate> candidates = examService.assignGroupToExam(groupId, examId);
+        List<CandidateResponseDTO> response = CandidateMapper.toDTOList(candidates);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete/{examId}")
