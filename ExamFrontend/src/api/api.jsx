@@ -111,3 +111,13 @@ export const publishExam = async (examId) => {
         throw err;
     }
 };
+
+export const getAllUsers = async () => {
+    try {
+        const resp = await axios.get(`${API_URL}/user/users`);
+        return resp.data; // This returns the List<UserHeavyDTO>
+    } catch (err) {
+        console.error("Error fetching users:", err);
+        throw err;
+    }
+};

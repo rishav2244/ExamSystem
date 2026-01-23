@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { AdminHeader } from '../components/headerType/AdminHeader';
 import { CreateExamCard } from '../components/cardType/CreateExamCard';
 import { CreateExamModal } from './CreateExamModal';
 import { ExamDetailsModal } from './ExamDetailsModal';

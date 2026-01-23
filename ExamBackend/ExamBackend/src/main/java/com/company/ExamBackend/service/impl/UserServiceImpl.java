@@ -49,8 +49,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserHeavyDTO> getUsers() {
+    public List<UserHeavyDTO> getCandidates() {
         return userRepository.findAllByRole("CANDIDATE")
+                .stream()
+                .map(userMapper::toUserHeavy)
+                .toList();
+    }
+
+    @Override
+    public List<UserHeavyDTO> getUsers() {
+        return userRepository.findAll()
                 .stream()
                 .map(userMapper::toUserHeavy)
                 .toList();

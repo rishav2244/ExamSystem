@@ -27,6 +27,11 @@ public class UserController {
         return userService.loginAttempt(loginRequestDTO);
     }
 
+    @GetMapping("/candidates")
+    public ResponseEntity<List<UserHeavyDTO>> getCandidates() {
+        return ResponseEntity.ok(userService.getCandidates());
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<UserHeavyDTO>> getUsers() {
         return ResponseEntity.ok(userService.getUsers());
