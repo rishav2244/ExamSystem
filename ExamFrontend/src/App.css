@@ -422,3 +422,52 @@ thead {
   display: flex;
   flex-direction: column;
 }
+
+.UserCard {
+  width: 10vw;
+  height: 20vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  margin: 24px;
+  padding: 16px;
+
+  border: 2px solid #374151;
+  border-radius: 10px;
+
+  background-color: #f3f4f6; /* neutral user card */
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.UserCard:hover {
+  background-color: #e5e7eb;
+}
+
+.UserCard:active {
+  background-color: #d1d5db;
+}
+
+.UserCardName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+
+  /* long-name safety */
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.UserCardRole {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
