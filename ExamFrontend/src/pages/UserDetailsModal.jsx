@@ -14,7 +14,7 @@ export const UserDetailsModal = ({ user, onClose }) => {
 
                 <div className="user-details-container">
                     <div className="user-info-row">
-                        <label>Database ID</label>
+                        <label>User ID</label>
                         <p>{user.id}</p>
                     </div>
 
@@ -29,7 +29,7 @@ export const UserDetailsModal = ({ user, onClose }) => {
                     </div>
 
                     <div className="user-info-row">
-                        <label>Permissions / Role</label>
+                        <label>Role</label>
                         <div className={`role-badge ${user.role}`}>
                             {user.role}
                         </div>
