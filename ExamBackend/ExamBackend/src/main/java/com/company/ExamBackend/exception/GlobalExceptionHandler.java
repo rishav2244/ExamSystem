@@ -14,6 +14,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDTO(404, ex.getMessage()));
     }
 
+    @ExceptionHandler(EmailExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEmailExistsException(EmailExistsException ex) {
+        // 409 Conflict is the standard for resource duplication (like unique emails)
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponseDTO(409, ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGlobalException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDTO(500, ex.getMessage()));

@@ -409,13 +409,6 @@ thead {
   box-sizing: border-box;
 }
 
-.UserCardGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
 .UserGroupsOverall {
   height: 100vh;
   width: 100vw;
@@ -540,4 +533,93 @@ thead {
 
 .DeleteUserButton:hover {
   background-color: #dc2626;
+}
+
+.user-create-window {
+    height: auto; /* Overriding 90vh for shorter forms */
+    max-height: 85vh;
+    min-height: 400px;
+}
+
+.user-create-header {
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+.user-create-header h2 {
+    margin: 0;
+    color: #111827;
+}
+
+.role-select-input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.role-select-input:focus {
+    border-color: #2563eb;
+}
+
+.CloseButtonSecondary {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
+    background-color: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.CloseButtonSecondary:hover {
+    background-color: #e5e7eb;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #ffffff;
+    padding: 12px 20px;
+    margin-bottom: 20px; /* Space between bar and CardArea */
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.role-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.user-count {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 600;
+    white-space: nowrap;
 }
