@@ -13,6 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:5173")  // Replace with your React app's URL
                 .allowedMethods("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")  // Accept all headers
+                .exposedHeaders("Authorization")
                 .allowCredentials(true)  // Allow sending cookies
                 .maxAge(3600);  // Cache pre-flight requests for 1 hour
     }

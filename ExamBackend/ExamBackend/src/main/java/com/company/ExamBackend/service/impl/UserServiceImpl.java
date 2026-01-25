@@ -1,5 +1,6 @@
 package com.company.ExamBackend.service.impl;
 
+import com.company.ExamBackend.config.JwtUtils;
 import com.company.ExamBackend.dto.LoginRequestDTO;
 import com.company.ExamBackend.dto.RegisterRequestDTO;
 import com.company.ExamBackend.dto.UserHeavyDTO;
@@ -14,6 +15,7 @@ import com.company.ExamBackend.repository.UserRepository;
 import com.company.ExamBackend.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +26,18 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
 
     @Transactional
     @Override
     public UserResponseDTO registerAttempt(RegisterRequestDTO registerRequestDTO) {
         try {
-            Users user = userRepository.save(userMapper.toUser(registerRequestDTO));
-            return userMapper.toUserResponse(user);
+            Users user = userMapper.toUser(registerRequestDTO);
+            user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
+
+            Users savedUser = userRepository.save(user);
+            return userMapper.toUserResponse(savedUser);
         } catch (DataIntegrityViolationException e) {
             throw new EmailExistsException("Email already exists.");
         }
@@ -38,14 +45,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO) {
-        Users user = userRepository
-                .findByEmail(loginRequestDTO
-                        .getEmail())
+        Users user = userRepository.findByEmail(loginRequestDTO.getEmail())
                 .orElseThrow(() -> new EmailNotFoundException("Email not found."));
-        if(!user.getPassword().equals(loginRequestDTO.getPassword())) {
-            throw new PasswordMismatchException("Password mismatch.");
+
+        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
+            throw new PasswordMismatchException("Invalid credentials");
         }
+
         return userMapper.toUserResponse(user);
+    }
+
+    @Override
+    public String getToken(String email) {
+        return jwtUtils.generateToken(email);
     }
 
     @Override

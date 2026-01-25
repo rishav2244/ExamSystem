@@ -14,4 +14,5 @@ public interface UserService
     List<UserHeavyDTO> getCandidates();
     List<UserHeavyDTO> getUsers();
     UserHeavyDTO getUserById(String id);
+    String getToken(String email);
 }

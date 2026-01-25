@@ -23,8 +23,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public UserResponseDTO userLogin(@RequestBody LoginRequestDTO loginRequestDTO) {
-        return userService.loginAttempt(loginRequestDTO);
+    public ResponseEntity<UserResponseDTO> userLogin(@RequestBody LoginRequestDTO loginRequestDTO) {
+        UserResponseDTO responseDTO = userService.loginAttempt(loginRequestDTO);
+
+        String token = userService.getToken(loginRequestDTO.getEmail());
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + token)
+                .header("Access-Control-Expose-Headers", "Authorization") // Let React see this header
+                .body(responseDTO);
     }
 
     @GetMapping("/candidates")
