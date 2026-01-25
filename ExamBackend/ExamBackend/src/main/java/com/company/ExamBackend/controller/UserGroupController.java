@@ -32,4 +32,10 @@ public class UserGroupController {
     public ResponseEntity<List<GrpMemberDTO>> getAllUserGroupsByGroupId(@PathVariable String groupId) {
         return ResponseEntity.ok(userGroupService.getMembersByGroupId(groupId));
     }
+
+    @DeleteMapping("/delete/{groupId}")
+    public ResponseEntity<Void> deleteUserGroup(@PathVariable String groupId) {
+        userGroupService.deleteUserGroup(groupId);
+        return ResponseEntity.noContent().build();
+    }
 }

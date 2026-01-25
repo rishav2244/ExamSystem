@@ -3,6 +3,7 @@ package com.company.ExamBackend.service.impl;
 import com.company.ExamBackend.dto.CreateGroupDTO;
 import com.company.ExamBackend.dto.GrpMemberDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
+import com.company.ExamBackend.exception.GroupNotFoundException;
 import com.company.ExamBackend.model.GroupMember;
 import com.company.ExamBackend.model.UserGroup;
 import com.company.ExamBackend.model.Users;
@@ -66,5 +67,15 @@ public class UserGroupServiceImpl  implements UserGroupService {
 
             return dto;
         }).toList();
+    }
+
+    @Transactional
+    @Override
+    public void deleteUserGroup(String groupId) {
+
+        UserGroup group = userGroupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupNotFoundException("Group not found"));
+        groupMemberRepository.deleteByGroupId(groupId);
+        userGroupRepository.delete(group);
     }
 }

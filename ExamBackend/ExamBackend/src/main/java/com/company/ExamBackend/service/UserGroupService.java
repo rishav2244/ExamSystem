@@ -10,4 +10,5 @@ public interface UserGroupService {
     void createUserGroup(CreateGroupDTO createGroupDTO);
     List<UserGroup> getAllUserGroups();
     List<GrpMemberDTO> getMembersByGroupId(String groupId);
+    void deleteUserGroup(String groupId);
 }
