@@ -121,19 +121,6 @@ export const getAllUsers = async () => {
     }
 };
 
-axios.interceptors.request.use(
-    (config) => {
-        const auth = JSON.parse(sessionStorage.getItem("auth"));
-        if (auth && auth.token) {
-            config.headers.Authorization = auth.token; 
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
-
 export const getAllUserGroups = async () => {
     const resp = await axios.get(`${API_URL}/userGroups`);
     return resp.data;
@@ -158,3 +145,31 @@ export const getCandidatesOnly = async () => {
     const resp = await axios.get(`${API_URL}/user/candidates`);
     return resp.data;
 };
+
+export const assignGroupToExam = async (examId, groupId) => {
+    const resp = await axios.post(`${API_URL}/exams/Candidates/${examId}/${groupId}`);
+    return resp.data
+};
+
+export const getExamCandidates = async (examId) => {
+    try {
+        const resp = await axios.get(`${API_URL}/candidate/candidates/${examId}`);
+        return resp.status === 204 ? [] : resp.data;
+    } catch (err) {
+        console.error("Error fetching candidates:", err);
+        throw err;
+    }
+};
+
+axios.interceptors.request.use(
+    (config) => {
+        const auth = JSON.parse(sessionStorage.getItem("auth"));
+        if (auth && auth.token) {
+            config.headers.Authorization = auth.token; 
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);

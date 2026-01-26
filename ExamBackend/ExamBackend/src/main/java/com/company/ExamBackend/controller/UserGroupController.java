@@ -29,7 +29,7 @@ public class UserGroupController {
     }
 
     @GetMapping("/userList/{groupId}")
-    public ResponseEntity<List<GrpMemberDTO>> getAllUserGroupsByGroupId(@PathVariable String groupId) {
+    public ResponseEntity<List<GrpMemberDTO>> getAllUsersByGroupId(@PathVariable String groupId) {
         return ResponseEntity.ok(userGroupService.getMembersByGroupId(groupId));
     }
 
