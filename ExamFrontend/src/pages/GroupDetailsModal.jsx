@@ -23,8 +23,8 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
         if (window.confirm(`Are you sure you want to delete "${group.name}"?`)) {
             try {
                 await deleteGroup(group.id);
-                onGroupDeleted(); // Refresh the list in parent
-                onClose(); // Close modal
+                onGroupDeleted(); 
+                onClose(); 
             } catch (err) {
                 alert("Failed to delete group.");
             }

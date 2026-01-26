@@ -60,7 +60,7 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
             return;
         }
         
-        // console.log(examData);
+        
 
         try {
 
@@ -97,7 +97,7 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
         <div className="modal-backdrop" onClick={onClose}>
             <div
                 className="modal-window"
-                onClick={(e) => e.stopPropagation()}//Prevents modal from closing when clicking on form.
+                onClick={(e) => e.stopPropagation()}
             >
                 <button className="modal-close" onClick={onClose}>
                     ✕

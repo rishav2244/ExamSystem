@@ -25,7 +25,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const isPending = exam?.status === "PENDING";
     const canPublish = exam?.status === "SAVED" && selectedGroupId !== "";
 
-    useEffect(() => { //Loads questions as non-editable if pending.
+    useEffect(() => { 
         if (isPending || !exam?.id) return;
 
         getExamQuestions(exam.id)
@@ -46,15 +46,15 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         }
     }, [exam?.status]);
 
-    // 3. Logic for Preview (SAVED) vs Final List (PUBLISHED)
+   
     useEffect(() => {
         if (exam?.status === "PUBLISHED") {
-            // Fetch finalized candidates from database
+           
             getExamCandidates(exam.id)
                 .then(data => setCandidates(data || []))
                 .catch(err => console.error("Failed to load assigned candidates", err));
         } else if (exam?.status === "SAVED" && selectedGroupId) {
-            // Preview group members from the group selection
+            
             getGroupMembers(selectedGroupId)
                 .then(data => setCandidates(data || []))
                 .catch(err => console.error("Failed to preview group", err));
@@ -63,7 +63,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         }
     }, [exam?.status, exam?.id, selectedGroupId]);
 
-    const transformCSV = (rows) => { //Transforms CSV to nice object
+    const transformCSV = (rows) => { 
         return rows.map((row) => {
             const result = {
                 Question: row["Question"],
@@ -81,7 +81,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         });
     };
 
-    const validateCSVData = (data) => {//Checks on upload level
+    const validateCSVData = (data) => {
         if (!data || data.length === 0) return "The CSV file is empty.";
 
         for (let i = 0; i < data.length; i++) {
@@ -135,7 +135,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 return `${label}: The Correct Answer does not match any of the provided options.`;
             }
         }
-        return null; //Returns null if fine
+        return null; 
     };
 
     const handleConfirmAndPublish = async () => {
@@ -228,8 +228,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         }
 
         console.log("Delete triggered for exam ID:", exam.id);
-        // onQuestionsUploaded();
-        // onClose();
+        
     };
 
     const handleSave = async () => {
