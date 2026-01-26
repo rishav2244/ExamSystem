@@ -6,13 +6,12 @@ const API_URL = "http://localhost:8080/api";
 // /api/exams for exam, goes into /createExam and /getExams
 
 export const loginAttempt = async (email, password) => {
-    const loginReqJSON = {
-        email: email,
-        password: password,
-    }
+    const loginReqJSON = { email, password };
     try {
         const resp = await axios.post(`${API_URL}/user/login`, loginReqJSON);
-        return resp.data;
+        const token = resp.headers['authorization']; 
+        
+        return { ...resp.data, token }; 
     } catch (err) {
         throw err;
     }
@@ -121,3 +120,16 @@ export const getAllUsers = async () => {
         throw err;
     }
 };
+
+axios.interceptors.request.use(
+    (config) => {
+        const auth = JSON.parse(sessionStorage.getItem("auth"));
+        if (auth && auth.token) {
+            config.headers.Authorization = auth.token; 
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
