@@ -21,4 +21,9 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
         List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
         return CandidateMapper.toDTOList(candidates);
     }
+
+    @Override
+    public void removeCandidate(String examId, String email) {
+        examCandidateRepo.deleteByExamIdAndEmail(examId, email);
+    }
 }

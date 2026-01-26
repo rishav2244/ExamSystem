@@ -62,7 +62,7 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                                 required 
                                 value={formData.email} 
                                 onChange={handleChange} 
-                                placeholder="name@company.com"
+                                placeholder="E`mail"
                             />
                         </div>
 

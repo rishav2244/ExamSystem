@@ -33,6 +33,12 @@ export const AdminHeader = () => {
                 >
                     User List
                 </NavLink>
+                <NavLink
+                    to="/admin/groups"
+                    className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
+                >
+                    Groups
+                </NavLink>
             </nav>
 
 

@@ -623,3 +623,124 @@ thead {
     font-weight: 600;
     white-space: nowrap;
 }
+
+.selection-list-container {
+    margin: 20px 0;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.selection-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.selection-item:last-child {
+    border-bottom: none;
+}
+
+.selection-item:hover {
+    background: #f3f4f6;
+}
+
+.selection-checkbox {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+.selection-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.selection-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.selection-email {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* Group Specific Cards */
+.GroupCard {
+
+  width: 10vw;
+  height: 20vh;
+
+  display: flex;
+  flex-direction: column;
+
+  margin: 24px;
+  padding: 16px;
+
+  border: 2px solid #374151;
+  border-radius: 10px;
+
+  background-color: #e3f2fd;
+
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.GroupCard:hover {
+    background-color: #2196f3;
+}
+
+.GroupCard:active {
+  background-color: #1976d2; 
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.detail-view {
+    cursor: default !important;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-view:hover {
+    background-color: transparent !important;
+}
+
+.loading-text, .empty-text {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}
+
+.delete-button-secondary {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.delete-button-secondary:hover {
+    background-color: #cc0000;
+}
+
+.modal-header {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+}

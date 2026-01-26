@@ -8,6 +8,7 @@ import { Login } from "./pages/Login";
 import { Candidate } from "./pages/Candidate";
 import { Admin } from "./pages/Admin";
 import { UserList } from "./pages/UserList";
+import { GroupList } from "./pages/GroupList";
 import { AdminLayout } from "./layouts/AdminLayout";
 
 function App() {
@@ -33,6 +34,9 @@ function App() {
                 <Route path="exams" element={<Admin />} />
 
                 <Route path="users" element={<UserList />} />
+
+                <Route path="groups" element={<GroupList />} />
+                
               </Route>
             </Route>
           </Route>

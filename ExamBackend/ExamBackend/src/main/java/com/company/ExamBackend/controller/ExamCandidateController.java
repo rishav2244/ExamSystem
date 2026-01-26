@@ -1,5 +1,6 @@
 package com.company.ExamBackend.controller;
 
+import com.company.ExamBackend.dto.CandidateDeleteDTO;
 import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.service.ExamCandidateService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,14 @@ public class ExamCandidateController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(candidates);
+    }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> deleteCandidate(@RequestBody CandidateDeleteDTO deleteRequest) {
+        examCandidateService.removeCandidate(
+                deleteRequest.getExamId(),
+                deleteRequest.getEmail()
+        );
+        return ResponseEntity.ok("Candidate removed successfully.");
     }
 }

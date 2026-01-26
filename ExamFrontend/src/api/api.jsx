@@ -133,3 +133,28 @@ axios.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
+export const getAllUserGroups = async () => {
+    const resp = await axios.get(`${API_URL}/userGroups`);
+    return resp.data;
+};
+
+export const createGroup = async (groupData) => {
+    // groupData should match CreateGroupDTO: { groupName, creatorMail, groupMembers }
+    const resp = await axios.post(`${API_URL}/userGroups/create`, groupData);
+    return resp.data;
+};
+
+export const deleteGroup = async (groupId) => {
+    await axios.delete(`${API_URL}/userGroups/delete/${groupId}`);
+};
+
+export const getGroupMembers = async (groupId) => {
+    const resp = await axios.get(`${API_URL}/userGroups/userList/${groupId}`);
+    return resp.data;
+};
+
+export const getCandidatesOnly = async () => {
+    const resp = await axios.get(`${API_URL}/user/candidates`);
+    return resp.data;
+};
