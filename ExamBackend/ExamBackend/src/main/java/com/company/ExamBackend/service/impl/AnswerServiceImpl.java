@@ -33,7 +33,6 @@ public class AnswerServiceImpl implements AnswerService {
         answerRepository.findBySubmissionIdAndQuestionId(dto.getSubmissionId(), dto.getQuestionId())
                 .ifPresentOrElse(
                         existingAnswer -> {
-                            // UPDATE CASE
                             Option selected = (dto.getOptionId() != null)
                                     ? optionRepository.getReferenceById(dto.getOptionId())
                                     : null;

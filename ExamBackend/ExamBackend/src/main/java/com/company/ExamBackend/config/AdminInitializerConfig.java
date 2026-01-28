@@ -16,7 +16,6 @@ public class AdminInitializerConfig implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Only run if no users exist in the system
         if (userRepository.count() == 0) {
             Users admin = new Users();
             admin.setEmail("admin@test.com");

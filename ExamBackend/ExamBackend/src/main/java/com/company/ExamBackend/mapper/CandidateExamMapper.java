@@ -16,7 +16,6 @@ public class CandidateExamMapper {
         return CandidateExamDTO.builder()
                 .id(exam.getId())
                 .title(exam.getTitle())
-                // Assuming your Exam model has a duration field
                 .questions(questions.stream()
                         .map(CandidateExamMapper::toQuestionDTO)
                         .collect(Collectors.toList()))

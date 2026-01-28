@@ -19,21 +19,16 @@ public class ExamCleanupScheduler {
 
     @Scheduled(fixedRate = 60000)
     public void autoSubmitExpiredExams() {
-        // Use the standard repository method
         List<Submission> activeSubmissions = submissionRepository.findByStatus("IN_PROGRESS");
 
         Instant now = Instant.now();
 
         for (Submission sub : activeSubmissions) {
-            // Logic: StartTime + (Duration in Minutes)
             Instant deadline = sub.getCreatedAt().plusSeconds(sub.getExam().getDuration() * 60L);
-
-            // If the current time has passed the deadline
             if (now.isAfter(deadline)) {
                 try {
                     answerService.finalizeSubmission(sub.getId());
                 } catch (Exception e) {
-                    // Fail silently for this iteration to avoid breaking the loop
                 }
             }
         }
