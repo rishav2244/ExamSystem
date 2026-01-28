@@ -27,13 +27,16 @@ public class Submission
     @Column(nullable = false)
     private String candidateEmail;
 
-    @Column(nullable = false)
+    @Column
     private Float score;
 
     @Column(nullable = false)
     private int timeTaken;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column
     private Instant submittedAt;
 
     @Column(nullable = false)
@@ -44,8 +47,4 @@ public class Submission
 
     @Column(nullable = false)
     private int violations;
-
-    @Lob
-    @Column(nullable = false)
-    private String answers;
 }

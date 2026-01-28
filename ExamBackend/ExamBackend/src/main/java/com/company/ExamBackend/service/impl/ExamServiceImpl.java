@@ -2,17 +2,13 @@ package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
+import com.company.ExamBackend.dto.CandidateExamDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.mapper.ExamMapper;
-import com.company.ExamBackend.model.Exam;
-import com.company.ExamBackend.model.ExamCandidate;
-import com.company.ExamBackend.model.GroupMember;
-import com.company.ExamBackend.model.Users;
-import com.company.ExamBackend.repository.ExamCandidateRepo;
-import com.company.ExamBackend.repository.ExamRepository;
-import com.company.ExamBackend.repository.GroupMemberRepository;
-import com.company.ExamBackend.repository.UserRepository;
+import com.company.ExamBackend.mapper.CandidateExamMapper;
+import com.company.ExamBackend.model.*;
+import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.ExamService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +25,7 @@ public class ExamServiceImpl implements ExamService {
     private final UserRepository userRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final ExamCandidateRepo examCandidateRepo;
+    private final QuestionRepository questionRepository;
 
     @Transactional
     @Override
@@ -111,5 +108,13 @@ public class ExamServiceImpl implements ExamService {
         }
 
         return List.of();
+    }
+
+    @Override
+    public CandidateExamDTO getExamForCandidate(String examId) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new RuntimeException("Exam not found"));
+        List<Question> questions = questionRepository.findByParentExamId(examId);
+        return CandidateExamMapper.toDTO(exam, questions);
     }
 }

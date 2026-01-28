@@ -26,10 +26,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/user/login").permitAll()
+                        .requestMatchers("/api/candidateUser/**").hasRole("CANDIDATE")
                         .requestMatchers("/api/user/**").hasRole("ADMIN")
                         .requestMatchers("/api/exams/**").hasRole("ADMIN")
                         .requestMatchers("/api/candidate/**").hasRole("ADMIN")
-                        .requestMatchers("/api/userGroups").hasRole("ADMIN")
+                        .requestMatchers("/api/userGroups/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

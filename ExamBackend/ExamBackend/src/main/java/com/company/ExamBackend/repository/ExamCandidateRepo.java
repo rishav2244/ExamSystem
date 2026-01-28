@@ -11,6 +11,10 @@ import java.util.List;
 public interface ExamCandidateRepo extends JpaRepository<ExamCandidate,String> {
     List<ExamCandidate> findByExamId(String examId);
 
+    List<ExamCandidate> findByEmail(String email);
+
+    ExamCandidate findByExamIdAndEmail(String examId, String email);
+
     @Transactional
     void deleteByExamIdAndEmail(String examId, String email);
 }
