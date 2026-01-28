@@ -1,4 +1,10 @@
 export const CandidateExamCard = ({ exam, onJoin, isEligible }) => {
+
+    const formatToLocalTime = (utcTime) => {
+        if (!utcTime) return "-";
+        return new Date(utcTime).toLocaleString();
+    };
+
     return (
         <div className="CandidateExamCard">
             <div>
@@ -8,14 +14,12 @@ export const CandidateExamCard = ({ exam, onJoin, isEligible }) => {
                     <b>Duration:</b> {exam.duration} mins
                 </p>
                 <p className="exam-meta">
-                    <b>Start:</b> {exam.startTime}
+                    <b>Start:</b> {formatToLocalTime(exam.startTime)}
                 </p>
                 <p className="exam-meta">
-                    <b>End:</b> {exam.endTime}
+                    <b>End:</b> {formatToLocalTime(exam.endTime)}
                 </p>
-                <p className="exam-meta">
-                    <b>Status:</b> {exam.candidateStatus}
-                </p>
+
             </div>
 
             <button
