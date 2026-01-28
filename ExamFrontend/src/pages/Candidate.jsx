@@ -8,6 +8,8 @@ export const Candidate = () => {
     const { email } = useContext(AuthenticationContext);
     const [exams, setExams] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [eligibleExams, setEligibleExams] = useState({});
+
 
     useEffect(() => {
         if (email) {
@@ -26,11 +28,18 @@ export const Candidate = () => {
     const handleEligibilityCheck = async (examId) => {
         try {
             await checkCandidateEligibility(examId, email);
-            alert("You are eligible to start this exam.");
+
+            // mark this exam as eligible
+            setEligibleExams((prev) => ({
+                ...prev,
+                [examId]: true
+            }));
+
         } catch (err) {
             alert(err.response?.data || "Not eligible to start exam");
         }
     };
+
 
     if (loading) {
         return <p className="loading-text">Loading your exams...</p>;
@@ -39,7 +48,7 @@ export const Candidate = () => {
     return (
         <div className="AdminOverall">
             <CandidateHeader />
-            
+
             <div className="CandidateDashboard">
                 <h2 className="dashboard-title">Candidate Dashboard</h2>
 
@@ -49,12 +58,14 @@ export const Candidate = () => {
 
                 <div className="candidate-exam-list">
                     {exams.map((exam) => (
-                        <CandidateExamCard 
-                            key={exam.examId} 
-                            exam={exam} 
+                        <CandidateExamCard
+                            key={exam.examId}
+                            exam={exam}
                             onJoin={handleEligibilityCheck}
+                            isEligible={eligibleExams[exam.examId]}
                         />
                     ))}
+
                 </div>
             </div>
         </div>

@@ -1,8 +1,9 @@
-export const CandidateExamCard = ({ exam, onJoin }) => {
+export const CandidateExamCard = ({ exam, onJoin, isEligible }) => {
     return (
         <div className="CandidateExamCard">
             <div>
                 <h3 className="exam-title">{exam.title}</h3>
+
                 <p className="exam-meta">
                     <b>Duration:</b> {exam.duration} mins
                 </p>
@@ -21,7 +22,7 @@ export const CandidateExamCard = ({ exam, onJoin }) => {
                 className="CandidateActionButton"
                 onClick={() => onJoin(exam.examId)}
             >
-                Check Eligibility
+                {isEligible ? "Start Exam" : "Check Eligibility"}
             </button>
         </div>
     );
