@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
-import { getCandidateDashboard, checkCandidateEligibility } from "../api";
+import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
 
 export const Candidate = () => {
     const { email } = useContext(AuthenticationContext);

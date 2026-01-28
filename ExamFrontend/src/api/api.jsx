@@ -127,7 +127,6 @@ export const getAllUserGroups = async () => {
 };
 
 export const createGroup = async (groupData) => {
-    // groupData should match CreateGroupDTO: { groupName, creatorMail, groupMembers }
     const resp = await axios.post(`${API_URL}/userGroups/create`, groupData);
     return resp.data;
 };
@@ -161,9 +160,6 @@ export const getExamCandidates = async (examId) => {
     }
 };
 
-// ================= CANDIDATE DASHBOARD =================
-
-// Get exams assigned to candidate
 export const getCandidateDashboard = async (email) => {
     try {
         const resp = await axios.get(
@@ -176,7 +172,6 @@ export const getCandidateDashboard = async (email) => {
     }
 };
 
-// Check if candidate is eligible to start exam
 export const checkCandidateEligibility = async (examId, email) => {
     try {
         const resp = await axios.get(
