@@ -10,6 +10,7 @@ import { Admin } from "./pages/Admin";
 import { UserList } from "./pages/UserList";
 import { GroupList } from "./pages/GroupList";
 import { AdminLayout } from "./layouts/AdminLayout";
+import { CandidateExamSetup } from "./pages/CandidateExamSetup";
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
           {/* protected */}
           <Route element={<ProtectedRoute />}>
             <Route path="/user" element={<Candidate />} />
+
+            <Route path="/candidate/exam-setup" element={<CandidateExamSetup />} />
 
             {/* admin-only */}
             <Route element={<AdminRoute />}>

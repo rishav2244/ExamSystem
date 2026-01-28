@@ -3,6 +3,7 @@ import { AuthenticationContext } from "../context/AuthenticationContext";
 import { CandidateExamCard } from "../components/cardType/CandidateExamCard";
 import { CandidateHeader } from "../components/headerType/CandidateHeader";
 import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 export const Candidate = () => {
     const { email } = useContext(AuthenticationContext);
@@ -10,6 +11,7 @@ export const Candidate = () => {
     const [loading, setLoading] = useState(true);
     const [eligibleExams, setEligibleExams] = useState({});
 
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (email) {
@@ -26,10 +28,21 @@ export const Candidate = () => {
     }, [email]);
 
     const handleEligibilityCheck = async (examId) => {
+
+        if (eligibleExams[examId]) {
+            navigate("/candidate/exam-setup", {
+                state: {
+                    candidateExamId: examId,
+                    email: email,
+                    name: "Candidate Name"
+                }
+            });
+            return;
+        }
+
         try {
             await checkCandidateEligibility(examId, email);
 
-            // mark this exam as eligible
             setEligibleExams((prev) => ({
                 ...prev,
                 [examId]: true
