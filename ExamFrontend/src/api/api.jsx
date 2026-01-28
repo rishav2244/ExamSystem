@@ -161,6 +161,34 @@ export const getExamCandidates = async (examId) => {
     }
 };
 
+// ================= CANDIDATE DASHBOARD =================
+
+// Get exams assigned to candidate
+export const getCandidateDashboard = async (email) => {
+    try {
+        const resp = await axios.get(
+            `${API_URL}/candidateUser/dashboard/${email}`
+        );
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching candidate dashboard:", err);
+        throw err;
+    }
+};
+
+// Check if candidate is eligible to start exam
+export const checkCandidateEligibility = async (examId, email) => {
+    try {
+        const resp = await axios.get(
+            `${API_URL}/candidateUser/eligibility/${examId}/${email}`
+        );
+        return resp.data;
+    } catch (err) {
+        throw err;
+    }
+};
+
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));

@@ -807,3 +807,86 @@ thead {
     color: #666;
     font-size: 0.85rem;
 }
+
+/* ================= CANDIDATE DASHBOARD ================= */
+
+.CandidateDashboard {
+    min-height: 100vh;
+    width: 100%;
+    padding: 24px;
+    background-color: #f5f7fa;
+    box-sizing: border-box;
+}
+
+.dashboard-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 20px;
+}
+
+.candidate-exam-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.CandidateExamCard {
+    width: 260px;
+    min-height: 220px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 16px;
+    border-radius: 10px;
+    border: 2px solid #374151;
+
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.CandidateExamCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.exam-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.exam-meta {
+    font-size: 0.85rem;
+    color: #4b5563;
+    margin: 2px 0;
+}
+
+.CandidateActionButton {
+    margin-top: 10px;
+    padding: 10px;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    color: #ffffff;
+    background-color: #2563eb;
+
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.CandidateActionButton:hover {
+    background-color: #1d4ed8;
+}
+
+.CandidateActionButton:active {
+    transform: scale(0.97);
+}
