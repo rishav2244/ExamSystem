@@ -27,8 +27,8 @@ public class AdminInitializerConfig implements CommandLineRunner {
 
             System.out.println("--------------------------------------");
             System.out.println("INITIAL ADMIN CREATED");
-            System.out.println("Email: admin@company.com");
-            System.out.println("Password: admin1234");
+            System.out.println("Email: admin@test.com");
+            System.out.println("Password: admin123");
             System.out.println("--------------------------------------");
         }
     }
