@@ -11,6 +11,7 @@ import { UserList } from "./pages/UserList";
 import { GroupList } from "./pages/GroupList";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { CandidateExamSetup } from "./pages/CandidateExamSetup";
+import { ExamInterface } from "./pages/ExamInterface";
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
             <Route path="/user" element={<Candidate />} />
 
             <Route path="/candidate/exam-setup" element={<CandidateExamSetup />} />
+
+            <Route path="/candidate/exam-room" element={<ExamInterface />} />
 
             {/* admin-only */}
             <Route element={<AdminRoute />}>

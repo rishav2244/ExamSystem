@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { startExam } from "../api/api";
 
 export const CandidateExamSetup = () => {
     const navigate = useNavigate();
@@ -44,9 +45,21 @@ export const CandidateExamSetup = () => {
         runSystemChecks();
     }, []);
 
-    const handleStartExam = () => {
-        //Placeholder
-        navigate("/user");
+    const handleStartExam = async () => {
+        try {
+            // Now 'resp' is { submissionId: "...", duration: 60 }
+            const resp = await startExam(candidateExamId, name, email, "Browser-Client");
+
+            navigate("/candidate/exam-room", {
+                state: {
+                    examId: candidateExamId,
+                    submissionId: resp.submissionId,
+                    duration: resp.duration
+                }
+            });
+        } catch (err) {
+            alert(err.response?.data || "Failed to start exam.");
+        }
     };
 
     return (

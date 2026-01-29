@@ -1,12 +1,12 @@
 package com.company.ExamBackend.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AnswerRequestDTO {
     private String submissionId;
     private String questionId;

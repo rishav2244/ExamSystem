@@ -9,9 +9,9 @@ export const loginAttempt = async (email, password) => {
     const loginReqJSON = { email, password };
     try {
         const resp = await axios.post(`${API_URL}/user/login`, loginReqJSON);
-        const token = resp.headers['authorization']; 
-        
-        return { ...resp.data, token }; 
+        const token = resp.headers['authorization'];
+
+        return { ...resp.data, token };
     } catch (err) {
         throw err;
     }
@@ -183,12 +183,45 @@ export const checkCandidateEligibility = async (examId, email) => {
     }
 };
 
+export const startExam = async (examId, name, email, location) => {
+    // These keys must match the Java private field names EXACTLY
+    const payload = {
+        examId: examId,
+        candidateName: name,      // Matches 'private String candidateName'
+        candidateEmail: email,    // Matches 'private String candidateEmail'
+        location: location        // Matches 'private String location'
+    };
+
+    const resp = await axios.post(`${API_URL}/candidateUser/start`, payload);
+    return resp.data;
+};
+
+export const fetchExamContent = async (examId) => {
+    const resp = await axios.get(`${API_URL}/candidateUser/exam/${examId}`);
+    return resp.data;
+};
+
+export const saveAnswer = async (submissionId, questionId, optionId) => {
+    await axios.post(`${API_URL}/candidateUser/answer`, {
+        submissionId,
+        questionId,
+        optionId
+    });
+};
+
+export const finalizeExam = async (submissionId) => {
+    await axios.post(`${API_URL}/candidateUser/submit/${submissionId}`);
+};
+
+export const reportViolation = async (submissionId) => {
+    await axios.patch(`${API_URL}/candidateUser/violation/${submissionId}`);
+};
 
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));
         if (auth && auth.token) {
-            config.headers.Authorization = auth.token; 
+            config.headers.Authorization = auth.token;
         }
         return config;
     },

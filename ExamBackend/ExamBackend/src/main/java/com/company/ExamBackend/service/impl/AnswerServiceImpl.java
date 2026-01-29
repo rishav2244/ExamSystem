@@ -30,20 +30,26 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     @Transactional
     public void saveOrUpdateAnswer(AnswerRequestDTO dto) {
+        // Check if answer exists
         answerRepository.findBySubmissionIdAndQuestionId(dto.getSubmissionId(), dto.getQuestionId())
                 .ifPresentOrElse(
                         existingAnswer -> {
+                            // Use findById instead of getReferenceById for safer handling
                             Option selected = (dto.getOptionId() != null)
-                                    ? optionRepository.getReferenceById(dto.getOptionId())
+                                    ? optionRepository.findById(dto.getOptionId()).orElse(null)
                                     : null;
                             existingAnswer.setSelectedOption(selected);
-                            answerRepository.save(existingAnswer);
+                            // No need to call .save() here if object is managed and @Transactional is used,
+                            // but it doesn't hurt.
                         },
                         () -> {
-                            Submission submission = submissionRepository.getReferenceById(dto.getSubmissionId());
-                            Question question = questionRepository.getReferenceById(dto.getQuestionId());
+                            // Ensure parents exist
+                            Submission submission = submissionRepository.findById(dto.getSubmissionId())
+                                    .orElseThrow(() -> new RuntimeException("Submission not found"));
+                            Question question = questionRepository.findById(dto.getQuestionId())
+                                    .orElseThrow(() -> new RuntimeException("Question not found"));
                             Option option = (dto.getOptionId() != null)
-                                    ? optionRepository.getReferenceById(dto.getOptionId())
+                                    ? optionRepository.findById(dto.getOptionId()).orElse(null)
                                     : null;
 
                             Answer newAnswer = AnswerMapper.toEntity(submission, question, option);

@@ -1,6 +1,7 @@
 package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.StartExamRequestDTO;
+import com.company.ExamBackend.dto.StartExamResponseDTO;
 import com.company.ExamBackend.mapper.SubmissionMapper;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.ExamCandidate;
@@ -31,7 +32,7 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     @Override
     @Transactional
-    public String startExam(StartExamRequestDTO dto) {
+    public StartExamResponseDTO startExam(StartExamRequestDTO dto) {
         checkEligibility(dto.getExamId(), dto.getCandidateEmail());
 
         Exam exam = examRepository.findById(dto.getExamId())
@@ -45,7 +46,8 @@ public class SubmissionServiceImpl implements SubmissionService {
         candidate.setStatus("ATTEMPTED");
         examCandidateRepo.save(candidate);
 
-        return submissionRepository.save(submission).getId();
+        String savedId = submissionRepository.save(submission).getId();
+        return new StartExamResponseDTO(savedId, exam.getDuration());
     }
 
     @Transactional
