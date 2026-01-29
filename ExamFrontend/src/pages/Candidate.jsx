@@ -6,7 +6,7 @@ import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 export const Candidate = () => {
-    const { email } = useContext(AuthenticationContext);
+    const { email, name } = useContext(AuthenticationContext);
     const [exams, setExams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [eligibleExams, setEligibleExams] = useState({});
@@ -34,7 +34,7 @@ export const Candidate = () => {
                 state: {
                     candidateExamId: examId,
                     email: email,
-                    name: "Candidate Name"
+                    name: name
                 }
             });
             return;

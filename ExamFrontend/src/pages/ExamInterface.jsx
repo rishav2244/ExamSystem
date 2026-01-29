@@ -9,54 +9,85 @@ export const ExamInterface = () => {
 
     const [examData, setExamData] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
-    const [selectedOptions, setSelectedOptions] = useState({}); // {questionId: optionId}
+    const [selectedOptions, setSelectedOptions] = useState({});
     const [timeLeft, setTimeLeft] = useState(duration * 60);
+    
+    const [violationCount, setViolationCount] = useState(0);
+    const [showWarning, setShowWarning] = useState(false);
+    const [isDisqualified, setIsDisqualified] = useState(false);
 
-    // 1. Initialize Exam
+    const triggerViolation = useCallback(() => {
+        if (isDisqualified || showWarning) return; // Don't stack violations while modal is open
+
+        setViolationCount(prev => {
+            const newCount = prev + 1;
+            reportViolation(submissionId).catch(err => console.error("Violation sync failed", err));
+
+            if (newCount >= 3) {
+                setIsDisqualified(true);
+                return 3;
+            } else {
+                setShowWarning(true);
+                return newCount;
+            }
+        });
+    }, [submissionId, isDisqualified, showWarning]);
+
     useEffect(() => {
         if (!examId || !submissionId) {
             navigate('/user');
             return;
         }
 
-        document.documentElement.requestFullscreen().catch(e => console.error("Fullscreen failed", e));
-
-        fetchExamContent(examId).then(data => {
-            setExamData(data);
-        });
+        // Initial Fullscreen
+        document.documentElement.requestFullscreen().catch(e => console.error("Initial Fullscreen failed", e));
+        fetchExamContent(examId).then(setExamData);
 
         const timer = setInterval(() => {
-            setTimeLeft((prev) => {
+            setTimeLeft(prev => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    handleFinish();
+                    handleFinish(); 
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
 
-        // Violation Detection (Tab switching)
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                reportViolation(submissionId);
-                alert("Violation Recorded: You left the exam tab.");
+        const handleVisibility = () => { if (document.hidden) triggerViolation(); };
+        const handleBlur = () => { triggerViolation(); }; 
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement && !isDisqualified && !showWarning) {
+                triggerViolation();
             }
         };
+        
+        document.addEventListener("visibilitychange", handleVisibility);
+        window.addEventListener("blur", handleBlur);
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
 
-        document.addEventListener("visibilitychange", handleVisibilityChange);
         return () => {
             clearInterval(timer);
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            document.removeEventListener("visibilitychange", handleVisibility);
+            window.removeEventListener("blur", handleBlur);
+            document.removeEventListener("fullscreenchange", handleFullscreenChange);
         };
-    }, []);
+    }, [examId, submissionId, triggerViolation, navigate, isDisqualified, showWarning]);
+
+    const handleDismissWarning = () => {
+        setShowWarning(false);
+        // Force Fullscreen on user click
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(e => console.error(e));
+        }
+    };
 
     const handleOptionSelect = async (questionId, optionId) => {
         setSelectedOptions(prev => ({ ...prev, [questionId]: optionId }));
         try {
             await saveAnswer(submissionId, questionId, optionId);
         } catch (err) {
-            console.error("Failed to auto-save answer", err);
+            console.error("Auto-save failed", err);
         }
     };
 
@@ -66,7 +97,8 @@ export const ExamInterface = () => {
             if (document.fullscreenElement) document.exitFullscreen();
             navigate('/user');
         } catch (err) {
-            console.error("Submission failed", err);
+            console.error("Finalize failed", err);
+            navigate('/user'); 
         }
     };
 
@@ -75,16 +107,52 @@ export const ExamInterface = () => {
     const currentQuestion = examData.questions[currentIdx];
 
     return (
-        <div className="exam-container">
+        <div 
+            className="exam-container"
+            onContextMenu={(e) => { e.preventDefault(); triggerViolation(); }}
+            onCopy={(e) => { e.preventDefault(); triggerViolation(); }}
+        >
+            {/* STRIKE WARNING MODAL */}
+            {showWarning && !isDisqualified && (
+                <div className="modal-backdrop violation-overlay">
+                    <div className="modal-window" style={{height: 'auto', minHeight: '200px'}}>
+                        <h2 className="warning-text">⚠️ VIOLATION DETECTED</h2>
+                        <p>Strike <b>{violationCount} / 3</b> recorded.</p>
+                        <p>You must stay in <b>Fullscreen Mode</b> and remain on this tab.</p>
+                        <button className="form-submit" onClick={handleDismissWarning}>
+                            Return to Fullscreen & Continue
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* DISQUALIFIED MODAL */}
+            {isDisqualified && (
+                <div className="modal-backdrop violation-overlay">
+                    <div className="modal-window" style={{height: 'auto', minHeight: '250px'}}>
+                        <h2 className="warning-text">EXAM TERMINATED</h2>
+                        <p>You have reached <b>3 violations</b>.</p>
+                        <p>Your access has been revoked due to proctoring violations.</p>
+                        <button className="DeleteExamButton" onClick={handleFinish}>
+                            Return to Dashboard
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <header className="exam-header">
                 <div className="exam-info">
-                    {/* Using 'title' from CandidateExamDTO */}
                     <h1>{examData.title}</h1>
-                    <span className="timer">
-                        Time: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                    </span>
+                    <div className="exam-stats">
+                        <span className="timer">
+                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                        </span>
+                        <span className={`strike-counter ${violationCount > 0 ? 'warning' : ''}`}>
+                            Strikes: {violationCount} / 3
+                        </span>
+                    </div>
                 </div>
-                <button className="submit-btn" onClick={handleFinish}>Finalize</button>
+                <button className="submit-btn" onClick={handleFinish}>Submit Exam</button>
             </header>
 
             <main className="exam-body">
@@ -92,7 +160,7 @@ export const ExamInterface = () => {
                     <div className="nav-grid">
                         {examData.questions.map((q, index) => (
                             <button
-                                key={q.id} // CandidateQuestionDTO has 'id'
+                                key={q.id}
                                 className={`nav-item ${currentIdx === index ? 'active' : ''} ${selectedOptions[q.id] ? 'answered' : ''}`}
                                 onClick={() => setCurrentIdx(index)}
                             >
@@ -104,10 +172,8 @@ export const ExamInterface = () => {
 
                 <section className="question-section">
                     <div className="question-card">
-                        {/* Using 'marks' from CandidateQuestionDTO */}
                         <span className="marks-badge">{currentQuestion.marks} Marks</span>
                         <h2>Question {currentIdx + 1}</h2>
-                        {/* Using 'text' from CandidateQuestionDTO */}
                         <p className="question-text">{currentQuestion.text}</p>
 
                         <div className="options-list">
@@ -119,7 +185,6 @@ export const ExamInterface = () => {
                                         checked={selectedOptions[currentQuestion.id] === option.id}
                                         onChange={() => handleOptionSelect(currentQuestion.id, option.id)}
                                     />
-                                    {/* Using 'optionIndex' and 'text' from CandidateOptionDTO */}
                                     <span className="option-index">{option.optionIndex + 1}</span>
                                     {option.text}
                                 </label>
@@ -129,10 +194,8 @@ export const ExamInterface = () => {
 
                     <div className="navigation-controls">
                         <button disabled={currentIdx === 0} onClick={() => setCurrentIdx(prev => prev - 1)}>Previous</button>
-                        {currentIdx < examData.questions.length - 1 ? (
-                            <button className="next-btn" onClick={() => setCurrentIdx(prev => prev + 1)}>Next Question</button>
-                        ) : (
-                            <button className="finish-btn" onClick={handleFinish}>Finish Exam</button>
+                        {currentIdx < examData.questions.length - 1 && (
+                            <button className="next-btn" onClick={() => setCurrentIdx(prev => prev + 1)}>Next</button>
                         )}
                     </div>
                 </section>

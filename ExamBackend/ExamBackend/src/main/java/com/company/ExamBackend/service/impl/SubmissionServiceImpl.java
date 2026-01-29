@@ -2,6 +2,7 @@ package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.StartExamRequestDTO;
 import com.company.ExamBackend.dto.StartExamResponseDTO;
+import com.company.ExamBackend.dto.SubmissionResponseDTO;
 import com.company.ExamBackend.mapper.SubmissionMapper;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.ExamCandidate;
@@ -13,6 +14,8 @@ import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -57,5 +60,11 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         submission.setViolations(submission.getViolations() + 1);
         submissionRepository.save(submission);
+    }
+
+    @Override
+    public List<SubmissionResponseDTO> getSubmissionsByExam(String examId) {
+        List<Submission> submissions = submissionRepository.findByExamId(examId);
+        return SubmissionMapper.toDTOList(submissions);
     }
 }

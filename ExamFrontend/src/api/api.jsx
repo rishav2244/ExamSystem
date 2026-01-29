@@ -217,6 +217,16 @@ export const reportViolation = async (submissionId) => {
     await axios.patch(`${API_URL}/candidateUser/violation/${submissionId}`);
 };
 
+export const getSubmissionsByExam = async (examId) => {
+    try {
+        const resp = await axios.get(`${API_URL}/submissions/exam/${examId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching submissions:", err);
+        throw err;
+    }
+};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));

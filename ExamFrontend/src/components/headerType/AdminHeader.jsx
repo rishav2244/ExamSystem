@@ -39,6 +39,11 @@ export const AdminHeader = () => {
                 >
                     Groups
                 </NavLink>
+                <NavLink
+                    to="/admin/submissions"
+                    className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+                    Submissions
+                </NavLink>
             </nav>
 
 

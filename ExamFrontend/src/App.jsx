@@ -12,6 +12,7 @@ import { GroupList } from "./pages/GroupList";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { CandidateExamSetup } from "./pages/CandidateExamSetup";
 import { ExamInterface } from "./pages/ExamInterface";
+import { Submissions } from "./pages/Submissions";
 
 function App() {
   return (
@@ -42,6 +43,8 @@ function App() {
                 <Route path="users" element={<UserList />} />
 
                 <Route path="groups" element={<GroupList />} />
+
+                <Route path="submissions" element={<Submissions />} />
                 
               </Route>
             </Route>

@@ -890,11 +890,16 @@ thead {
 }
 
 .exam-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    height: 100vh;
     background-color: #f4f7f9;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 1000;
+    overflow: hidden;
 }
 
 .exam-header {
@@ -1014,3 +1019,167 @@ button {
 
 .next-btn { background: #3498db; color: white; }
 .submit-btn { background: #2ecc71; color: white; }
+
+/* --- Submissions Page & Table --- */
+.SubmissionsPage {
+    padding: 2rem;
+    color: #333;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.admin-table th, 
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f1f4f8;
+}
+
+/* --- Modal Improvements --- */
+.wide-modal {
+    width: 90% !important;
+    max-width: 1000px !important;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+    max-height: 60vh; /* Scrollable if many students */
+}
+
+/* --- Status Badges --- */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.IN_PROGRESS {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.COMPLETED {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* --- Highlights & Warnings --- */
+.warning-text {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.view-results-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.view-results-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Ensure modal header is sticky if table scrolls */
+.modal-window h2 {
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.modal-actions {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 10px;
+}
+
+.table-search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 300px;
+    font-size: 0.9rem;
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.sortable:hover {
+    background-color: #e9ecef !important;
+}
+
+.exam-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.strike-counter {
+    background: #e0e0e0;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.strike-counter.warning {
+    background: #ff4d4d;
+    color: white;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+.violation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.violation-overlay .modal-window {
+    border: 3px solid #ff4d4d;
+}

@@ -10,4 +10,5 @@ import java.util.List;
 public interface SubmissionRepository extends JpaRepository<Submission, String> {
     List<Submission> findByStatus(String status);
     boolean existsByExamIdAndCandidateEmail(String examId, String candidateEmail);
+    List<Submission> findByExamId(String examId);
 }

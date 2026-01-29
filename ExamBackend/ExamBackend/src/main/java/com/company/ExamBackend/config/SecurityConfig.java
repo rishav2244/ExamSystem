@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/exams/**").hasRole("ADMIN")
                         .requestMatchers("/api/candidate/**").hasRole("ADMIN")
                         .requestMatchers("/api/userGroups/**").hasRole("ADMIN")
+                        .requestMatchers("/api/submissions/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
