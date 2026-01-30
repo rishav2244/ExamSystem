@@ -9,7 +9,7 @@ export const UserList = () => {
     const [listUsers, setListUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    
+
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState("ALL");
 
@@ -25,8 +25,8 @@ export const UserList = () => {
     useEffect(() => { fetchUsers(); }, []);
 
     const filteredUsers = listUsers.filter((user) => {
-        const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             user.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesRole = roleFilter === "ALL" || user.role === roleFilter;
         return matchesSearch && matchesRole;
     });
@@ -34,14 +34,14 @@ export const UserList = () => {
     return (
         <div className="UserListOverall">
             <div className="filter-bar">
-                <input 
-                    type="text" 
+                <input
+                    type="text"
                     className="search-input"
-                    placeholder="Search by name or email..." 
+                    placeholder="Search by name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <select 
+                <select
                     className="role-select"
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
@@ -55,7 +55,7 @@ export const UserList = () => {
                 </div>
             </div>
 
-            <div className="CardArea">
+            {/* <div className="CardArea">
                 <CreateUserCard onClick={() => setIsCreateModalOpen(true)} />
 
                 {filteredUsers.map((user) => (
@@ -65,12 +65,63 @@ export const UserList = () => {
                         onClick={() => setSelectedUser(user)}
                     />
                 ))}
+            </div> */}
+            <div className="AdminUserSection">
+
+                {/* Header */}
+                <div className="AdminUserHeader">
+                    <h2>Users</h2>
+                    <button
+                        className="CreateUserBtn"
+                        onClick={() => setIsCreateModalOpen(true)}
+                    >
+                        + Create User
+                    </button>
+                </div>
+
+                {/* User Table */}
+                <table className="UserTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {filteredUsers.map((user) => (
+                            <tr key={user.id}>
+                                <td>{user.name}</td>
+                                <td>{user.email}</td>
+
+                                <td>
+                                    <span className={`role-badge ${user.role.toLowerCase()}`}>
+                                        {user.role}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <button
+                                        className="ViewBtn"
+                                        onClick={() => setSelectedUser(user)}
+                                    >
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
             </div>
 
+
             {isCreateModalOpen && (
-                <CreateUserModal 
+                <CreateUserModal
                     onClose={() => setIsCreateModalOpen(false)}
-                    onUserCreated={fetchUsers} 
+                    onUserCreated={fetchUsers}
                 />
             )}
 

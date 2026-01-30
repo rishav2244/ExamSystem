@@ -29,7 +29,7 @@ export const Admin = () => {
         <div
             className="AdminOverall">
 
-            <div
+            {/* <div
                 className="CardArea">
                 <CreateExamCard
                     onClick={() => { setIsCreateModalOpen(true) }}></CreateExamCard>
@@ -41,7 +41,53 @@ export const Admin = () => {
                         onClick={() => { setSelectedExam(exam) }}
                     />
                 ))}
+            </div> */}
+
+            <div className="AdminExamSection">
+                <div className="AdminExamHeader">
+                    <h2>Exams</h2>
+                    <button
+                        className="CreateExamBtn"
+                        onClick={() => setIsCreateModalOpen(true)}
+                    >
+                        + Create Exam
+                    </button>
+                </div>
+
+                <table className="ExamTable">
+                    <thead>
+                        <tr>
+                            <th>Exam Name</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {listExams.map((exam) => (
+                            <tr key={exam.id}>
+                                <td>{exam.title}</td>
+
+                                <td>
+                                    <span className={`status ${exam.status.toLowerCase()}`}>
+                                        {exam.status}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <button
+                                        className="ViewBtn"
+                                        onClick={() => setSelectedExam(exam)}
+                                    >
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
+
 
             {isCreateModalOpen && (
                 <CreateExamModal
@@ -51,9 +97,9 @@ export const Admin = () => {
 
             {SelectedExam && (
                 <ExamDetailsModal
-                    exam = {SelectedExam}
+                    exam={SelectedExam}
                     onClose={() => setSelectedExam(false)}
-                    onQuestionsUploaded={fetchExams}/>
+                    onQuestionsUploaded={fetchExams} />
             )}
         </div>
     );

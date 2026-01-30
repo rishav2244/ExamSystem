@@ -28,7 +28,7 @@ export const GroupList = () => {
 
     return (
         <div className="UserListOverall">
-            <div className="CardArea">
+            {/* <div className="CardArea">
                 <CreateGroupCard onClick={() => setIsCreateOpen(true)} />
 
                 {groups.map(group => (
@@ -39,7 +39,47 @@ export const GroupList = () => {
                         onDelete={handleDelete}
                     />
                 ))}
+            </div> */}
+            <div className="AdminGroupSection">
+
+                <div className="AdminGroupHeader">
+                    <h2>Groups</h2>
+
+                    <button
+                        className="CreateGroupBtn"
+                        onClick={() => setIsCreateModalOpen(true)}
+                    >
+                        + Create Group
+                    </button>
+                </div>
+
+                <table className="GroupTable">
+                    <thead>
+                        <tr>
+                            <th>Group Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {groups.map(group => (
+                            <tr key={group.id}>
+                                <td>{group.name}</td>
+                                <td>
+                                    <button
+                                        className="ViewBtn"
+                                        onClick={() => setSelectedGroup(group)}
+                                    >
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
             </div>
+
 
             {isCreateOpen && (
                 <CreateGroupModal
