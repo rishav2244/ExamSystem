@@ -1430,7 +1430,7 @@ button {
 }
 
 .ViewBtn {
-    background-color: #8d11cb;
+    background-color: #49c2fb;
     color: #ffffff;
     border: none;
     padding: 0.4rem 0.8rem;
@@ -1441,7 +1441,7 @@ button {
 }
 
 .ViewBtn:hover {
-    background-color: #4b0fa1;
+    background-color: #0c676ee3;
 }
 .role-badge {
     padding: 0.3rem 0.6rem;
