@@ -68,7 +68,7 @@ export const CandidateExamSetup = () => {
 
             <p><b>Name:</b> {name}</p>
             <p><b>Email:</b> {email}</p>
-            <p><b>Candidate Exam ID:</b> {candidateExamId}</p>
+            {/* <p><b>Candidate Exam ID:</b> {candidateExamId}</p> */}
 
             <hr />
 

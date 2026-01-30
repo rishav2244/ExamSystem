@@ -264,7 +264,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
                 {exam && (
                     <div className="exam-header">
-                        <h3>Exam ID: {exam.id}</h3>
+                        {/* <h3>Exam ID: {exam.id}</h3> */}
                         <h3>{exam.title}</h3>
                         <p>Status: {exam.status}</p>
                     </div>
