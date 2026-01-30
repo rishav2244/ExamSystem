@@ -1429,14 +1429,6 @@ button {
     background-color: #ff4d4f;
 }
 
-.role-badge.manager {
-    background-color: #ff9800;
-}
-
-.role-badge.user {
-    background-color: #4caf50;
-}
-
 .ViewBtn {
     background-color: #8d11cb;
     color: #ffffff;
