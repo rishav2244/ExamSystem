@@ -47,7 +47,7 @@ export const GroupList = () => {
 
                     <button
                         className="CreateGroupBtn"
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => setIsCreateOpen(true)}
                     >
                         + Create Group
                     </button>

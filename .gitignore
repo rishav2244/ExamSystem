@@ -19,6 +19,9 @@ ExamBackend/.classpath
 ExamBackend/.project
 ExamBackend/.settings/
 
+# Secrets
+.env
+
 *.log
 
 ####################################

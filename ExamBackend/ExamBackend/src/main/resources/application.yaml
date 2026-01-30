@@ -2,9 +2,21 @@ spring:
   application:
     name: ExamBackend
   datasource:
-    url: jdbc:postgresql://localhost:5432/examdb
-    username: examadmin
-    password: examadmin
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
   jpa:
     hibernate:
@@ -12,11 +24,14 @@ spring:
     show-sql: true #Apparently it helps with debugging.
 
 server:
-  port: 8080
+  port: ${SERVER_PORT}
 
 app:
   jwt:
-    secret: "v9y$B&E)H@McQfTjWnZr4u7x!A%C*F-JaNdRgUkXp2s5v8y/B?E(G+KbPeShVmYq"
-    expiration: 86400000
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
   security:
-    default-candidate-password: "test"
+    default-admin-name: ${DEFAULT_ADMIN_NAME}
+    default-admin-email: ${DEFAULT_ADMIN_EMAIL}
+    default-admin-password: ${DEFAULT_ADMIN_PASSWORD}
+    default-candidate-password: ${DEFAULT_CANDIDATE_PASSWORD}

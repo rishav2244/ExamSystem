@@ -9,6 +9,7 @@ import com.company.ExamBackend.mapper.ExamMapper;
 import com.company.ExamBackend.mapper.CandidateExamMapper;
 import com.company.ExamBackend.model.*;
 import com.company.ExamBackend.repository.*;
+import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.ExamService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class ExamServiceImpl implements ExamService {
     private final GroupMemberRepository groupMemberRepository;
     private final ExamCandidateRepo examCandidateRepo;
     private final QuestionRepository questionRepository;
+    private final EmailService emailService;
 
     @Transactional
     @Override
@@ -64,11 +66,34 @@ public class ExamServiceImpl implements ExamService {
         examRepository.deleteById(examId);
     }
 
+    @Transactional
     @Override
     public void updateExam(String examId, String status) {
+        System.out.println("DEBUG: Starting updateExam for ID: " + examId + " with status: " + status);
+
         int rowsUpdated = examRepository.updateExamStatus(examId, status);
         if (rowsUpdated == 0) {
             throw new ExamNotFoundException("Exam not found with id: " + examId);
+        }
+
+        if ("PUBLISHED".equalsIgnoreCase(status)) {
+            List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
+            System.out.println("DEBUG: Found " + candidates.size() + " candidates.");
+
+            for (ExamCandidate candidate : candidates) {
+                if ("UNINVITED".equals(candidate.getStatus())) {
+                    try {
+                        System.out.println("DEBUG: Attempting email to " + candidate.getEmail());
+                        emailService.sendInvitation(candidate.getEmail(), candidate.getExam().getTitle());
+                        candidate.setStatus("INVITED");
+                        System.out.println("DEBUG: Email sent successfully!");
+                    } catch (Exception e) {
+                        System.err.println("CRITICAL EMAIL ERROR for " + candidate.getEmail());
+                        e.printStackTrace();
+                    }
+                }
+            }
+            examCandidateRepo.saveAll(candidates);
         }
     }
 
