@@ -15,11 +15,13 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const passwordValue = formData.role === 'CANDIDATE' ? 'default_placeholder' : formData.password;
+
         try {
             await registrationAttempt(
                 formData.email,
                 formData.name,
-                formData.password,
+                passwordValue,
                 formData.role
             );
             alert("User created successfully!");
@@ -62,19 +64,7 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                                 required 
                                 value={formData.email} 
                                 onChange={handleChange} 
-                                placeholder="E`mail"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Initial Password</label>
-                            <input 
-                                type="password" 
-                                name="password" 
-                                required 
-                                value={formData.password} 
-                                onChange={handleChange} 
-                                placeholder="••••••••"
+                                placeholder="Email"
                             />
                         </div>
 
@@ -90,6 +80,20 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                                 <option value="ADMIN">Admin</option>
                             </select>
                         </div>
+
+                        {formData.role === 'ADMIN' && (
+                            <div className="form-group">
+                                <label>Initial Password</label>
+                                <input 
+                                    type="password" 
+                                    name="password" 
+                                    required 
+                                    value={formData.password} 
+                                    onChange={handleChange} 
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                        )}
 
                         <div className="modal-footer">
                             <button 

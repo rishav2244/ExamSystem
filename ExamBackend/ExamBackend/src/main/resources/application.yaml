@@ -18,3 +18,5 @@ app:
   jwt:
     secret: "v9y$B&E)H@McQfTjWnZr4u7x!A%C*F-JaNdRgUkXp2s5v8y/B?E(G+KbPeShVmYq"
     expiration: 86400000
+  security:
+    default-candidate-password: "test"

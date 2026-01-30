@@ -1,9 +1,6 @@
 package com.company.ExamBackend.controller;
 
-import com.company.ExamBackend.dto.LoginRequestDTO;
-import com.company.ExamBackend.dto.RegisterRequestDTO;
-import com.company.ExamBackend.dto.UserHeavyDTO;
-import com.company.ExamBackend.dto.UserResponseDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +28,12 @@ public class UserController {
                 .header("Authorization", "Bearer " + token)
                 .header("Access-Control-Expose-Headers", "Authorization") // Let React see this header
                 .body(responseDTO);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDTO passwordResetDTO) {
+        userService.resetPassword(passwordResetDTO);
+        return ResponseEntity.ok("Password updated successfully.");
     }
 
     @GetMapping("/candidates")

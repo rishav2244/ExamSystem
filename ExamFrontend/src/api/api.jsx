@@ -32,6 +32,16 @@ export const registrationAttempt = async (email, name, password, role) => {
     }
 }
 
+export const resetPassword = async (email, oldPassword, newPassword) => {
+    const payload = { email, oldPassword, newPassword };
+    try {
+        const resp = await axios.post(`${API_URL}/user/reset-password`, payload);
+        return resp.data;
+    } catch (err) {
+        throw err;
+    }
+};
+
 export const createExam = async (title, duration, startTime, endTime, status, createdBy) => {
     const createExamReqJSON = {
         title: title,
