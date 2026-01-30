@@ -1183,3 +1183,11 @@ button {
 .violation-overlay .modal-window {
     border: 3px solid #ff4d4d;
 }
+
+.modal-exam-header {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  background: transparent;
+  color: #111827;
+}
