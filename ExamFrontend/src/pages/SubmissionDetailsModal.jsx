@@ -4,8 +4,6 @@ import { getSubmissionsByExam } from '../api/api';
 export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
-    
-    // Search and Sort states
     const [searchTerm, setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState({ key: 'submittedAt', direction: 'desc' });
 
@@ -21,7 +19,7 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
             });
     }, [exam.id]);
 
-    // Logic: Filter then Sort
+    
     const filteredAndSortedData = useMemo(() => {
         let processed = submissions.filter(sub => 
             sub.candidateName.toLowerCase().includes(searchTerm.toLowerCase()) ||

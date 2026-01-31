@@ -1458,3 +1458,92 @@ button {
 .role-badge.candidate {
     background-color: #21f398;
 }
+
+.CandidateExamSetup {
+  width: 420px;
+  margin: auto;
+  padding: 28px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.CandidateExamSetup h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+.CandidateExamSetup p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #374151;
+}
+.CandidateExamSetup p b {
+  display: inline-block;
+  width: 140px;
+  color: #6b7280;
+  font-weight: 600;
+}
+.CandidateExamSetup hr {
+  border: none;
+  height: 1px;
+  background: #e5e7eb;
+  margin: 12px 0;
+}
+.CandidateExamSetup p:has(:not(b)) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.CandidateExamSetup p {
+  display: flex;
+  justify-content: space-between;
+}
+
+.CandidateExamSetup p::after {
+  content: attr(data-status);
+}
+.CandidateExamSetup button {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.RetryButton {
+  background: #f3f4f6;
+  color: #374151;
+}
+.RetryButton:hover {
+  background: #e5e7eb;
+}
+.CandidateExamSetup button:not(.RetryButton) {
+  background: #2563eb;
+  color: #ffffff;
+}
+.CandidateExamSetup button:not(.RetryButton):hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.CandidateExamSetup button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+.CandidateExamSetup label {
+  display: flex;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #374151;
+  align-items: center;
+}
+.App {
+  justify-content: center !important;
+  align-items: center !important;
+}

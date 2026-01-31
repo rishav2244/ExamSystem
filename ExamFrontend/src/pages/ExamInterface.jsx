@@ -30,14 +30,12 @@ export const ExamInterface = () => {
         });
     }, [submissionId, isDisqualified, showWarning]);
 
-    // ONLY Data Fetching & Initial Fullscreen
     useEffect(() => {
         if (!examId || !submissionId) return navigate('/user');
         document.documentElement.requestFullscreen().catch(console.error);
         fetchExamContent(examId).then(setExamData);
     }, [examId, submissionId, navigate]);
 
-    // ONLY Timer logic
     useEffect(() => {
         const timer = setInterval(() => {
             setTimeLeft(prev => {

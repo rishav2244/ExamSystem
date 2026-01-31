@@ -47,7 +47,6 @@ export const CandidateExamSetup = () => {
 
     const handleStartExam = async () => {
         try {
-            // Now 'resp' is { submissionId: "...", duration: 60 }
             const resp = await startExam(candidateExamId, name, email, "Browser-Client");
 
             navigate("/candidate/exam-room", {
@@ -68,7 +67,7 @@ export const CandidateExamSetup = () => {
 
             <p><b>Name:</b> {name}</p>
             <p><b>Email:</b> {email}</p>
-            {/* <p><b>Candidate Exam ID:</b> {candidateExamId}</p> */}
+            
 
             <hr />
 
