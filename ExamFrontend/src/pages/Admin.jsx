@@ -29,19 +29,7 @@ export const Admin = () => {
         <div
             className="AdminOverall">
 
-            {/* <div
-                className="CardArea">
-                <CreateExamCard
-                    onClick={() => { setIsCreateModalOpen(true) }}></CreateExamCard>
-
-                {listExams.map((exam) => (
-                    <ExamCard
-                        key={exam.id}
-                        exam={exam}
-                        onClick={() => { setSelectedExam(exam) }}
-                    />
-                ))}
-            </div> */}
+    
 
             <div className="AdminExamSection">
                 <div className="AdminExamHeader">

@@ -54,21 +54,8 @@ export const UserList = () => {
                     Found: {filteredUsers.length}
                 </div>
             </div>
-
-            {/* <div className="CardArea">
-                <CreateUserCard onClick={() => setIsCreateModalOpen(true)} />
-
-                {filteredUsers.map((user) => (
-                    <UserCard
-                        key={user.id}
-                        user={user}
-                        onClick={() => setSelectedUser(user)}
-                    />
-                ))}
-            </div> */}
             <div className="AdminUserSection">
 
-                {/* Header */}
                 <div className="AdminUserHeader">
                     <h2>Users</h2>
                     <button
@@ -78,8 +65,6 @@ export const UserList = () => {
                         + Create User
                     </button>
                 </div>
-
-                {/* User Table */}
                 <table className="UserTable">
                     <thead>
                         <tr>

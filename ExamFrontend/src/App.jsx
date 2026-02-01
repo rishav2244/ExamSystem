@@ -19,10 +19,10 @@ function App() {
     <AuthenticationContextProvider>
       <BrowserRouter>
         <Routes>
-          {/* public */}
+          
           <Route path="/login" element={<Login />} />
 
-          {/* protected */}
+          
           <Route element={<ProtectedRoute />}>
             <Route path="/user" element={<Candidate />} />
 
@@ -30,12 +30,12 @@ function App() {
 
             <Route path="/candidate/exam-room" element={<ExamInterface />} />
 
-            {/* admin-only */}
+            
             <Route element={<AdminRoute />}>
 
               <Route path="/admin" element={<AdminLayout />}>
 
-                {/* index tag makes it default view */}
+                
                 <Route index element={<Admin />} />
 
                 <Route path="exams" element={<Admin />} />

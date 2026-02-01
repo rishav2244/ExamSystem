@@ -28,18 +28,6 @@ export const GroupList = () => {
 
     return (
         <div className="UserListOverall">
-            {/* <div className="CardArea">
-                <CreateGroupCard onClick={() => setIsCreateOpen(true)} />
-
-                {groups.map(group => (
-                    <GroupCard
-                        key={group.id}
-                        group={group}
-                        onClick={(g) => setSelectedGroup(g)} // Set group to open modal
-                        onDelete={handleDelete}
-                    />
-                ))}
-            </div> */}
             <div className="AdminGroupSection">
 
                 <div className="AdminGroupHeader">

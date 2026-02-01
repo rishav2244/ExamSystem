@@ -19,9 +19,9 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
             });
     }, [exam.id]);
 
-    
+
     const filteredAndSortedData = useMemo(() => {
-        let processed = submissions.filter(sub => 
+        let processed = submissions.filter(sub =>
             sub.candidateName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             sub.candidateEmail.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -60,17 +60,16 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                 <button className="modal-close" onClick={onClose}>✕</button>
                 <h2>Results: {exam.title}</h2>
 
-                {/* Search Bar */}
                 <div className="modal-actions">
-                    <input 
-                        type="text" 
-                        placeholder="Search by name or email..." 
+                    <input
+                        type="text"
+                        placeholder="Search by name or email..."
                         className="table-search-input"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                
+
                 {loading ? <p>Loading...</p> : (
                     <div className="table-container">
                         <table className="admin-table">
