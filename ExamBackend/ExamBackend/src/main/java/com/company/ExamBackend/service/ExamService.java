@@ -14,5 +14,5 @@ public interface ExamService {
     void deleteExam(String id);
     void updateExam(String examId, String status);
     List<ExamCandidate> assignGroupToExam(String examId, String groupId);
-    public CandidateExamDTO getExamForCandidate(String examId);
+    CandidateExamDTO getExamForCandidate(String examId);
 }

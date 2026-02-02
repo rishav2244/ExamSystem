@@ -26,7 +26,7 @@ public class UserController {
         String token = userService.getToken(loginRequestDTO.getEmail());
         return ResponseEntity.ok()
                 .header("Authorization", "Bearer " + token)
-                .header("Access-Control-Expose-Headers", "Authorization") // Let React see this header
+                .header("Access-Control-Expose-Headers", "Authorization")
                 .body(responseDTO);
     }
 

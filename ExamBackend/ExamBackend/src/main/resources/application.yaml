@@ -21,7 +21,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true #Apparently it helps with debugging.
+    show-sql: false #Apparently it helps with debugging. Set to false now that I have logger.
 
 server:
   port: ${SERVER_PORT}
@@ -35,3 +35,9 @@ app:
     default-admin-email: ${DEFAULT_ADMIN_EMAIL}
     default-admin-password: ${DEFAULT_ADMIN_PASSWORD}
     default-candidate-password: ${DEFAULT_CANDIDATE_PASSWORD}
+
+logging:
+  level:
+    root: ${LOGGER_ROOT}
+    com.company.ExamBackend: ${APPLICATION_LOGGER_TYPE}
+    org.hibernate.SQL: ${HIBERNATE_LOGGER_TYPE}

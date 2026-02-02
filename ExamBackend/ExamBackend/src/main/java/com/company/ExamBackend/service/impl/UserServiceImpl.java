@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    //Used for generating the token to be sent upon login.
     @Override
     public String getToken(String email) {
         return jwtUtils.generateToken(email);

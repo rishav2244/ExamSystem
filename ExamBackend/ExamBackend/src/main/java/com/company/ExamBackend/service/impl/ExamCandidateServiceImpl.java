@@ -31,6 +31,7 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
     @Override
     public List<CandidateDashboardDTO> getCandidateDashboard(String email) {
         return examCandidateRepo.findByEmail(email).stream()
+                .filter(examCandidate -> "INVITED".equals(examCandidate.getStatus()))
                 .map(candidate -> CandidateDashboardDTO.builder()
                         .examId(candidate.getExam().getId())
                         .title(candidate.getExam().getTitle())

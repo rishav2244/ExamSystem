@@ -12,6 +12,7 @@ import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.ExamService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ExamServiceImpl implements ExamService {
 
     private final ExamRepository examRepository;
@@ -69,27 +71,33 @@ public class ExamServiceImpl implements ExamService {
     @Transactional
     @Override
     public void updateExam(String examId, String status) {
-        System.out.println("DEBUG: Starting updateExam for ID: " + examId + " with status: " + status);
+        log.info("Starting updateExam for ID: {} with status: {}", examId, status);
 
         int rowsUpdated = examRepository.updateExamStatus(examId, status);
         if (rowsUpdated == 0) {
+            log.error("Exam not found with id: {}", examId);
             throw new ExamNotFoundException("Exam not found with id: " + examId);
         }
 
+        //Checking for published in case we want to add other states later.
         if ("PUBLISHED".equalsIgnoreCase(status)) {
-            List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
-            System.out.println("DEBUG: Found " + candidates.size() + " candidates.");
+            List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId); //List of all candiates
+            //for a specific exam.
+            log.info("Found {} candidates", candidates.size());
 
+            //Parse through each candidate
             for (ExamCandidate candidate : candidates) {
+                //Only if candidate is of status UNINVITED,
                 if ("UNINVITED".equals(candidate.getStatus())) {
                     try {
-                        System.out.println("DEBUG: Attempting email to " + candidate.getEmail());
+                        //Attempt to email
+                        log.info("Attempting email to {}", candidate.getEmail());
+                        //Refer to sendInvitation from EmailServiceImpl.java
                         emailService.sendInvitation(candidate.getEmail(), candidate.getExam().getTitle());
-                        candidate.setStatus("INVITED");
-                        System.out.println("DEBUG: Email sent successfully!");
+                        candidate.setStatus("INVITED"); //Set status to invited
+                        log.info("Email sent successfully.");
                     } catch (Exception e) {
-                        System.err.println("CRITICAL EMAIL ERROR for " + candidate.getEmail());
-                        e.printStackTrace();
+                        log.error("Email error for candidate: {}", candidate.getEmail(), e);
                     }
                 }
             }
@@ -99,7 +107,7 @@ public class ExamServiceImpl implements ExamService {
 
     @Transactional
     public List<ExamCandidate> assignGroupToExam(String groupId, String examId) {
-        // Bombs early when exam is not found.
+        // Stops early when exam is not found.
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new ExamNotFoundException("Exam not found with id: " + examId));
 

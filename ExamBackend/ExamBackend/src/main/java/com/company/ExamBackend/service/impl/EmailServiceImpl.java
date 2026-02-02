@@ -12,17 +12,18 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
-    @Value("${app.security.default-candidate-password}")
-    private String defaultCandidatePassword;
+    @Value("${app.security.default-candidate-password}") //Fetched from application.yaml, which in turn
+    //derives the value from a .env file.
+    private String defaultCandidatePassword; //Default password as in the .env file.
 
     @Override
     public void sendInvitation(String to, String examTitle) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Invitation to Exam: " + examTitle);
+        SimpleMailMessage message = new SimpleMailMessage(); //Creating new SimpleMailMessage obj
+        message.setTo(to);//Whom to mail to
+        message.setSubject("Invitation to Exam: " + examTitle); //Literally subject
         message.setText("Hello! You have been invited to take the exam: " + examTitle +
                 ". Please login to the portal with the password "+defaultCandidatePassword+
-                ". You should reset this password later.");
+                ". You should reset this password later."); //Literally content
         mailSender.send(message);
     }
 }
