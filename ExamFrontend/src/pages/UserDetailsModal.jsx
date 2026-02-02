@@ -13,10 +13,6 @@ export const UserDetailsModal = ({ user, onClose }) => {
                 </h2>
 
                 <div className="user-details-container">
-                    <div className="user-info-row">
-                        <label>User ID</label>
-                        <p>{user.id}</p>
-                    </div>
 
                     <div className="user-info-row">
                         <label>Full Name</label>
