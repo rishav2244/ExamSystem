@@ -9,6 +9,7 @@ import com.company.ExamBackend.service.ExamCandidateService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -17,21 +18,31 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
 
     private final ExamCandidateRepo examCandidateRepo;
 
+    //Lists all candidates for respective exam.
     @Override
     public List<CandidateResponseDTO> getCandidates(String examId) {
         List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
         return CandidateMapper.toDTOList(candidates);
     }
 
+    //Removes candidate from exam, to be implemented later.
     @Override
     public void removeCandidate(String examId, String email) {
         examCandidateRepo.deleteByExamIdAndEmail(examId, email);
     }
 
+    //Sends exam details to candidate dashboard.
     @Override
     public List<CandidateDashboardDTO> getCandidateDashboard(String email) {
+        Instant now = Instant.now();
         return examCandidateRepo.findByEmail(email).stream()
                 .filter(examCandidate -> "INVITED".equals(examCandidate.getStatus()))
+                .filter(candidate -> {
+                    Instant start = candidate.getExam().getStartTime();
+                    Instant end = candidate.getExam().getEndTime();
+                    // Logic remains the same, just using Instant methods
+                    return (now.equals(start) || now.isAfter(start)) && now.isBefore(end);
+                })
                 .map(candidate -> CandidateDashboardDTO.builder()
                         .examId(candidate.getExam().getId())
                         .title(candidate.getExam().getTitle())

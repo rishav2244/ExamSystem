@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -30,6 +31,16 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         if (alreadyExists) {
             throw new RuntimeException("ALREADY_STARTED_OR_COMPLETED");
+        }
+
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new RuntimeException("EXAM_NOT_FOUND"));
+
+        Instant now = Instant.now();
+        boolean isTooLate = now.isAfter(exam.getEndTime());
+
+        if (isTooLate) {
+            throw new RuntimeException("EXAM_ALREADY_ENDED");
         }
     }
 
