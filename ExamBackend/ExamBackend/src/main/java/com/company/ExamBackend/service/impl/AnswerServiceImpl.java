@@ -1,6 +1,8 @@
 package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.AnswerRequestDTO;
+import com.company.ExamBackend.exception.QuestionNotFoundException;
+import com.company.ExamBackend.exception.SubmissionNotFoundException;
 import com.company.ExamBackend.mapper.AnswerMapper;
 import com.company.ExamBackend.model.Answer;
 import com.company.ExamBackend.model.Option;
@@ -34,20 +36,16 @@ public class AnswerServiceImpl implements AnswerService {
         answerRepository.findBySubmissionIdAndQuestionId(dto.getSubmissionId(), dto.getQuestionId())
                 .ifPresentOrElse(
                         existingAnswer -> {
-                            // Use findById instead of getReferenceById for safer handling
                             Option selected = (dto.getOptionId() != null)
                                     ? optionRepository.findById(dto.getOptionId()).orElse(null)
                                     : null;
                             existingAnswer.setSelectedOption(selected);
-                            // No need to call .save() here if object is managed and @Transactional is used,
-                            // but it doesn't hurt.
                         },
                         () -> {
-                            // Ensure parents exist
                             Submission submission = submissionRepository.findById(dto.getSubmissionId())
-                                    .orElseThrow(() -> new RuntimeException("Submission not found"));
+                                    .orElseThrow(() -> new SubmissionNotFoundException("Submission not found"));
                             Question question = questionRepository.findById(dto.getQuestionId())
-                                    .orElseThrow(() -> new RuntimeException("Question not found"));
+                                    .orElseThrow(() -> new QuestionNotFoundException("Question not found"));
                             Option option = (dto.getOptionId() != null)
                                     ? optionRepository.findById(dto.getOptionId()).orElse(null)
                                     : null;

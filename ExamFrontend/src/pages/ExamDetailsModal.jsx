@@ -10,7 +10,8 @@ import {
     getAllUserGroups,
     assignGroupToExam,
     getGroupMembers,
-    getExamCandidates
+    getExamCandidates,
+    deleteExam
 } from "../api/api";
 
 export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
@@ -25,7 +26,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const isPending = exam?.status === "PENDING";
     const canPublish = exam?.status === "SAVED" && selectedGroupId !== "";
 
-    useEffect(() => { 
+    useEffect(() => {
         if (isPending || !exam?.id) return;
 
         getExamQuestions(exam.id)
@@ -46,15 +47,15 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         }
     }, [exam?.status]);
 
-   
+
     useEffect(() => {
         if (exam?.status === "PUBLISHED") {
-           
+
             getExamCandidates(exam.id)
                 .then(data => setCandidates(data || []))
                 .catch(err => console.error("Failed to load assigned candidates", err));
         } else if (exam?.status === "SAVED" && selectedGroupId) {
-            
+
             getGroupMembers(selectedGroupId)
                 .then(data => setCandidates(data || []))
                 .catch(err => console.error("Failed to preview group", err));
@@ -63,7 +64,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         }
     }, [exam?.status, exam?.id, selectedGroupId]);
 
-    const transformCSV = (rows) => { 
+    const transformCSV = (rows) => {
         return rows.map((row) => {
             const result = {
                 Question: row["Question"],
@@ -135,7 +136,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 return `${label}: The Correct Answer does not match any of the provided options.`;
             }
         }
-        return null; 
+        return null;
     };
 
     const handleConfirmAndPublish = async () => {
@@ -223,12 +224,21 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     };
 
     const handleDeleteExam = async () => {
-        if (!window.confirm("ARE YOU SURE? This will permanently delete the exam and all its questions. This cannot be undone.")) {
+        if (!window.confirm("ARE YOU SURE? This will permanently delete the exam and all its questions, submissions, and candidate records. This cannot be undone.")) {
             return;
         }
-
-        console.log("Delete triggered for exam ID:", exam.id);
-        
+        try {
+            await deleteExam(exam.id);
+            alert("Exam deleted successfully.");
+            if (onQuestionsUploaded) {
+                onQuestionsUploaded();
+            }
+            onClose();
+        } catch (err) {
+            const errorMessage = err.response?.data?.message || "An error occurred while deleting the exam.";
+            alert(`Delete Failed: ${errorMessage}`);
+            console.error(err);
+        }
     };
 
     const handleSave = async () => {

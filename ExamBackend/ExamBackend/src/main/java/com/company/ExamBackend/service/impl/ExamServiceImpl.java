@@ -5,12 +5,14 @@ import com.company.ExamBackend.dto.ExamResponseDTO;
 import com.company.ExamBackend.dto.CandidateExamDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
+import com.company.ExamBackend.exception.InvalidActionException;
 import com.company.ExamBackend.mapper.ExamMapper;
 import com.company.ExamBackend.mapper.CandidateExamMapper;
 import com.company.ExamBackend.model.*;
 import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.ExamService;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,11 @@ public class ExamServiceImpl implements ExamService {
     private final ExamCandidateRepo examCandidateRepo;
     private final QuestionRepository questionRepository;
     private final EmailService emailService;
+    private final SubmissionRepository submissionRepository;
+    private final AnswerRepository answerRepository;
+    private final OptionRepository optionRepository;
+    private final SnapshotRepository snapshotRepository;
+    private final EntityManager entityManager;
 
     @Transactional
     @Override
@@ -63,9 +70,54 @@ public class ExamServiceImpl implements ExamService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public void deleteExam(String examId) {
-        examRepository.deleteById(examId);
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new ExamNotFoundException("Exam not found with id: " + examId));
+
+        //Check for two vital criteria: Whether it has been published (Simple deletion before publish)
+        //Another is whether it's finished. We don't want to delete an exam while candidate is
+        //in middle of it, and other stuff which would cause "Trouble".
+        boolean isPublished = "PUBLISHED".equalsIgnoreCase(exam.getStatus());
+        boolean isOver = exam.getEndTime().isBefore(java.time.Instant.now());
+
+        // Applying our criteria
+        if (isPublished && !isOver) {
+            throw new InvalidActionException("Cannot delete a published exam while it is still active.");
+        }
+
+        log.debug("Deleting for Exam ID: {}", examId);
+
+        // Deleting submissions for given exam Id.
+        List<Submission> submissions = submissionRepository.findByExamId(examId);
+        for (Submission sub : submissions) {
+            // Deleting associated answers and snapshots
+            answerRepository.deleteBySubmissionId(sub.getId());
+            snapshotRepository.deleteBySubmissionId(sub.getId());
+        }
+        submissionRepository.deleteByExamId(examId);
+
+        // Deleting questions
+        List<Question> questions = questionRepository.findByParentExamId(examId);
+        for (Question q : questions) {
+            //Deleting associated options
+            optionRepository.deleteByQuestionId(q.getId());
+        }
+        questionRepository.deleteByParentExamId(examId);
+
+        //Deleting candidates
+        examCandidateRepo.deleteByExamId(examId);
+
+        entityManager.flush();
+        entityManager.clear();
+        Exam clearedExam = examRepository.findById(examId)
+                .orElseThrow(() -> new ExamNotFoundException("Exam not found"));
+
+        //Now deleting exam
+        examRepository.delete(clearedExam);
+
+        log.debug("Exam {} and all associated data deleted successfully.", examId);
     }
 
     @Transactional
@@ -146,7 +198,7 @@ public class ExamServiceImpl implements ExamService {
     @Override
     public CandidateExamDTO getExamForCandidate(String examId) {
         Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new RuntimeException("Exam not found"));
+                .orElseThrow(() -> new ExamNotFoundException("Exam not found"));
         List<Question> questions = questionRepository.findByParentExamId(examId);
         return CandidateExamMapper.toDTO(exam, questions);
     }

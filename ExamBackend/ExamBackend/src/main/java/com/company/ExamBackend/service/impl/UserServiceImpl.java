@@ -10,7 +10,6 @@ import com.company.ExamBackend.mapper.UserMapper;
 import com.company.ExamBackend.model.Users;
 import com.company.ExamBackend.repository.UserRepository;
 import com.company.ExamBackend.service.UserService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;

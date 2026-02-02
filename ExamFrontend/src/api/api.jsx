@@ -121,6 +121,16 @@ export const publishExam = async (examId) => {
     }
 };
 
+export const deleteExam = async (examId) => {
+    try {
+        const resp = await axios.delete(`${API_URL}/exams/delete/${examId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Failed to delete exam:", err);
+        throw err;
+    }
+};
+
 export const getAllUsers = async () => {
     try {
         const resp = await axios.get(`${API_URL}/user/users`);

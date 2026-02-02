@@ -2,6 +2,7 @@ package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.QuestionDTO;
 import com.company.ExamBackend.dto.QuestionResponseDTO;
+import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.mapper.QuestionMapper;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.Question;
@@ -21,22 +22,16 @@ import java.util.List;
 public class QuestionServiceImpl implements QuestionService {
 
     private final QuestionRepository questionRepository;
-    private final OptionRepository optionRepository;
     private final ExamRepository examRepository;
 
     @Override
     public void saveQuestions(String examId, List<QuestionDTO> questionDTOs) {
-
-        if (!examRepository.existsById(examId)) {
-            throw new RuntimeException("Exam not found");
-        }
-
-        Exam exam = examRepository.getReferenceById(examId);
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new ExamNotFoundException("Exam not found"));
 
         for (QuestionDTO dto : questionDTOs) {
             Question question = QuestionMapper.toEntity(dto);
-            question.setParentExam(examRepository.getReferenceById(examId));
-
+            question.setParentExam(exam);
             questionRepository.save(question);
         }
 

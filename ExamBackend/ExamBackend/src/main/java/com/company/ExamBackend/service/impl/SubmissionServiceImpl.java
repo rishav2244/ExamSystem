@@ -3,6 +3,8 @@ package com.company.ExamBackend.service.impl;
 import com.company.ExamBackend.dto.StartExamRequestDTO;
 import com.company.ExamBackend.dto.StartExamResponseDTO;
 import com.company.ExamBackend.dto.SubmissionResponseDTO;
+import com.company.ExamBackend.exception.EligibilityException;
+import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.mapper.SubmissionMapper;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.ExamCandidate;
@@ -39,23 +41,23 @@ public class SubmissionServiceImpl implements SubmissionService {
         boolean alreadyExists = submissionRepository.existsByExamIdAndCandidateEmail(examId, email);
 
         if (alreadyExists) {
-            throw new RuntimeException("ALREADY_STARTED_OR_COMPLETED");
+            throw new EligibilityException("ALREADY_STARTED_OR_COMPLETED");
         }
 
         Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new RuntimeException("EXAM_NOT_FOUND"));
+                .orElseThrow(() -> new ExamNotFoundException("EXAM_NOT_FOUND"));
 
         Instant now = Instant.now();
         boolean isTooLate = now.isAfter(exam.getEndTime());
 
         if (isTooLate) {
-            throw new RuntimeException("EXAM_ALREADY_ENDED");
+            throw new EligibilityException("EXAM_ALREADY_ENDED");
         }
 
         Instant expectedFinishTime = now.plus(Duration.ofMinutes(exam.getDuration()));
 
         if (expectedFinishTime.isAfter(exam.getEndTime())) {
-            throw new RuntimeException("NOT_ENOUGH_TIME_REMAINING");
+            throw new EligibilityException("NOT_ENOUGH_TIME_REMAINING");
         }
     }
 
