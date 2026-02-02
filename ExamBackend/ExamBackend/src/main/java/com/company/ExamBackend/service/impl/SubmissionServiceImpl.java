@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
@@ -25,6 +26,14 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final ExamRepository examRepository;
     private final ExamCandidateRepo examCandidateRepo;
 
+    //Check eligibility has two purposes.
+    //First purpose is to not let candidate just log off and a come back to an unsubmitted exam, then continue it.
+    //While this is already covered in getCandidateDashboard(String email) method, we wish to keep it for now.
+    //Second purpose is to prevent candidate from logging into an exam that has already ended.
+    //For example, candidate enters dashboard and waits until end time of exam. Then he tries to log into it
+    //since the exam is already listed. In that case, candidate should not be able to do so.
+    //We will also have a refinement where candidate tries to enter an exam with not enough duration left,
+    //following which he'll fail rejection again.
     @Override
     public void checkEligibility(String examId, String email) {
         boolean alreadyExists = submissionRepository.existsByExamIdAndCandidateEmail(examId, email);
@@ -41,6 +50,12 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         if (isTooLate) {
             throw new RuntimeException("EXAM_ALREADY_ENDED");
+        }
+
+        Instant expectedFinishTime = now.plus(Duration.ofMinutes(exam.getDuration()));
+
+        if (expectedFinishTime.isAfter(exam.getEndTime())) {
+            throw new RuntimeException("NOT_ENOUGH_TIME_REMAINING");
         }
     }
 

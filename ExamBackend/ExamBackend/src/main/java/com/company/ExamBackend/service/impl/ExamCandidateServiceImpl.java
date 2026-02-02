@@ -9,6 +9,7 @@ import com.company.ExamBackend.service.ExamCandidateService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
@@ -40,8 +41,14 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
                 .filter(candidate -> {
                     Instant start = candidate.getExam().getStartTime();
                     Instant end = candidate.getExam().getEndTime();
-                    // Logic remains the same, just using Instant methods
-                    return (now.equals(start) || now.isAfter(start)) && now.isBefore(end);
+                    int durationMins = candidate.getExam().getDuration();
+                    //Checks if the exam has started and hasn't ended yet
+                    boolean isWithinWindow = (now.equals(start) || now.isAfter(start)) && now.isBefore(end);
+                    if (!isWithinWindow) return false;
+                    //Checks if there is enough time left to actually complete the exam
+                    Instant latestPossibleFinishTime = now.plus(Duration.ofMinutes(durationMins));
+
+                    return !latestPossibleFinishTime.isAfter(end);
                 })
                 .map(candidate -> CandidateDashboardDTO.builder()
                         .examId(candidate.getExam().getId())

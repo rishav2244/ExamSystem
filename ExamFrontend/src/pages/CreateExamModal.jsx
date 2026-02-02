@@ -50,17 +50,24 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
             alert("Duration is required");
             return;
         }
-        else if (examData.endTime < examData.startTime){
+        else if (examData.endTime < examData.startTime) {
             alert("Start date cannot be after end date.")
             return;
         }
-        else if (isNaN(examData.duration) || Number(examData.duration) <= 0)
-        {
+        else if (isNaN(examData.duration) || Number(examData.duration) <= 0) {
             alert("Duration cannot be negative or 0 or non-numeric.")
             return;
         }
-        
-        
+
+        const start = new Date(examData.startTime);
+        const end = new Date(examData.endTime);
+        const durationMinutes = Number(examData.duration);
+
+        const availableMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+        if (availableMinutes < (durationMinutes + 5)) {
+            alert(`The time window (${availableMinutes} mins) is too short for a ${durationMinutes} min exam plus the required 5-minute buffer.`);
+            return;
+        }
 
         try {
 
@@ -152,9 +159,9 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                                 onChange={handleChange} />
                         </div>
 
-                        <button 
-                        type="submit"
-                        className="form-submit">Create</button>
+                        <button
+                            type="submit"
+                            className="form-submit">Create</button>
                     </form>
                 </div>
             </div>
