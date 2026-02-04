@@ -1,5 +1,6 @@
 package com.company.ExamBackend.controller;
 
+import com.company.ExamBackend.dto.SubmissionDetailsDTO;
 import com.company.ExamBackend.dto.SubmissionResponseDTO;
 import com.company.ExamBackend.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,11 @@ public class SubmissionController {
     public ResponseEntity<List<SubmissionResponseDTO>> getExamSubmissions(@PathVariable String examId) {
         List<SubmissionResponseDTO> submissions = submissionService.getSubmissionsByExam(examId);
         return ResponseEntity.ok(submissions);
+    }
+
+    @GetMapping("/{submissionId}")
+    public ResponseEntity<SubmissionDetailsDTO> getSubmissionDetails(@PathVariable String submissionId) {
+        var details = submissionService.getSubmissionDetails(submissionId);
+        return ResponseEntity.ok(details);
     }
 }

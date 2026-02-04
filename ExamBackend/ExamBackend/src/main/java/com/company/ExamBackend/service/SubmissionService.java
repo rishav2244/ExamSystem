@@ -2,6 +2,7 @@ package com.company.ExamBackend.service;
 
 import com.company.ExamBackend.dto.StartExamRequestDTO;
 import com.company.ExamBackend.dto.StartExamResponseDTO;
+import com.company.ExamBackend.dto.SubmissionDetailsDTO;
 import com.company.ExamBackend.dto.SubmissionResponseDTO;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface SubmissionService {
     void reportViolation(String submissionId);
     void checkEligibility(String examId, String email);
     List<SubmissionResponseDTO> getSubmissionsByExam(String examId);
+    SubmissionDetailsDTO getSubmissionDetails(String submissionId);
 }

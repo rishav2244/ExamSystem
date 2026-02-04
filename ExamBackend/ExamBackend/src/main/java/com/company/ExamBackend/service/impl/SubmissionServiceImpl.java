@@ -2,16 +2,13 @@ package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.StartExamRequestDTO;
 import com.company.ExamBackend.dto.StartExamResponseDTO;
+import com.company.ExamBackend.dto.SubmissionDetailsDTO;
 import com.company.ExamBackend.dto.SubmissionResponseDTO;
 import com.company.ExamBackend.exception.EligibilityException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.mapper.SubmissionMapper;
-import com.company.ExamBackend.model.Exam;
-import com.company.ExamBackend.model.ExamCandidate;
-import com.company.ExamBackend.model.Submission;
-import com.company.ExamBackend.repository.ExamCandidateRepo;
-import com.company.ExamBackend.repository.ExamRepository;
-import com.company.ExamBackend.repository.SubmissionRepository;
+import com.company.ExamBackend.model.*;
+import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +24,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final SubmissionRepository submissionRepository;
     private final ExamRepository examRepository;
     private final ExamCandidateRepo examCandidateRepo;
+    private final AnswerRepository answerRepository;
+    private final QuestionRepository questionRepository;
 
     //Check eligibility has two purposes.
     //First purpose is to not let candidate just log off and a come back to an unsubmitted exam, then continue it.
@@ -94,5 +93,15 @@ public class SubmissionServiceImpl implements SubmissionService {
     public List<SubmissionResponseDTO> getSubmissionsByExam(String examId) {
         List<Submission> submissions = submissionRepository.findByExamId(examId);
         return SubmissionMapper.toDTOList(submissions);
+    }
+
+    @Override
+    public SubmissionDetailsDTO getSubmissionDetails(String submissionId) {
+        var submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new RuntimeException("Submission not found"));
+
+        var questions = questionRepository.findByParentExamId(submission.getExam().getId());
+        var answers = answerRepository.findBySubmissionId(submissionId);
+        return SubmissionMapper.toDetailsDTO(submission, questions, answers);
     }
 }
