@@ -177,7 +177,7 @@ public class ExamServiceImpl implements ExamService {
         List<ExamCandidate> newCandidates = sourceMembers.stream()
                 .map(GroupMember::getUser) //Maps each user in a group to what we want to work with.
                 .filter(user -> !existingEmails.contains(user.getEmail()))// Doesn't allow users from
-                // the exam whose email already exists in the lsit for the exam.
+                // the exam whose email already exists in the list for the exam.
                 .map(user -> {
                     ExamCandidate ec = new ExamCandidate();
                     ec.setExam(exam);

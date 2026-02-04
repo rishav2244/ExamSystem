@@ -34,7 +34,7 @@ public class SubmissionServiceImpl implements SubmissionService {
     //Second purpose is to prevent candidate from logging into an exam that has already ended.
     //For example, candidate enters dashboard and waits until end time of exam. Then he tries to log into it
     //since the exam is already listed. In that case, candidate should not be able to do so.
-    //We will also have a refinement where candidate tries to enter an exam with not enough duration left,
+    //We also have a case where candidate tries to enter an exam with not enough duration left,
     //following which he'll fail rejection again.
     @Override
     public void checkEligibility(String examId, String email) {

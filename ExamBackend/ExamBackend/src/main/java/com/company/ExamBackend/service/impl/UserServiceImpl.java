@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService {
         return jwtUtils.generateToken(email);
     }
 
+    //Gets all users of type candidate.
     @Override
     public List<UserHeavyDTO> getCandidates() {
         return userRepository.findAllByRole("CANDIDATE")
@@ -91,6 +92,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    //Lists all users regardless of role.
     @Override
     public List<UserHeavyDTO> getUsers() {
         return userRepository.findAll()
@@ -99,6 +101,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    //Gets info about specific users. Right now nothing much to get.
     @Override
     public UserHeavyDTO getUserById(String id) {
         return userMapper.

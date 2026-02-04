@@ -22,7 +22,8 @@ public class EmailServiceImpl implements EmailService {
         message.setTo(to);//Whom to mail to
         message.setSubject("Invitation to Exam: " + examTitle); //Literally subject
         message.setText("Hello! You have been invited to take the exam: " + examTitle +
-                ". Please login to the portal with the password "+defaultCandidatePassword+
+                ". If this is your first time logging in," +
+                " login to the portal with the password "+defaultCandidatePassword+
                 ". You should reset this password later."); //Literally content
         mailSender.send(message);
     }

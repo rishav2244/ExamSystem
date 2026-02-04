@@ -17,6 +17,7 @@ public class ExamCleanupScheduler {
     private final SubmissionRepository submissionRepository;
     private final AnswerService answerService;
 
+    //Checks every 1 minute.
     @Scheduled(fixedRate = 60000)
     public void autoSubmitExpiredExams() {
         List<Submission> activeSubmissions = submissionRepository.findByStatus("IN_PROGRESS");
