@@ -2,8 +2,6 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api";
 
-// /api/user for user, goes into /login and /register
-// /api/exams for exam, goes into /createExam and /getExams
 
 export const loginAttempt = async (email, password) => {
     const loginReqJSON = { email, password };
@@ -134,7 +132,7 @@ export const deleteExam = async (examId) => {
 export const getAllUsers = async () => {
     try {
         const resp = await axios.get(`${API_URL}/user/users`);
-        return resp.data; // This returns the List<UserHeavyDTO>
+        return resp.data; 
     } catch (err) {
         console.error("Error fetching users:", err);
         throw err;
@@ -204,12 +202,12 @@ export const checkCandidateEligibility = async (examId, email) => {
 };
 
 export const startExam = async (examId, name, email, location) => {
-    // These keys must match the Java private field names EXACTLY
+    
     const payload = {
         examId: examId,
-        candidateName: name,      // Matches 'private String candidateName'
-        candidateEmail: email,    // Matches 'private String candidateEmail'
-        location: location        // Matches 'private String location'
+        candidateName: name,      
+        candidateEmail: email,    
+        location: location       
     };
 
     const resp = await axios.post(`${API_URL}/candidateUser/start`, payload);
@@ -246,6 +244,18 @@ export const getSubmissionsByExam = async (examId) => {
         throw err;
     }
 };
+
+
+export const getSubmissionDetails = async (submissionId) => {
+    try {
+        const resp = await axios.get(`${API_URL}/submissions/${submissionId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching submission details:", err);
+        throw err;
+    }
+};
+
 
 axios.interceptors.request.use(
     (config) => {

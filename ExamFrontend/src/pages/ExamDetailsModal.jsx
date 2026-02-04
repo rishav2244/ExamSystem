@@ -274,7 +274,6 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
                 {exam && (
                     <div className="modal-exam-header">
-                        {/* <h3>Exam ID: {exam.id}</h3> */}
                         <h3>{exam.title}</h3>
                         <p>Status: {exam.status}</p>
                     </div>
@@ -307,7 +306,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                 ))}
                             </div>
 
-                            {/* SAVED: Show Dropdown to Assign Group */}
+                            
                             {exam?.status === "SAVED" && (
                                 <div className="group-assignment-section">
                                     <h4>Select Candidate Group</h4>
@@ -326,7 +325,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                 </div>
                             )}
 
-                            {/* LIST CONTAINER: Show for SAVED (if selected) or PUBLISHED (always) */}
+                            
                             {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
                                 <div className="candidate-list-container">
                                     <h5>
@@ -358,14 +357,14 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                         Delete Exam
                     </button>
 
-                    {/* Save Draft Questions (Pending only) */}
+                    
                     {isPending && CSVObj && CSVObj.length > 0 && (
                         <button onClick={handleSave} className="QuestionsSaveButton">
                             Save Questions to Exam
                         </button>
                     )}
 
-                    {/* Assign + Publish (Saved + Group Selected only) */}
+                    
                     {exam?.status === "SAVED" && selectedGroupId !== "" && (
                         <button onClick={handleConfirmAndPublish} className="PublishExamButton">
                             Confirm & Publish Exam

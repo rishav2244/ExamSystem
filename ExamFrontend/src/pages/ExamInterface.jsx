@@ -77,7 +77,7 @@ export const ExamInterface = () => {
             onContextMenu={(e) => { e.preventDefault(); triggerViolation(); }}
             onCopy={(e) => { e.preventDefault(); triggerViolation(); }}>
 
-            {/* ProctoringManager now handles all Event Listeners internally */}
+            
             <ProctoringManager
                 violationCount={violationCount}
                 isDisqualified={isDisqualified}

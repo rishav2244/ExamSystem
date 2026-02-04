@@ -1611,3 +1611,168 @@ button {
   color: #6b7280;
   margin-top: 32px;
 }
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background-color: #f5f7fa;
+}
+
+.submission-review-page {
+  padding: 24px;
+}
+
+.submission-review-page {
+  padding: 24px;
+}
+
+.page-loading,
+.page-error {
+  padding: 24px;
+  font-size: 16px;
+}
+
+.page-error {
+  color: #c62828;
+}
+
+.submission-summary {
+  display: flex;
+  gap: 32px;
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fb;
+  border-radius: 6px;
+}
+
+.submission-summary div {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.question-review-list {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.question-card {
+  border: 1px solid #e0e3e8;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+}
+
+.question-card.correct {
+  border-left: 6px solid #2e7d32;
+}
+
+.question-card.wrong {
+  border-left: 6px solid #c62828;
+}
+
+.question-card.unanswered {
+  border-left: 6px solid #9e9e9e;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.question-status {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.question-status.correct {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.question-status.wrong {
+  background: #fdecea;
+  color: #c62828;
+}
+
+.question-status.unanswered {
+  background: #f5f5f5;
+  color: #616161;
+}
+
+.question-marks {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #060101;
+}
+
+.options-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option-index {
+  font-weight: 600;
+}
+
+.correct-option {
+  border-color: #2e7d32;
+  background: #e8f5e9;
+}
+
+.selected-wrong-option {
+  border-color: #c62828;
+  background: #fdecea;
+}
+
+.selected-correct-option {
+  border-color: #2e7d32;
+  background: #e8f5e9;
+}
+
+.option-tag {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.correct-tag {
+  background: #2e7d32;
+  color: white;
+}
+
+.selected-tag {
+  background: #c62828;
+  color: white;
+}

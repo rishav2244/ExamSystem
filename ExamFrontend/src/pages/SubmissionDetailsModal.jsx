@@ -1,11 +1,16 @@
 import { useEffect, useState, useMemo } from 'react';
 import { getSubmissionsByExam } from '../api/api';
+import { useNavigate } from "react-router-dom";
+
 
 export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState({ key: 'submittedAt', direction: 'desc' });
+
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         getSubmissionsByExam(exam.id)
@@ -94,17 +99,28 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                             </thead>
                             <tbody>
                                 {filteredAndSortedData.map(sub => (
-                                    <tr key={sub.id}>
+                                    <tr
+                                        key={sub.id}
+                                        className="clickable-row"
+                                        onClick={() => navigate(`/admin/submissions/${sub.id}`)}
+                                    >
                                         <td>{sub.candidateName}</td>
                                         <td>{sub.candidateEmail}</td>
                                         <td>{sub.score?.toFixed(2)}</td>
-                                        <td className={sub.violations > 0 ? "warning-text" : ""}>{sub.violations}</td>
+                                        <td className={sub.violations > 0 ? "warning-text" : ""}>
+                                            {sub.violations}
+                                        </td>
                                         <td>{sub.timeTaken} min</td>
                                         <td>{formatDate(sub.submittedAt)}</td>
-                                        <td><span className={`status-badge ${sub.status}`}>{sub.status}</span></td>
+                                        <td>
+                                            <span className={`status-badge ${sub.status}`}>
+                                                {sub.status}
+                                            </span>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
+
                         </table>
                     </div>
                 )}
