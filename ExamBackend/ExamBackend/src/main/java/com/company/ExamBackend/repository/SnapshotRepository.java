@@ -6,10 +6,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface SnapshotRepository extends JpaRepository<Snapshot, String> {
 
     @Modifying
     @Transactional
     @Query("DELETE FROM Snapshot s WHERE s.submission.id = :submissionId")
     void deleteBySubmissionId(String submissionId);
+
+    List<Snapshot> findBySubmissionId(String submissionId);
 }

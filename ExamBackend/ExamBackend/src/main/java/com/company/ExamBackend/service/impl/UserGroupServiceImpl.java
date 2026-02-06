@@ -2,8 +2,10 @@ package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.dto.CreateGroupDTO;
 import com.company.ExamBackend.dto.GrpMemberDTO;
+import com.company.ExamBackend.dto.UserGroupResponseDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.exception.GroupNotFoundException;
+import com.company.ExamBackend.mapper.UserGroupMapper;
 import com.company.ExamBackend.model.GroupMember;
 import com.company.ExamBackend.model.UserGroup;
 import com.company.ExamBackend.model.Users;
@@ -24,49 +26,41 @@ public class UserGroupServiceImpl  implements UserGroupService {
     private UserGroupRepository userGroupRepository;
     private UserRepository userRepository;
     private GroupMemberRepository groupMemberRepository;
+    private UserGroupMapper  userGroupMapper;
 
     @Transactional
     @Override
-    public void createUserGroup(CreateGroupDTO createGroupDTO){
-        UserGroup userGroup = new UserGroup();
-        userGroup.setName(createGroupDTO.getGroupName());
-        Users user = userRepository.findByEmail(createGroupDTO.getCreatorMail()).orElseThrow(() -> new EmailNotFoundException("Email not found"));
-        userGroup.setCreatedBy(user);
+    public void createUserGroup(CreateGroupDTO createGroupDTO) {
+        Users creator = userRepository.findByEmail(createGroupDTO.getCreatorMail())
+                .orElseThrow(() -> new EmailNotFoundException("Email not found"));
+
+        UserGroup userGroup = userGroupMapper.toUserGroupEntity(createGroupDTO, creator);
         UserGroup savedGroup = userGroupRepository.save(userGroup);
 
         List<Users> candidates = userRepository.findAllByEmailIn(createGroupDTO.getGroupMembers());
 
         List<GroupMember> membersList = candidates.stream()
                 .filter(u -> "CANDIDATE".equalsIgnoreCase(u.getRole()))
-                .map(u -> {
-                    GroupMember member = new GroupMember();
-                    member.setGroup(savedGroup);
-                    member.setUser(u);
-                    return member;
-                })
+                .map(u -> userGroupMapper.toGroupMemberEntity(savedGroup, u))
                 .toList();
 
         groupMemberRepository.saveAll(membersList);
     }
 
     @Override
-    public List<UserGroup> getAllUserGroups() {
-        return userGroupRepository.findAll();
+    public List<UserGroupResponseDTO> getAllUserGroups() {
+        return userGroupRepository.findAll()
+                .stream()
+                .map(userGroupMapper::toGroupResponseDTO)
+                .toList();
     }
 
     @Override
     public List<GrpMemberDTO> getMembersByGroupId(String groupId) {
-        List<GroupMember> members = groupMemberRepository.findByGroupId(groupId);
-
-        return members.stream().map(m -> {
-            GrpMemberDTO dto = new GrpMemberDTO();
-
-            dto.setId(m.getUser().getId());
-            dto.setName(m.getUser().getName());
-            dto.setEmail(m.getUser().getEmail());
-
-            return dto;
-        }).toList();
+        return groupMemberRepository.findByGroupId(groupId)
+                .stream()
+                .map(userGroupMapper::toGrpMemberDTO) // Clean one-liner
+                .toList();
     }
 
     @Transactional

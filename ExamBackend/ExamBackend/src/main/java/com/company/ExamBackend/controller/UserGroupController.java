@@ -2,6 +2,7 @@ package com.company.ExamBackend.controller;
 
 import com.company.ExamBackend.dto.CreateGroupDTO;
 import com.company.ExamBackend.dto.GrpMemberDTO;
+import com.company.ExamBackend.dto.UserGroupResponseDTO;
 import com.company.ExamBackend.model.UserGroup;
 import com.company.ExamBackend.service.UserGroupService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class UserGroupController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<UserGroup>> getAllUserGroups() {
+    public ResponseEntity<List<UserGroupResponseDTO>> getAllUserGroups() {
         return ResponseEntity.ok(userGroupService.getAllUserGroups());
     }
 

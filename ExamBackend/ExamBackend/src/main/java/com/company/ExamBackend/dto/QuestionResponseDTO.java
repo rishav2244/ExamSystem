@@ -14,6 +14,6 @@ public class QuestionResponseDTO {
     private String id;
     private String text;
     private int marks;
-    private int correctOptionIndex;     // 0,1,2,3...
+    private int correctOptionIndex;
     private List<OptionResponseDTO> options;
 }

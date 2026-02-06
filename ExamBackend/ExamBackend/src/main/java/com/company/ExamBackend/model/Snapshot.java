@@ -24,9 +24,8 @@ public class Snapshot
     @Column(nullable = false)
     private String studentId;
 
-    @Lob
     @Column(nullable = false)
-    private String image;
+    private String imagePath;
 
     @Column(nullable = false)
     private Instant createdAt;

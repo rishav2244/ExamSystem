@@ -48,6 +48,9 @@ dependencies {
 	//Deals with envs
 	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
+	//Grants me swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+
 	// Main test starter (includes JUnit, Spring Test, Mockito, etc.)
 	// Supports @DataJpaTest, @WebMvcTest, @SpringBootTest, etc.
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
