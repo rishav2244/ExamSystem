@@ -33,7 +33,7 @@ export const UserDetailsModal = ({ user, onClose }) => {
                 </div>
 
                 <div className="modal-footer">
-                    <button 
+                    {/* <button 
                         className="DeleteUserButton"
                         onClick={() => {
                             if(window.confirm("Delete this user?")) {
@@ -42,7 +42,7 @@ export const UserDetailsModal = ({ user, onClose }) => {
                         }}
                     >
                         Delete User
-                    </button>
+                    </button> */}
                     
                     <button 
                         className="form-submit" 
