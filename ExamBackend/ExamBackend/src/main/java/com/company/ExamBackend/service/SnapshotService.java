@@ -8,5 +8,5 @@ import java.util.List;
 public interface SnapshotService {
     SnapshotResponseDTO createSnapshot(SnapshotRequestDTO requestDTO);
     List<SnapshotResponseDTO> getSnapshotsBySubmission(String submissionId);
-    public void deleteSnapshotsForSubmission(String submissionId);
+    void deleteSnapshotsForSubmission(String submissionId);
 }

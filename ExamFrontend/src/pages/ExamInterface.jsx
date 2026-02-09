@@ -10,6 +10,8 @@ export const ExamInterface = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { examId, submissionId, duration } = location.state || {};
+    const auth = JSON.parse(sessionStorage.getItem("auth"));
+    const studentId = auth?.user?.id;
 
     const [examData, setExamData] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
@@ -77,7 +79,7 @@ export const ExamInterface = () => {
             onContextMenu={(e) => { e.preventDefault(); triggerViolation(); }}
             onCopy={(e) => { e.preventDefault(); triggerViolation(); }}>
 
-            
+
             <ProctoringManager
                 violationCount={violationCount}
                 isDisqualified={isDisqualified}
@@ -85,6 +87,8 @@ export const ExamInterface = () => {
                 onViolation={triggerViolation}
                 onDismissWarning={handleDismissWarning}
                 onFinalize={handleFinish}
+                submissionId={submissionId}
+                studentId={studentId}
             />
 
             <ExamHeader

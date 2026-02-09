@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getSubmissionDetails } from "../api/api";
 
 export const SubmissionReview = () => {
@@ -8,6 +8,8 @@ export const SubmissionReview = () => {
     const [details, setDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         getSubmissionDetails(submissionId)
@@ -40,6 +42,15 @@ export const SubmissionReview = () => {
     return (
         <div className="submission-review-page">
             <h2>Submission Review</h2>
+
+            <div className="review-actions">
+                <button
+                    className="view-snapshots-btn"
+                    onClick={() => navigate(`/admin/submissions/${submissionId}/snapshots`)}
+                >
+                    📷 View Proctoring Snapshots
+                </button>
+            </div>
 
             <div className="submission-summary">
                 <div>

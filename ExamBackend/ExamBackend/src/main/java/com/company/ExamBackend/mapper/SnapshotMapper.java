@@ -18,7 +18,6 @@ public class SnapshotMapper {
         SnapshotResponseDTO dto = new SnapshotResponseDTO();
         dto.setId(snapshot.getId());
         dto.setSubmissionId(snapshot.getSubmission().getId());
-        dto.setStudentId(snapshot.getStudentId());
         dto.setCreatedAt(snapshot.getCreatedAt());
         dto.setImageUrl(BASE_URL + snapshot.getImagePath());
         return dto;
@@ -26,7 +25,6 @@ public class SnapshotMapper {
 
     public Snapshot toEntity(String studentId, Submission submission, String savedPath) {
         Snapshot snapshot = new Snapshot();
-        snapshot.setStudentId(studentId);
         snapshot.setSubmission(submission);
         snapshot.setImagePath(savedPath);
         snapshot.setCreatedAt(Instant.now());

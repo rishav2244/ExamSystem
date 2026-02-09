@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173")
+                .allowedOrigins("http://localhost:5173", "http://localhost:3000")
                 .allowedMethods("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Authorization")
@@ -25,8 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String location = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/";
-
+        String location = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/"; //Literal location
+        //Resource handler API to call.
         registry.addResourceHandler("/api/images/**")
                 .addResourceLocations("file:" + location);
     }

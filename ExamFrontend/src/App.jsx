@@ -14,6 +14,7 @@ import { CandidateExamSetup } from "./pages/CandidateExamSetup";
 import { ExamInterface } from "./pages/ExamInterface";
 import { Submissions } from "./pages/Submissions";
 import { SubmissionReview } from "./pages/SubmissionReview";
+import { SnapshotGallery } from "./pages/SnapshotGallery";
 
 
 function App() {
@@ -49,6 +50,8 @@ function App() {
                 <Route path="submissions" element={<Submissions />} />
 
                 <Route path="submissions/:submissionId" element={<SubmissionReview />} />
+
+                <Route path="submissions/:submissionId/snapshots" element={<SnapshotGallery />} />
                 
               </Route>
             </Route>

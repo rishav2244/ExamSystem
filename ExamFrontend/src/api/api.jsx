@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/api";
+// const API_URL = "http://localhost:8081/api";
 
 
 export const loginAttempt = async (email, password) => {
@@ -132,7 +133,7 @@ export const deleteExam = async (examId) => {
 export const getAllUsers = async () => {
     try {
         const resp = await axios.get(`${API_URL}/user/users`);
-        return resp.data; 
+        return resp.data;
     } catch (err) {
         console.error("Error fetching users:", err);
         throw err;
@@ -202,12 +203,12 @@ export const checkCandidateEligibility = async (examId, email) => {
 };
 
 export const startExam = async (examId, name, email, location) => {
-    
+
     const payload = {
         examId: examId,
-        candidateName: name,      
-        candidateEmail: email,    
-        location: location       
+        candidateName: name,
+        candidateEmail: email,
+        location: location
     };
 
     const resp = await axios.post(`${API_URL}/candidateUser/start`, payload);
@@ -256,6 +257,29 @@ export const getSubmissionDetails = async (submissionId) => {
     }
 };
 
+export const uploadSnapshot = async (submissionId, studentId, imageBlob) => {
+    const formData = new FormData();
+    formData.append('submissionId', submissionId);
+    formData.append('studentId', studentId);
+    formData.append('image', imageBlob, `snapshot_${Date.now()}.jpg`);
+
+    try {
+        const resp = await axios.post(`${API_URL}/snapshots`, formData); 
+        return resp.data;
+    } catch (err) {
+        console.error("Snapshot upload failed", err.response?.data || err.message);
+    }
+};
+
+export const getSnapshots = async (submissionId) => {
+    try {
+        const resp = await axios.get(`${API_URL}/snapshots/submission/${submissionId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching snapshots:", err);
+        throw err;
+    }
+};
 
 axios.interceptors.request.use(
     (config) => {

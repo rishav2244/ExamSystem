@@ -276,6 +276,8 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                     <div className="modal-exam-header">
                         <h3>{exam.title}</h3>
                         <p>Status: {exam.status}</p>
+                        <p className="exam-meta">Starts: {new Date(exam.startTime).toLocaleString()}</p>
+                        <p className="exam-meta">Ends: {new Date(exam.endTime).toLocaleString()}</p>
                     </div>
                 )}
 
@@ -306,7 +308,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                 ))}
                             </div>
 
-                            
+
                             {exam?.status === "SAVED" && (
                                 <div className="group-assignment-section">
                                     <h4>Select Candidate Group</h4>
@@ -325,7 +327,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                 </div>
                             )}
 
-                            
+
                             {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
                                 <div className="candidate-list-container">
                                     <h5>
@@ -357,14 +359,14 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                         Delete Exam
                     </button>
 
-                    
+
                     {isPending && CSVObj && CSVObj.length > 0 && (
                         <button onClick={handleSave} className="QuestionsSaveButton">
                             Save Questions to Exam
                         </button>
                     )}
 
-                    
+
                     {exam?.status === "SAVED" && selectedGroupId !== "" && (
                         <button onClick={handleConfirmAndPublish} className="PublishExamButton">
                             Confirm & Publish Exam
