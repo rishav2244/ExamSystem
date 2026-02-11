@@ -33,9 +33,10 @@ public class SnapshotServiceImpl implements SnapshotService {
                 .orElseThrow(() -> new RuntimeException("Submission not found"));
 
         String savedPath = fileStorage.save(requestDTO.getImage());
+        String type = requestDTO.getType();
         boolean violationStatus = requestDTO.isViolation();
 
-        Snapshot snapshot = snapshotMapper.toEntity(submission, savedPath, violationStatus);
+        Snapshot snapshot = snapshotMapper.toEntity(submission, savedPath, type, violationStatus);
         Snapshot savedSnapshot = snapshotRepository.save(snapshot);
 
         return snapshotMapper.toResponseDTO(savedSnapshot);

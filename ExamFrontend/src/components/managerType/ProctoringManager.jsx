@@ -23,7 +23,11 @@ export const ProctoringManager = ({
             if (imageSrc) {
                 try {
                     const blob = await fetch(imageSrc).then(res => res.blob());
-                    await uploadSnapshot(submissionId, studentId, blob, isViolationParam);
+                    await uploadSnapshot(submissionId, 
+                        studentId, 
+                        blob, 
+                        "WEBCAM", 
+                        isViolationParam);
                 } catch (error) {
                     console.error("Failed to capture/upload snapshot", error);
                 }

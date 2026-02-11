@@ -10,5 +10,6 @@ public class SnapshotRequestDTO {
     private String submissionId;
     private String studentId;
     private boolean violation;
+    private String type;
     private MultipartFile image;
 }

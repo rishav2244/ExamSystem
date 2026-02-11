@@ -28,5 +28,8 @@ public class Snapshot
     private boolean violation;
 
     @Column(nullable = false)
+    private String type;
+
+    @Column(nullable = false)
     private Instant createdAt;
 }

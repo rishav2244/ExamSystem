@@ -257,11 +257,12 @@ export const getSubmissionDetails = async (submissionId) => {
     }
 };
 
-export const uploadSnapshot = async (submissionId, studentId, imageBlob, isViolation = false) => {
+export const uploadSnapshot = async (submissionId, studentId, imageBlob, type, isViolation = false) => {
     const formData = new FormData();
     formData.append('submissionId', submissionId);
     formData.append('studentId', studentId);
     formData.append('violation', isViolation);
+    formData.append('type', type);
     formData.append('image', imageBlob, `snapshot_${Date.now()}.jpg`);
 
     console.log(formData);
