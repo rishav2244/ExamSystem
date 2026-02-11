@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Webcam from "react-webcam";
 import { startExam } from "../api/api";
 
 export const CandidateExamSetup = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const webcamRef = useRef(null);
+    const captureIntervalRef = useRef(null);
 
     const { candidateExamId, email, name } = location.state || {};
 
@@ -13,11 +16,15 @@ export const CandidateExamSetup = () => {
     const [locationAllowed, setLocationAllowed] = useState(false);
     const [consent, setConsent] = useState(false);
 
+    const [showCamera, setShowCamera] = useState(false);
+    const [cameraCheckStarted, setCameraCheckStarted] = useState(false);
+
     const allChecksPassed =
         cameraAllowed &&
         micAllowed &&
         locationAllowed &&
-        consent;
+        consent &&
+        cameraCheckStarted;
 
     const runSystemChecks = () => {
         setCameraAllowed(false);
@@ -45,9 +52,36 @@ export const CandidateExamSetup = () => {
         runSystemChecks();
     }, []);
 
+    const captureImage = () => {
+        if (webcamRef.current) {
+            const imageSrc = webcamRef.current.getScreenshot();
+            console.log("Camera snapshot taken (not saved)", imageSrc);
+        }
+    };
+
+    const startCameraCheck = () => {
+        setShowCamera(true);
+        setCameraCheckStarted(true);
+
+        captureIntervalRef.current = setInterval(() => {
+            captureImage();
+        }, 3000);
+    };
+
+    const stopCameraCheck = () => {
+        clearInterval(captureIntervalRef.current);
+    };
+
     const handleStartExam = async () => {
         try {
-            const resp = await startExam(candidateExamId, name, email, "Browser-Client");
+            stopCameraCheck();
+
+            const resp = await startExam(
+                candidateExamId,
+                name,
+                email,
+                "Browser-Client"
+            );
 
             navigate("/candidate/exam-room", {
                 state: {
@@ -61,27 +95,51 @@ export const CandidateExamSetup = () => {
         }
     };
 
+
     return (
         <div className="CandidateExamSetup">
             <h2>Exam Setup</h2>
 
             <p><b>Name:</b> {name}</p>
             <p><b>Email:</b> {email}</p>
-            
 
             <hr />
 
-            <p>Camera Access: {cameraAllowed ? "Allowed" : "Not Allowed "}</p>
-            <p>Mic Access: {micAllowed ? "Allowed " : "Not Allowed "}</p>
-            <p>Location Access: {locationAllowed ? "Allowed " : "Not Allowed "}</p>
+            <p>Camera Access: {cameraAllowed ? "Allowed" : "Not Allowed"}</p>
+            <p>Mic Access: {micAllowed ? "Allowed" : "Not Allowed"}</p>
+            <p>Location Access: {locationAllowed ? "Allowed" : "Not Allowed"}</p>
 
             {(!cameraAllowed || !micAllowed || !locationAllowed) && (
-                <button
-                    className="RetryButton"
-                    onClick={runSystemChecks}
-                >
+                <button onClick={runSystemChecks}>
                     Retry System Check
                 </button>
+            )}
+
+            <hr />
+
+            {cameraAllowed && (
+                <>
+                    {!showCamera && (
+                        <button onClick={startCameraCheck}>
+                            OK – Start Camera Check
+                        </button>
+                    )}
+
+                    {showCamera && (
+                        <>
+                            <Webcam
+                                ref={webcamRef}
+                                audio={false}
+                                screenshotFormat="image/jpeg"
+                                width={300}
+                                videoConstraints={{
+                                    facingMode: "user"
+                                }}
+                            />
+                            <p>Camera is active and capturing images</p>
+                        </>
+                    )}
+                </>
             )}
 
             <hr />
