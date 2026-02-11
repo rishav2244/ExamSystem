@@ -7,6 +7,7 @@
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   font-family: 'Arial', sans-serif;
 }
+
 .AdminOverall {
   height: 100vh;
   width: 100vw;
@@ -14,7 +15,7 @@
   flex-direction: column;
 }
 
-.CardArea{
+.CardArea {
   height: 100%;
   width: 100%;
   display: flex;
@@ -82,14 +83,14 @@ thead {
 .admin-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start; 
-  
+  justify-content: flex-start;
+
   height: 64px;
   padding: 0 24px;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  flex-shrink: 0; 
+  flex-shrink: 0;
   box-sizing: border-box;
 }
 
@@ -116,7 +117,7 @@ thead {
 }
 
 .admin-header__nav {
-  margin-left: auto; 
+  margin-left: auto;
   display: flex;
   align-items: center;
   height: 100%;
@@ -132,10 +133,10 @@ thead {
   margin-left: 20px;
   margin-top: 0;
   margin-bottom: 0;
-  
+
   padding: 8px 16px;
   height: fit-content;
-  
+
   font-size: 0.85rem;
   font-weight: 600;
   color: #ffffff;
@@ -143,7 +144,7 @@ thead {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -216,7 +217,7 @@ thead {
 }
 
 .ExamCard:active {
-  background-color: #1976d2; 
+  background-color: #1976d2;
 }
 
 .modal-backdrop {
@@ -271,7 +272,7 @@ thead {
 }
 
 .form-group input {
-  
+
   padding: 10px 12px;
   font-size: 0.9rem;
 
@@ -301,25 +302,25 @@ thead {
 }
 
 .exam-questions-container {
-    margin-top: 16px;
-    max-height: 60vh;
-    overflow-y: auto;
+  margin-top: 16px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .exam-question {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
 }
 
 .exam-question ul {
-    padding-left: 20px;
+  padding-left: 20px;
 }
 
 .exam-meta {
-    font-size: 0.9rem;
-    color: #555;
+  font-size: 0.9rem;
+  color: #555;
 }
 
 .modal-footer {
@@ -328,7 +329,7 @@ thead {
   align-items: center;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 2px solid #e5e7eb; 
+  border-top: 2px solid #e5e7eb;
 }
 
 .DeleteExamButton {
@@ -368,24 +369,24 @@ thead {
 }
 
 .PublishExamButton {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .PublishExamButton:hover {
-    background-color: #218838;
+  background-color: #218838;
 }
 
 .UserListOverall {
-  min-height: 100vh;          
+  min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f5f7fa;  
+  background-color: #f5f7fa;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -501,7 +502,7 @@ thead {
   font-size: 0.95rem;
   font-weight: 600;
   color: #ffffff;
-  background-color: #ef4444; 
+  background-color: #ef4444;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -513,140 +514,140 @@ thead {
 }
 
 .user-create-window {
-    height: auto; 
-    max-height: 85vh;
-    min-height: 400px;
+  height: auto;
+  max-height: 85vh;
+  min-height: 400px;
 }
 
 .user-create-header {
-    border-bottom: 2px solid #e5e7eb;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
 }
 
 .user-create-header h2 {
-    margin: 0;
-    color: #111827;
+  margin: 0;
+  color: #111827;
 }
 
 .role-select-input {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #d1d5db;
-    background-color: white;
-    font-size: 0.9rem;
-    outline: none;
-    cursor: pointer;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
 }
 
 .role-select-input:focus {
-    border-color: #2563eb;
+  border-color: #2563eb;
 }
 
 .CloseButtonSecondary {
-    padding: 10px 20px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #374151;
-    background-color: #f3f4f6;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .CloseButtonSecondary:hover {
-    background-color: #e5e7eb;
+  background-color: #e5e7eb;
 }
 
 .filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background: #ffffff;
-    padding: 12px 20px;
-    margin-bottom: 20px; 
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #ffffff;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .search-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    outline: none;
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
 }
 
 .search-input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 .role-select {
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    background-color: white;
-    font-size: 0.9rem;
-    cursor: pointer;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
 .user-count {
-    font-size: 0.85rem;
-    color: #6b7280;
-    font-weight: 600;
-    white-space: nowrap;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .selection-list-container {
-    margin: 20px 0;
-    max-height: 250px;
-    overflow-y: auto;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #f9fafb;
+  margin: 20px 0;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
 }
 
 .selection-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .selection-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .selection-item:hover {
-    background: #f3f4f6;
+  background: #f3f4f6;
 }
 
 .selection-checkbox {
-    width: 18px;
-    height: 18px;
-    margin-right: 12px;
-    cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  cursor: pointer;
 }
 
 .selection-info {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .selection-name {
-    font-weight: 600;
-    color: #1f2937;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .selection-email {
-    font-size: 0.85rem;
-    color: #6b7280;
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
 .GroupCard {
@@ -673,478 +674,516 @@ thead {
 }
 
 .GroupCard:hover {
-    background-color: #2196f3;
+  background-color: #2196f3;
 }
 
 .GroupCard:active {
-  background-color: #1976d2; 
+  background-color: #1976d2;
 }
 
 .subtitle {
-    color: #666;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
 }
 
 .detail-view {
-    cursor: default !important;
-    border-bottom: 1px solid #eee;
+  cursor: default !important;
+  border-bottom: 1px solid #eee;
 }
 
 .detail-view:hover {
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
-.loading-text, .empty-text {
-    text-align: center;
-    padding: 20px;
-    color: #888;
+.loading-text,
+.empty-text {
+  text-align: center;
+  padding: 20px;
+  color: #888;
 }
 
 .delete-button-secondary {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
 }
 
 .delete-button-secondary:hover {
-    background-color: #cc0000;
+  background-color: #cc0000;
 }
 
 .modal-header {
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 15px;
 }
 
 .group-assignment-section {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 2px solid #eee;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
 }
 
 .group-input-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .group-dropdown {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .AssignGroupButton {
-    padding: 8px 16px;
-    background-color: #2c3e50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 8px 16px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .AssignGroupButton:hover {
-    background-color: #1a252f;
+  background-color: #1a252f;
 }
 
 /* Candidate Display */
 .candidate-list-container {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 4px;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
 }
 
 .candidate-scroll {
-    max-height: 150px;
-    overflow-y: auto;
-    background: white;
-    border: 1px solid #ddd;
+  max-height: 150px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
 }
 
 .candidate-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 12px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
 }
 
 .candidate-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .candidate-email {
-    color: #666;
-    font-size: 0.85rem;
+  color: #666;
+  font-size: 0.85rem;
 }
 
 .dashboard-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 20px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 20px;
 }
 
 .candidate-exam-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .CandidateExamCard {
-    width: 260px;
-    height: 220px;
+  width: 260px;
+  height: 220px;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
-    padding: 16px;
-    border-radius: 10px;
-    border: 2px solid #374151;
+  padding: 16px;
+  border-radius: 10px;
+  border: 2px solid #374151;
 
-    background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 
-    transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .CandidateExamCard:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
 .exam-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
 }
 
 .exam-meta {
-    font-size: 0.85rem;
-    color: #4b5563;
-    margin: 2px 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin: 2px 0;
 }
 
 .CandidateActionButton {
-    margin-top: 10px;
-    padding: 10px;
+  margin-top: 10px;
+  padding: 10px;
 
-    font-size: 0.9rem;
-    font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 600;
 
-    color: #ffffff;
-    background-color: #2563eb;
+  color: #ffffff;
+  background-color: #2563eb;
 
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .CandidateActionButton:hover {
-    background-color: #1d4ed8;
+  background-color: #1d4ed8;
 }
 
 .CandidateActionButton:active {
-    transform: scale(0.97);
+  transform: scale(0.97);
 }
 
 .exam-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: #f4f7f9;
-    z-index: 1000;
-    overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f7f9;
+  z-index: 1000;
+  overflow: hidden;
 }
 
 .exam-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background: #2c3e50;
-    color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #2c3e50;
+  color: white;
 }
 
 .timer {
-    background: #e74c3c;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: bold;
+  background: #e74c3c;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
 }
 
 .exam-body {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
 .question-nav {
-    width: 250px;
-    background: white;
-    border-right: 1px solid #ddd;
-    padding: 1rem;
-    overflow-y: auto;
+  width: 250px;
+  background: white;
+  border-right: 1px solid #ddd;
+  padding: 1rem;
+  overflow-y: auto;
 }
 
 .nav-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 
 .nav-item {
-    padding: 10px;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
 }
 
-.nav-item.active { background: #3498db; color: white; border-color: #3498db; }
-.nav-item.answered { background: #2ecc71; color: white; border-color: #2ecc71; }
+.nav-item.active {
+  background: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.nav-item.answered {
+  background: #2ecc71;
+  color: white;
+  border-color: #2ecc71;
+}
 
 .question-section {
-    flex: 1;
-    padding: 2rem;
-    overflow-y: auto;
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
 }
 
 .question-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    position: relative;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .marks-badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: #eee;
-    padding: 0.2rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #eee;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
 }
 
 .options-list {
-    margin-top: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .option-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.2s;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.option-item:hover { background: #f9f9f9; }
-.option-item.selected { border-color: #3498db; background: #ebf5fb; }
+.option-item:hover {
+  background: #f9f9f9;
+}
+
+.option-item.selected {
+  border-color: #3498db;
+  background: #ebf5fb;
+}
 
 .option-index {
-    font-weight: bold;
-    margin-right: 1rem;
-    background: #ddd;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+  font-weight: bold;
+  margin-right: 1rem;
+  background: #ddd;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
 
 .navigation-controls {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: space-between;
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 button {
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.next-btn { background: #3498db; color: white; }
-.submit-btn { background: #2ecc71; color: white; }
+.next-btn {
+  background: #3498db;
+  color: white;
+}
+
+.submit-btn {
+  background: #2ecc71;
+  color: white;
+}
 
 .SubmissionsPage {
-    padding: 2rem;
-    color: #333;
+  padding: 2rem;
+  color: #333;
 }
 
 .admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.admin-table th, 
+.admin-table th,
 .admin-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
 .admin-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #555;
-    text-transform: uppercase;
-    font-size: 0.85rem;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  font-size: 0.85rem;
 }
 
 .admin-table tbody tr:hover {
-    background-color: #f1f4f8;
+  background-color: #f1f4f8;
 }
 
 .wide-modal {
-    width: 90% !important;
-    max-width: 1000px !important;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
+  width: 90% !important;
+  max-width: 1000px !important;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .table-container {
-    overflow-x: auto;
-    margin-top: 1rem;
-    max-height: 60vh;
+  overflow-x: auto;
+  margin-top: 1rem;
+  max-height: 60vh;
 }
 
 .status-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .status-badge.IN_PROGRESS {
-    background-color: #fff3cd;
-    color: #856404;
+  background-color: #fff3cd;
+  color: #856404;
 }
 
 .status-badge.COMPLETED {
-    background-color: #d4edda;
-    color: #155724;
+  background-color: #d4edda;
+  color: #155724;
 }
 
 .warning-text {
-    color: #dc3545;
-    font-weight: bold;
+  color: #dc3545;
+  font-weight: bold;
 }
 
 .view-results-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .view-results-btn:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 .modal-window h2 {
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
 }
 
 .modal-actions {
-    margin-bottom: 1rem;
-    display: flex;
-    gap: 10px;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 10px;
 }
 
 .table-search-input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 300px;
-    font-size: 0.9rem;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 300px;
+  font-size: 0.9rem;
 }
 
 .sortable {
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.2s;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
 }
 
 .sortable:hover {
-    background-color: #e9ecef !important;
+  background-color: #e9ecef !important;
 }
 
 .exam-stats {
-    display: flex;
-    gap: 20px;
-    align-items: center;
+  display: flex;
+  gap: 20px;
+  align-items: center;
 }
 
 .strike-counter {
-    background: #e0e0e0;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.9rem;
+  background: #e0e0e0;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.9rem;
 }
 
 .strike-counter.warning {
-    background: #ff4d4d;
-    color: white;
-    animation: shake 0.5s;
+  background: #ff4d4d;
+  color: white;
+  animation: shake 0.5s;
 }
 
 @keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  75% {
+    transform: translateX(-5px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .violation-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
+
 .violation-overlay .modal-window {
-    border: 3px solid #ff4d4d;
+  border: 3px solid #ff4d4d;
 }
 
 .modal-exam-header {
@@ -1156,289 +1195,294 @@ button {
 }
 
 .AdminExamSection {
-    padding: 32px;
-    background-color: #f5f7fa;
+  padding: 32px;
+  background-color: #f5f7fa;
 }
 
 .AdminExamHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .AdminExamHeader h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .CreateExamBtn {
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .CreateExamBtn:hover {
-    background-color: #1d4ed8;
+  background-color: #1d4ed8;
 }
 
 .ExamTable {
-    width: 100%;
-    background: white;
-    border-collapse: collapse;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .ExamTable th {
-    text-align: left;
-    padding: 14px;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: #6b7280;
-    border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  padding: 14px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .ExamTable td {
-    padding: 14px;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #f1f5f9;
+  padding: 14px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .ExamTable tr:hover {
-    background-color: #f9fafb;
+  background-color: #f9fafb;
 }
 
 .status {
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .status.pending {
-    background-color: #fef3c7;
-    color: #92400e;
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .status.saved {
-    background-color: #e0e7ff;
-    color: #3730a3;
+  background-color: #e0e7ff;
+  color: #3730a3;
 }
 
 .status.published {
-    background-color: #dcfce7;
-    color: #166534;
+  background-color: #dcfce7;
+  color: #166534;
 }
 
 .ViewBtn {
-    padding: 6px 14px;
-    background-color: #f3f4f6;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    cursor: pointer;
+  padding: 6px 14px;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .ViewBtn:hover {
-    background-color: #e5e7eb;
+  background-color: #e5e7eb;
 }
 
 .AdminGroupSection {
-    background: #ffffff;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .AdminGroupHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .AdminGroupHeader h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #1f2937;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .CreateGroupBtn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s ease;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .CreateGroupBtn:hover {
-    background: #1e40af;
+  background: #1e40af;
 }
 
 .GroupTable {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: #ffffff;
-    border-radius: 10px;
-    overflow: hidden;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .GroupTable thead {
-    background: #f9fafb;
+  background: #f9fafb;
 }
 
 .GroupTable th {
-    text-align: left;
-    padding: 14px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-    border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .GroupTable td {
-    padding: 14px 16px;
-    font-size: 14px;
-    color: #1f2937;
-    border-bottom: 1px solid #e5e7eb;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
 }
+
 .GroupTable tbody tr:hover {
-    background: #f9fafb;
+  background: #f9fafb;
 }
 
 .GroupTable tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
+
 .ViewBtn {
-    background: transparent;
-    border: 1px solid #2563eb;
-    color: #2563eb;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  background: transparent;
+  border: 1px solid #2563eb;
+  color: #2563eb;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .ViewBtn:hover {
-    background: #2563eb;
-    color: #ffffff;
+  background: #2563eb;
+  color: #ffffff;
 }
 
 .AdminUserSection {
-    width: 90%;
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    font-family: 'Arial', sans-serif;
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
 }
 
 .AdminUserHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .AdminUserHeader h2 {
-    font-size: 1.8rem;
-    color: #333333;
+  font-size: 1.8rem;
+  color: #333333;
 }
 
 .CreateUserBtn {
-    background-color: #2575fc;
-    color: #ffffff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #2575fc;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .CreateUserBtn:hover {
-    background-color: #1a5ed8;
+  background-color: #1a5ed8;
 }
 
 .UserTable {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.UserTable th, .UserTable td {
-    text-align: left;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e0e0e0;
-    font-size: 0.95rem;
-    color: #333333;
+.UserTable th,
+.UserTable td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+  color: #333333;
 }
 
 .UserTable th {
-    background-color: #f5f5f5;
-    font-weight: 600;
+  background-color: #f5f5f5;
+  font-weight: 600;
 }
 
 .UserTable tr:hover {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
 .role-badge {
-    padding: 0.3rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #ffffff;
-    display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ffffff;
+  display: inline-block;
 }
 
 .role-badge.admin {
-    background-color: #ff4d4f;
+  background-color: #ff4d4f;
 }
 
 .ViewBtn {
-    background-color: #49c2fb;
-    color: #ffffff;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #49c2fb;
+  color: #ffffff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .ViewBtn:hover {
-    background-color: #0c676ee3;
+  background-color: #0c676ee3;
 }
+
 .role-badge {
-    padding: 0.3rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #040404;
-    display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #040404;
+  display: inline-block;
 }
 
 .role-badge.admin {
-    background-color: #ff4d4f;
+  background-color: #ff4d4f;
 }
+
 .role-badge.candidate {
-    background-color: #21f398;
+  background-color: #21f398;
 }
 
 .CandidateExamSetup {
@@ -1453,6 +1497,7 @@ button {
   flex-direction: column;
   gap: 14px;
 }
+
 .CandidateExamSetup h2 {
   text-align: center;
   margin-bottom: 10px;
@@ -1460,28 +1505,33 @@ button {
   font-weight: 700;
   color: #111827;
 }
+
 .CandidateExamSetup p {
   margin: 0;
   font-size: 0.95rem;
   color: #374151;
 }
+
 .CandidateExamSetup p b {
   display: inline-block;
   width: 140px;
   color: #6b7280;
   font-weight: 600;
 }
+
 .CandidateExamSetup hr {
   border: none;
   height: 1px;
   background: #e5e7eb;
   margin: 12px 0;
 }
+
 .CandidateExamSetup p:has(:not(b)) {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .CandidateExamSetup p {
   display: flex;
   justify-content: space-between;
@@ -1490,6 +1540,7 @@ button {
 .CandidateExamSetup p::after {
   content: attr(data-status);
 }
+
 .CandidateExamSetup button {
   width: 100%;
   padding: 12px;
@@ -1500,24 +1551,30 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .RetryButton {
   background: #f3f4f6;
   color: #374151;
 }
+
 .RetryButton:hover {
   background: #e5e7eb;
 }
+
 .CandidateExamSetup button:not(.RetryButton) {
   background: #2563eb;
   color: #ffffff;
 }
+
 .CandidateExamSetup button:not(.RetryButton):hover:not(:disabled) {
   background: #1d4ed8;
 }
+
 .CandidateExamSetup button:disabled {
   background: #9ca3af;
   cursor: not-allowed;
 }
+
 .CandidateExamSetup label {
   display: flex;
   gap: 10px;
@@ -1604,6 +1661,7 @@ button {
   background-color: #a0aec0;
   cursor: not-allowed;
 }
+
 .loading-text,
 .empty-text {
   max-width: 1200px;
@@ -1611,6 +1669,7 @@ button {
   color: #6b7280;
   margin-top: 32px;
 }
+
 .clickable-row {
   cursor: pointer;
 }
@@ -1778,46 +1837,65 @@ button {
 }
 
 .snapshot-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
 }
 
 .snapshot-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    transition: transform 0.2s;
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.2s;
 }
 
 .snapshot-card:hover {
-    transform: scale(1.03);
+  transform: scale(1.03);
 }
 
 .snapshot-card img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
 }
 
 .snapshot-info {
-    padding: 10px;
-    font-size: 0.85rem;
-    color: #666;
-    text-align: center;
-    background: #f9f9f9;
+  padding: 10px;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+  background: #f9f9f9;
 }
 
 .view-snapshots-btn {
-    background-color: #6366f1;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-bottom: 20px;
+  background-color: #6366f1;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.snapshot-card.violation {
+    border: 2px solid #c62828 !important; 
+    box-shadow: 0 0 10px rgba(198, 40, 40, 0.3);
+}
+
+.violation-tag {
+  background: #c62828;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  text-transform: uppercase;
 }

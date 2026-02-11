@@ -257,11 +257,14 @@ export const getSubmissionDetails = async (submissionId) => {
     }
 };
 
-export const uploadSnapshot = async (submissionId, studentId, imageBlob) => {
+export const uploadSnapshot = async (submissionId, studentId, imageBlob, isViolation = false) => {
     const formData = new FormData();
     formData.append('submissionId', submissionId);
     formData.append('studentId', studentId);
+    formData.append('violation', isViolation);
     formData.append('image', imageBlob, `snapshot_${Date.now()}.jpg`);
+
+    console.log(formData);
 
     try {
         const resp = await axios.post(`${API_URL}/snapshots`, formData); 
@@ -274,6 +277,7 @@ export const uploadSnapshot = async (submissionId, studentId, imageBlob) => {
 export const getSnapshots = async (submissionId) => {
     try {
         const resp = await axios.get(`${API_URL}/snapshots/submission/${submissionId}`);
+        console.log(resp.data)
         return resp.data;
     } catch (err) {
         console.error("Error fetching snapshots:", err);

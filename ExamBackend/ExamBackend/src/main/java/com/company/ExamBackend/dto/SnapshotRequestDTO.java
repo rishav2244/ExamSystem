@@ -9,5 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class SnapshotRequestDTO {
     private String submissionId;
     private String studentId;
+    private boolean violation;
     private MultipartFile image;
 }

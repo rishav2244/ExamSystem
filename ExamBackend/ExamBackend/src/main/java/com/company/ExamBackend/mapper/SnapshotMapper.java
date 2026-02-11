@@ -19,15 +19,17 @@ public class SnapshotMapper {
         dto.setId(snapshot.getId());
         dto.setSubmissionId(snapshot.getSubmission().getId());
         dto.setCreatedAt(snapshot.getCreatedAt());
+        dto.setViolation(snapshot.isViolation());
         dto.setImageUrl(BASE_URL + snapshot.getImagePath());
         return dto;
     }
 
-    public Snapshot toEntity(String studentId, Submission submission, String savedPath) {
+    public Snapshot toEntity(Submission submission, String savedPath, boolean violation) {
         Snapshot snapshot = new Snapshot();
         snapshot.setSubmission(submission);
         snapshot.setImagePath(savedPath);
         snapshot.setCreatedAt(Instant.now());
+        snapshot.setViolation(violation);
         return snapshot;
     }
 }

@@ -12,6 +12,7 @@ import com.company.ExamBackend.model.*;
 import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.ExamService;
+import com.company.ExamBackend.service.SnapshotService;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,8 @@ public class ExamServiceImpl implements ExamService {
     private final OptionRepository optionRepository;
     private final SnapshotRepository snapshotRepository;
     private final EntityManager entityManager;
+
+    private final SnapshotService snapshotService;
 
     @Transactional
     @Override
@@ -92,10 +95,12 @@ public class ExamServiceImpl implements ExamService {
         // Deleting submissions for given exam Id.
         List<Submission> submissions = submissionRepository.findByExamId(examId);
         for (Submission sub : submissions) {
-            // Deleting associated answers and snapshots
             answerRepository.deleteBySubmissionId(sub.getId());
-            snapshotRepository.deleteBySubmissionId(sub.getId());
+            snapshotService.deleteSnapshotsForSubmission(sub.getId());
         }
+
+        entityManager.flush();
+
         submissionRepository.deleteByExamId(examId);
 
         // Deleting questions

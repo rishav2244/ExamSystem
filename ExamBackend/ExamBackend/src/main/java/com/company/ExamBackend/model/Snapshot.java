@@ -25,5 +25,8 @@ public class Snapshot
     private String imagePath;
 
     @Column(nullable = false)
+    private boolean violation;
+
+    @Column(nullable = false)
     private Instant createdAt;
 }

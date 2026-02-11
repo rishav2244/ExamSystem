@@ -13,4 +13,5 @@ public class SnapshotResponseDTO {
     private String studentId;
     private String imageUrl;
     private Instant createdAt;
+    private boolean violation;
 }
