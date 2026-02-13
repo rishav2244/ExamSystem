@@ -12,5 +12,5 @@ public interface UserService
     List<UserHeavyDTO> getUsers();
     UserHeavyDTO getUserById(String id);
     String getToken(String email);
-    void resetPassword(PasswordResetDTO passwordResetDTO);
+    void resetPassword(String currentUserEmail, PasswordResetDTO passwordResetDTO);
 }

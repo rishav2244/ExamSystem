@@ -74,9 +74,10 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void resetPassword(PasswordResetDTO passwordResetDTO) {
-        Users user = userRepository.findByEmail(passwordResetDTO.getEmail())
-                .orElseThrow(() -> new EmailNotFoundException("User not found with email: " + passwordResetDTO.getEmail()));
+    public void resetPassword(String email, PasswordResetDTO passwordResetDTO) {
+        // email comes from the JWT.
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException("User not found."));
 
         if (!passwordEncoder.matches(passwordResetDTO.getOldPassword(), user.getPassword())) {
             throw new PasswordMismatchException("The old password provided is incorrect.");

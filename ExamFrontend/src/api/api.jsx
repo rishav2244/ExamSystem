@@ -31,8 +31,8 @@ export const registrationAttempt = async (email, name, password, role) => {
     }
 }
 
-export const resetPassword = async (email, oldPassword, newPassword) => {
-    const payload = { email, oldPassword, newPassword };
+export const resetPassword = async (oldPassword, newPassword) => {
+    const payload = { oldPassword, newPassword };
     try {
         const resp = await axios.post(`${API_URL}/user/reset-password`, payload);
         return resp.data;

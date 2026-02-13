@@ -20,7 +20,7 @@ export const ResetPasswordModal = ({ email, onClose }) => {
         }
 
         try {
-            await resetPassword(email, formData.oldPassword, formData.newPassword);
+            await resetPassword(formData.oldPassword, formData.newPassword);
             alert("Password updated successfully!");
             onClose();
         } catch (err) {

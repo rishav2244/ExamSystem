@@ -4,6 +4,8 @@ import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,8 +33,11 @@ public class UserController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDTO passwordResetDTO) {
-        userService.resetPassword(passwordResetDTO);
+    public ResponseEntity<String> resetPassword(
+            @RequestBody PasswordResetDTO passwordResetDTO,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        userService.resetPassword(userDetails.getUsername(), passwordResetDTO);
         return ResponseEntity.ok("Password updated successfully.");
     }
 
