@@ -30,7 +30,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/candidateUser/**").hasRole("CANDIDATE")
                         .requestMatchers("/api/snapshots/submission/**").hasRole("ADMIN")
                         .requestMatchers("/api/snapshots/**").hasRole("CANDIDATE")
-                        .requestMatchers("/api/user/**").hasRole("ADMIN")
+                        .requestMatchers("/api/user/**").hasRole("ADMIN")//Done after normal login
+                        //since doing before that would override login's permitAll and thus restrict
+                        //login only to admin.
                         .requestMatchers("/api/exams/**").hasRole("ADMIN")
                         .requestMatchers("/api/candidate/**").hasRole("ADMIN")
                         .requestMatchers("/api/userGroups/**").hasRole("ADMIN")
