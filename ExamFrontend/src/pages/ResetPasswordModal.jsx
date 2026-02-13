@@ -24,7 +24,8 @@ export const ResetPasswordModal = ({ email, onClose }) => {
             alert("Password updated successfully!");
             onClose();
         } catch (err) {
-            alert(err.response?.data || "Failed to update password.");
+            const errorMsg = err.response?.data?.message || "Failed to update password.";
+            alert(errorMsg);
         }
     };
 
@@ -39,22 +40,22 @@ export const ResetPasswordModal = ({ email, onClose }) => {
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label>Current Password</label>
-                            <input 
-                                type="password" name="oldPassword" required 
+                            <input
+                                type="password" name="oldPassword" required
                                 value={formData.oldPassword} onChange={handleChange}
                             />
                         </div>
                         <div className="form-group">
                             <label>New Password</label>
-                            <input 
-                                type="password" name="newPassword" required 
+                            <input
+                                type="password" name="newPassword" required
                                 value={formData.newPassword} onChange={handleChange}
                             />
                         </div>
                         <div className="form-group">
                             <label>Confirm New Password</label>
-                            <input 
-                                type="password" name="confirmPassword" required 
+                            <input
+                                type="password" name="confirmPassword" required
                                 value={formData.confirmPassword} onChange={handleChange}
                             />
                         </div>

@@ -2,10 +2,7 @@ package com.company.ExamBackend.service.impl;
 
 import com.company.ExamBackend.config.JwtUtils;
 import com.company.ExamBackend.dto.*;
-import com.company.ExamBackend.exception.EmailExistsException;
-import com.company.ExamBackend.exception.EmailNotFoundException;
-import com.company.ExamBackend.exception.PasswordMismatchException;
-import com.company.ExamBackend.exception.UserNotFoundException;
+import com.company.ExamBackend.exception.*;
 import com.company.ExamBackend.mapper.UserMapper;
 import com.company.ExamBackend.model.Users;
 import com.company.ExamBackend.repository.UserRepository;
@@ -27,8 +24,11 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
 
-    @Value("${app.security.default-candidate-password}")
+    @Value("${app.security.default-candidate-password:test}")
     private String defaultCandidatePassword;
+
+    @Value("${app.security.candidate-password-max-length:40}")
+    private int passwordMaxLength;
 
     @Transactional
     @Override
@@ -75,10 +75,20 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void resetPassword(String email, PasswordResetDTO passwordResetDTO) {
-        // email comes from the JWT.
+        // Rule for character restriction
+        if (passwordResetDTO.getNewPassword().length() > passwordMaxLength) {
+            throw new InvalidActionException("Password cannot exceed "+passwordMaxLength+" characters.");
+        }
+
+        // New and old password cannot be same
+        if (passwordResetDTO.getNewPassword().equals(passwordResetDTO.getOldPassword())) {
+            throw new InvalidActionException("New password cannot be the same as the current password.");
+        }
+
         Users user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException("User not found."));
 
+        // Default password check
         if (!passwordEncoder.matches(passwordResetDTO.getOldPassword(), user.getPassword())) {
             throw new PasswordMismatchException("The old password provided is incorrect.");
         }
