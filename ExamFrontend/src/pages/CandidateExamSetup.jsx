@@ -32,7 +32,7 @@ export const CandidateExamSetup = () => {
 
     useEffect(() => {
         runSystemChecks();
-        
+
         return () => {
             if (screenStreamRef.current) {
                 screenStreamRef.current.getTracks().forEach(track => track.stop());
@@ -62,15 +62,19 @@ export const CandidateExamSetup = () => {
     const requestScreenShare = async () => {
         try {
             const stream = await navigator.mediaDevices.getDisplayMedia({
-                video: { displaySurface: "monitor" },
-                audio: false
+                video: {
+                    displaySurface: "browser",
+                },
+                audio: false,
+                preferCurrentTab: true,
+                selfBrowserSurface: "include"
             });
             screenStreamRef.current = stream;
             setScreenAllowed(true);
 
             stream.getVideoTracks()[0].onended = () => setScreenAllowed(false);
         } catch (err) {
-            console.error("Screen share permission denied", err);
+            console.error("Screen share denied", err);
             setScreenAllowed(false);
         }
     };
