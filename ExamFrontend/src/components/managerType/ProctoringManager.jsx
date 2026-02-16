@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
+import html2canvas from 'html2canvas';
 import { uploadSnapshot } from '../../api/api';
 import { ViolationOverlay } from '../FYIType/ViolationOverlay';
 
@@ -41,6 +42,30 @@ export const ProctoringManager = ({
         };
     }, []);
 
+    const captureTabScreenshot = useCallback(async () => {
+        try {
+            const canvas = await html2canvas(document.body, {
+                ignoreElements: (element) => element.hasAttribute('data-html2canvas-ignore'),
+                logging: false,
+                useCORS: true,
+            });
+
+            canvas.toBlob(async (blob) => {
+                if (blob) {
+                    await uploadSnapshot(
+                        submissionId,
+                        studentId,
+                        blob,
+                        "SCREENSHOT",
+                        true
+                    );
+                }
+            }, 'image/jpeg', 0.6);
+        } catch (error) {
+            console.error("Tab screenshot failed", error);
+        }
+    }, [submissionId, studentId]);
+
 
     const captureAndUpload = useCallback(async (isViolationParam = false) => {
         const video = videoRef.current;
@@ -82,9 +107,10 @@ export const ProctoringManager = ({
     useEffect(() => {
         if (violationCount > lastProcessedViolation.current) {
             captureAndUpload(true);
+            captureTabScreenshot();
             lastProcessedViolation.current = violationCount;
         }
-    }, [violationCount, captureAndUpload]);
+    }, [violationCount, captureAndUpload, captureTabScreenshot]);
 
     useEffect(() => {
         const handleVisibility = () => document.hidden && onViolation();
