@@ -8,25 +8,23 @@ export const CandidateExamSetup = () => {
     const location = useLocation();
     const webcamRef = useRef(null);
     const captureIntervalRef = useRef(null);
-    const screenStreamRef = useRef(null);
 
     const { candidateExamId, email, name } = location.state || {};
 
     const [cameraAllowed, setCameraAllowed] = useState(false);
     const [micAllowed, setMicAllowed] = useState(false);
     const [locationAllowed, setLocationAllowed] = useState(false);
-    const [screenAllowed, setScreenAllowed] = useState(false);
     const [consent, setConsent] = useState(false);
 
     const [showCamera, setShowCamera] = useState(false);
     const [loading, setLoading] = useState(false);
     const [cameraCheckStarted, setCameraCheckStarted] = useState(false);
 
+    
     const allChecksPassed =
         cameraAllowed &&
         micAllowed &&
         locationAllowed &&
-        screenAllowed &&
         consent &&
         cameraCheckStarted;
 
@@ -34,9 +32,6 @@ export const CandidateExamSetup = () => {
         runSystemChecks();
 
         return () => {
-            if (screenStreamRef.current) {
-                screenStreamRef.current.getTracks().forEach(track => track.stop());
-            }
             if (captureIntervalRef.current) clearInterval(captureIntervalRef.current);
         };
     }, []);
@@ -57,26 +52,6 @@ export const CandidateExamSetup = () => {
             () => setLocationAllowed(true),
             () => setLocationAllowed(false)
         );
-    };
-
-    const requestScreenShare = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getDisplayMedia({
-                video: {
-                    displaySurface: "browser",
-                },
-                audio: false,
-                preferCurrentTab: true,
-                selfBrowserSurface: "include"
-            });
-            screenStreamRef.current = stream;
-            setScreenAllowed(true);
-
-            stream.getVideoTracks()[0].onended = () => setScreenAllowed(false);
-        } catch (err) {
-            console.error("Screen share denied", err);
-            setScreenAllowed(false);
-        }
     };
 
     const startCameraCheck = () => {
@@ -115,11 +90,11 @@ export const CandidateExamSetup = () => {
         }
     };
 
+    
     const systemItems = [
         { id: 'cam', label: "Camera Access", status: cameraAllowed },
         { id: 'mic', label: "Microphone Access", status: micAllowed },
         { id: 'loc', label: "Location Services", status: locationAllowed },
-        { id: 'scr', label: "Screen Recording", status: screenAllowed, isAction: true },
     ];
 
     return (
@@ -137,11 +112,6 @@ export const CandidateExamSetup = () => {
                     <div key={item.id} className="checklist-row">
                         <span className="item-label">{item.label}</span>
                         <div className="item-status-group">
-                            {item.isAction && !item.status && (
-                                <button className="action-button" onClick={requestScreenShare}>
-                                    Grant Permission
-                                </button>
-                            )}
                             <span className={`status-tag ${item.status ? "ready" : "required"}`}>
                                 {item.status ? "Verified" : "Pending"}
                             </span>
@@ -166,7 +136,6 @@ export const CandidateExamSetup = () => {
                             width={320}
                             videoConstraints={{ facingMode: "user" }}
                         />
-                        <p className="webcam-hint"></p>
                     </div>
                 )}
             </div>
