@@ -1,58 +1,70 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSnapshots } from "../api/api";
+import { SnapshotSet } from "../components/FYIType/SnapshotSet";
+import { SnapshotModal } from "./SnapshotModal";
 
 export const SnapshotGallery = () => {
     const { submissionId } = useParams();
     const navigate = useNavigate();
     const [snapshots, setSnapshots] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeModal, setActiveModal] = useState(null);
 
     useEffect(() => {
         getSnapshots(submissionId)
             .then(setSnapshots)
-            .catch(err => console.error(err))
+            .catch(console.error)
             .finally(() => setLoading(false));
     }, [submissionId]);
 
-    if (loading) return <div className="page-loading">Loading proctoring logs...</div>;
+    const groupedSnapshots = useMemo(() => {
+        const groups = {};
+        const standalone = [];
+
+        snapshots.forEach(snap => {
+            if (snap.sl_violation) {
+                if (!groups[snap.sl_violation]) groups[snap.sl_violation] = [];
+                groups[snap.sl_violation].push(snap);
+            } else {
+                standalone.push([snap]);
+            }
+        });
+
+        return [...Object.values(groups), ...standalone].sort((a, b) =>
+            new Date(a[0].createdAt) - new Date(b[0].createdAt)
+        );
+    }, [snapshots]);
+
+    if (loading) return <div className="pg-loading">Loading session logs...</div>;
 
     return (
-        <div className="snapshot-gallery-page">
-            <div className="gallery-header">
-                <button onClick={() => navigate(-1)} className="back-btn">← Back to Review</button>
-                <h2>Proctoring Snapshots</h2>
+        <div className="pg-gallery-wrapper">
+            <div className="pg-gallery-nav">
+                <button onClick={() => navigate(-1)} className="pg-back-button">← Return</button>
+                <h2 className="pg-gallery-title">Proctoring Timeline</h2>
             </div>
 
-            {snapshots.length === 0 ? (
-                <div className="no-snapshots">No snapshots were captured for this session.</div>
-            ) : (
-                <div className="snapshot-grid">
-                    {snapshots.map((snap) => {
-                        const isViolation = snap.violation === true || snap.isViolation === true;
+            <div className="pg-timeline-list">
+                {groupedSnapshots.length === 0 ? (
+                    <div className="pg-empty-state">No evidence captured for this session.</div>
+                ) : (
+                    groupedSnapshots.map((pair, idx) => (
+                        <SnapshotSet
+                            key={idx}
+                            pair={pair}
+                            onOpen={(p, i) => setActiveModal({ pair: p, index: i })}
+                        />
+                    ))
+                )}
+            </div>
 
-                        return (
-                            <div
-                                key={snap.id}
-                                className={`snapshot-card ${isViolation ? 'violation' : ''}`}
-                            >
-                                {/* Tag will only show if isViolation is true */}
-                                {isViolation && <span className="violation-tag">Violation</span>}
-
-                                <img src={snap.imageUrl} alt="Proctoring Capture" loading="lazy" />
-
-                                <div className={`snapshot-info ${isViolation ? 'violation-info' : ''}`}>
-                                    <span>{new Date(snap.createdAt).toLocaleString()}</span>
-                                    {isViolation && (
-                                        <div style={{ color: '#c62828', fontSize: '10px', fontWeight: 'bold', marginTop: '4px' }}>
-                                            FLAGGED ACTIVITY
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+            {activeModal && (
+                <SnapshotModal
+                    pair={activeModal.pair}
+                    initialIdx={activeModal.index}
+                    onClose={() => setActiveModal(null)}
+                />
             )}
         </div>
     );

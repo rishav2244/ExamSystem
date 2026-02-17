@@ -257,14 +257,17 @@ export const getSubmissionDetails = async (submissionId) => {
     }
 };
 
-export const uploadSnapshot = async (submissionId, studentId, imageBlob, type, isViolation = false) => {
+export const uploadSnapshot = async (submissionId, imageBlob, type, isViolation = false, slViolation = null) => {
     const formData = new FormData();
     formData.append('submissionId', submissionId);
     formData.append('violation', isViolation);
     formData.append('type', type);
-    formData.append('image', imageBlob, `snapshot_${Date.now()}.jpg`);
+    
+    if (slViolation !== null) {
+        formData.append('sl_violation', slViolation);
+    }
 
-    console.log(formData);
+    formData.append('image', imageBlob, `snapshot_${Date.now()}.jpg`);
 
     try {
         const resp = await axios.post(`${API_URL}/snapshots`, formData); 

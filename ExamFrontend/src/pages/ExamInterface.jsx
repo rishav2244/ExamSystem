@@ -11,7 +11,7 @@ export const ExamInterface = () => {
     const navigate = useNavigate();
     const { examId, submissionId, duration } = location.state || {};
     const auth = JSON.parse(sessionStorage.getItem("auth"));
-    const studentId = auth?.user?.id;
+    // const studentId = auth?.user?.id;
 
     const [examData, setExamData] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
@@ -88,7 +88,6 @@ export const ExamInterface = () => {
                 onDismissWarning={handleDismissWarning}
                 onFinalize={handleFinish}
                 submissionId={submissionId}
-                studentId={studentId}
             />
 
             <ExamHeader
