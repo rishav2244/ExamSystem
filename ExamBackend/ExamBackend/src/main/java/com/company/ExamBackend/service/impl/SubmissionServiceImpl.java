@@ -54,7 +54,6 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
 
         Instant expectedFinishTime = now.plus(Duration.ofMinutes(exam.getDuration()));
-
         if (expectedFinishTime.isAfter(exam.getEndTime())) {
             throw new EligibilityException("NOT_ENOUGH_TIME_REMAINING");
         }
