@@ -14,7 +14,6 @@ export const SnapshotModal = ({ pair, initialIdx, onClose }) => {
     return (
         <div className="pg-modal-overlay" onClick={onClose}>
             <div className="pg-modal-content" onClick={e => e.stopPropagation()}>
-                {/* Close button now inside and relative to content */}
                 <div className="pg-modal-header">
                     <span className="pg-modal-title">Evidence View - {currentSnap.type}</span>
                     <button className="pg-modal-close-simple" onClick={onClose}>✕</button>
