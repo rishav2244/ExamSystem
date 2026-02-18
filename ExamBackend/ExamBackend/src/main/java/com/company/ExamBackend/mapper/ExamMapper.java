@@ -2,10 +2,12 @@ package com.company.ExamBackend.mapper;
 
 import com.company.ExamBackend.dto.ExamResponseDTO;
 import com.company.ExamBackend.model.Exam;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ExamMapper {
 
-    public static ExamResponseDTO toDTO(Exam entity) {
+    public ExamResponseDTO toDTO(Exam entity) {
         ExamResponseDTO dto = new ExamResponseDTO();
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
@@ -17,7 +19,7 @@ public class ExamMapper {
         return dto;
     }
 
-    public static Exam toEntity(ExamResponseDTO dto) {
+    public Exam toEntity(ExamResponseDTO dto) {
         Exam entity = new Exam();
         entity.setId(dto.getId());
         entity.setTitle(dto.getTitle());

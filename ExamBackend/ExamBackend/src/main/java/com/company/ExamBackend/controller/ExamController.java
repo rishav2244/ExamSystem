@@ -44,14 +44,18 @@ public class ExamController {
 
     @PostMapping("/Candidates/{examId}/{groupId}")
     public ResponseEntity<List<CandidateResponseDTO>> setCandidate(@PathVariable String examId, @PathVariable String groupId) {
-        List<ExamCandidate> candidates = examService.assignGroupToExam(groupId, examId);
-        List<CandidateResponseDTO> response = CandidateMapper.toDTOList(candidates);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(examService.assignGroupToExam(groupId, examId));
     }
 
     @DeleteMapping("/delete/{examId}")
     public ResponseEntity<Void> deleteExam(@PathVariable String examId) {
         examService.deleteExam(examId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/candidates/resend-invitation/{candidateId}")
+    public ResponseEntity<String> resendInvitation(@PathVariable String candidateId) {
+        examService.resendInvitation(candidateId);
+        return ResponseEntity.ok("Invitation resent successfully");
     }
 }

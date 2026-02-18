@@ -6,34 +6,36 @@ import com.company.ExamBackend.dto.CandidateQuestionDTO;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.Option;
 import com.company.ExamBackend.model.Question;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class CandidateExamMapper {
 
-    public static CandidateExamDTO toDTO(Exam exam, List<Question> questions) {
+    public CandidateExamDTO toDTO(Exam exam, List<Question> questions) {
         return CandidateExamDTO.builder()
                 .id(exam.getId())
                 .title(exam.getTitle())
                 .questions(questions.stream()
-                        .map(CandidateExamMapper::toQuestionDTO)
+                        .map(this::toQuestionDTO)
                         .collect(Collectors.toList()))
                 .build();
     }
 
-    private static CandidateQuestionDTO toQuestionDTO(Question question) {
+    private CandidateQuestionDTO toQuestionDTO(Question question) {
         return CandidateQuestionDTO.builder()
                 .id(question.getId())
                 .text(question.getText())
                 .marks(question.getMarks())
                 .options(question.getOptions().stream()
-                        .map(CandidateExamMapper::toOptionDTO)
+                        .map(this::toOptionDTO)
                         .collect(Collectors.toList()))
                 .build();
     }
 
-    private static CandidateOptionDTO toOptionDTO(Option option) {
+    private CandidateOptionDTO toOptionDTO(Option option) {
         return CandidateOptionDTO.builder()
                 .id(option.getId())
                 .text(option.getText())

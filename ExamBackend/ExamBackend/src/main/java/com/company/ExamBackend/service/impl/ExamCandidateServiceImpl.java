@@ -19,11 +19,13 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
 
     private final ExamCandidateRepo examCandidateRepo;
 
+    private final CandidateMapper candidateMapper;
+
     //Lists all candidates for respective exam.
     @Override
     public List<CandidateResponseDTO> getCandidates(String examId) {
         List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
-        return CandidateMapper.toDTOList(candidates);
+        return candidateMapper.toDTOList(candidates);
     }
 
     //Removes candidate from exam, to be implemented later.
@@ -36,28 +38,27 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
     @Override
     public List<CandidateDashboardDTO> getCandidateDashboard(String email) {
         Instant now = Instant.now();
-        return examCandidateRepo.findByEmail(email).stream()
-                .filter(examCandidate -> "INVITED".equals(examCandidate.getStatus()))
-                .filter(candidate -> {
-                    Instant start = candidate.getExam().getStartTime();
-                    Instant end = candidate.getExam().getEndTime();
-                    int durationMins = candidate.getExam().getDuration();
-                    //Checks if the exam has started and hasn't ended yet
-                    boolean isWithinWindow = (now.equals(start) || now.isAfter(start)) && now.isBefore(end);
-                    if (!isWithinWindow) return false;
-                    //Checks if there is enough time left to actually complete the exam
-                    Instant latestPossibleFinishTime = now.plus(Duration.ofMinutes(durationMins));
 
-                    return !latestPossibleFinishTime.isAfter(end);
-                })
-                .map(candidate -> CandidateDashboardDTO.builder()
-                        .examId(candidate.getExam().getId())
-                        .title(candidate.getExam().getTitle())
-                        .duration(candidate.getExam().getDuration())
-                        .startTime(candidate.getExam().getStartTime())
-                        .endTime(candidate.getExam().getEndTime())
-                        .candidateStatus(candidate.getStatus())
-                        .build())
+        return examCandidateRepo.findByEmail(email).stream()
+                .filter(candidate -> "INVITED".equals(candidate.getStatus()))
+                .filter(candidate -> isWithinValidTimeWindow(candidate, now))
+                .map(candidateMapper::toDashboardDTO)
                 .toList();
+    }
+
+    // ======================================================================================
+    // Helper methods
+    // ======================================================================================
+
+    private boolean isWithinValidTimeWindow(ExamCandidate candidate, Instant now) {
+        Instant start = candidate.getExam().getStartTime();
+        Instant end = candidate.getExam().getEndTime();
+        int durationMins = candidate.getExam().getDuration();
+
+        boolean isActive = (now.equals(start) || now.isAfter(start)) && now.isBefore(end);
+        if (!isActive) return false;
+
+        Instant latestPossibleFinish = now.plus(Duration.ofMinutes(durationMins));
+        return !latestPossibleFinish.isAfter(end);
     }
 }
