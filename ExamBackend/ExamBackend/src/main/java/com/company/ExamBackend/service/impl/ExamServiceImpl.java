@@ -1,11 +1,13 @@
 package com.company.ExamBackend.service.impl;
 
+import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
 import com.company.ExamBackend.dto.CandidateExamDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.exception.InvalidActionException;
+import com.company.ExamBackend.mapper.CandidateMapper;
 import com.company.ExamBackend.mapper.ExamMapper;
 import com.company.ExamBackend.mapper.CandidateExamMapper;
 import com.company.ExamBackend.model.*;
@@ -36,8 +38,11 @@ public class ExamServiceImpl implements ExamService {
     private final SubmissionRepository submissionRepository;
     private final AnswerRepository answerRepository;
     private final OptionRepository optionRepository;
-    private final SnapshotRepository snapshotRepository;
     private final EntityManager entityManager;
+
+    private final CandidateMapper candidateMapper;
+    private final ExamMapper examMapper;
+    private final CandidateExamMapper candidateExamMapper;
 
     private final SnapshotService snapshotService;
 
@@ -45,8 +50,7 @@ public class ExamServiceImpl implements ExamService {
     @Override
     public ExamResponseDTO createExam(CreateExamDTO dto) {
 
-        Users user = userRepository.findByEmail(dto.getCreatedBy())
-                .orElseThrow(() -> new EmailNotFoundException("email not found"));
+        Users user = findUserByEmail(dto.getCreatedBy());
 
         Exam exam = new Exam();
         exam.setTitle(dto.getTitle());
@@ -56,73 +60,44 @@ public class ExamServiceImpl implements ExamService {
         exam.setStatus(dto.getStatus());
         exam.setCreatedBy(user);
         Exam saved = examRepository.save(exam);
-        return ExamMapper.toDTO(saved);
+        return examMapper.toDTO(saved);
     }
 
     @Override
     public List<ExamResponseDTO> getExams() {
         return examRepository.findAll().stream()
-                .map(ExamMapper::toDTO)
+                .map(examMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ExamResponseDTO> getExamsByStatus(String status) {
         return examRepository.findByStatus(status).stream()
-                .map(ExamMapper::toDTO)
+                .map(examMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public void deleteExam(String examId) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new ExamNotFoundException("Exam not found with id: " + examId));
+        Exam exam = findExamById(examId);
 
-        //Check for two vital criteria: Whether it has been published (Simple deletion before publish)
-        //Another is whether it's finished. We don't want to delete an exam while candidate is
-        //in middle of it, and other stuff which would cause "Trouble".
-        boolean isPublished = "PUBLISHED".equalsIgnoreCase(exam.getStatus());
-        boolean isOver = exam.getEndTime().isBefore(java.time.Instant.now());
+        //Validate if deletion is allowed
+        validateExamDeletion(exam);
 
-        // Applying our criteria
-        if (isPublished && !isOver) {
-            throw new InvalidActionException("Cannot delete a published exam while it is still active.");
-        }
+        log.debug("Deleting all associated data for Exam ID: {}", examId);
 
-        log.debug("Deleting for Exam ID: {}", examId);
-
-        // Deleting submissions for given exam Id.
-        List<Submission> submissions = submissionRepository.findByExamId(examId);
-        for (Submission sub : submissions) {
-            answerRepository.deleteBySubmissionId(sub.getId());
-            snapshotService.deleteSnapshotsForSubmission(sub.getId());
-        }
-
-        entityManager.flush();
-
-        submissionRepository.deleteByExamId(examId);
-
-        // Deleting questions
-        List<Question> questions = questionRepository.findByParentExamId(examId);
-        for (Question q : questions) {
-            //Deleting associated options
-            optionRepository.deleteByQuestionId(q.getId());
-        }
-        questionRepository.deleteByParentExamId(examId);
-
-        //Deleting candidates
-        examCandidateRepo.deleteByExamId(examId);
+        //Cascade cleanup of related entities
+        cleanupSubmissions(examId);
+        cleanupQuestionsAndOptions(examId);
+        cleanupCandidates(examId);
 
         entityManager.flush();
         entityManager.clear();
-        Exam clearedExam = examRepository.findById(examId)
-                .orElseThrow(() -> new ExamNotFoundException("Exam not found"));
 
-        //Now deleting exam
-        examRepository.delete(clearedExam);
-
-        log.debug("Exam {} and all associated data deleted successfully.", examId);
+        //Final deletion
+        examRepository.delete(exam);
+        log.debug("Exam {} deleted successfully.", examId);
     }
 
     @Transactional
@@ -130,43 +105,20 @@ public class ExamServiceImpl implements ExamService {
     public void updateExam(String examId, String status) {
         log.info("Starting updateExam for ID: {} with status: {}", examId, status);
 
-        int rowsUpdated = examRepository.updateExamStatus(examId, status);
-        if (rowsUpdated == 0) {
-            log.error("Exam not found with id: {}", examId);
-            throw new ExamNotFoundException("Exam not found with id: " + examId);
-        }
+        //Update the status in the DB
+        persistStatusUpdate(examId, status);
 
-        //Checking for published in case we want to add other states later.
+        //Handle side effects (like invitations)
         if ("PUBLISHED".equalsIgnoreCase(status)) {
-            List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId); //List of all candiates
-            //for a specific exam.
-            log.info("Found {} candidates", candidates.size());
-
-            //Parse through each candidate
-            for (ExamCandidate candidate : candidates) {
-                //Only if candidate is of status UNINVITED,
-                if ("UNINVITED".equals(candidate.getStatus())) {
-                    try {
-                        //Attempt to email
-                        log.info("Attempting email to {}", candidate.getEmail());
-                        //Refer to sendInvitation from EmailServiceImpl.java
-                        emailService.sendInvitation(candidate.getEmail(), candidate.getExam().getTitle());
-                        candidate.setStatus("INVITED"); //Set status to invited
-                        log.info("Email sent successfully.");
-                    } catch (Exception e) {
-                        log.error("Email error for candidate: {}", candidate.getEmail(), e);
-                    }
-                }
-            }
-            examCandidateRepo.saveAll(candidates);
+            sendInvitationsToUninvitedCandidates(examId);
         }
     }
 
+    @Override
     @Transactional
-    public List<ExamCandidate> assignGroupToExam(String groupId, String examId) {
+    public List<CandidateResponseDTO> assignGroupToExam(String groupId, String examId) {
         // Stops early when exam is not found.
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new ExamNotFoundException("Exam not found with id: " + examId));
+        Exam exam = findExamById(examId);
 
         // List all existing members for group ID.
         List<GroupMember> sourceMembers = groupMemberRepository.findByGroupId(groupId);
@@ -194,7 +146,8 @@ public class ExamServiceImpl implements ExamService {
 
         //Make sure we aren't trying to save empty lists.
         if (!newCandidates.isEmpty()) {
-            return examCandidateRepo.saveAll(newCandidates);
+            List<ExamCandidate> saved = examCandidateRepo.saveAll(newCandidates);
+            return candidateMapper.toDTOList(saved);
         }
 
         return List.of();
@@ -202,9 +155,96 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public CandidateExamDTO getExamForCandidate(String examId) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new ExamNotFoundException("Exam not found"));
+        Exam exam = findExamById(examId);
         List<Question> questions = questionRepository.findByParentExamId(examId);
-        return CandidateExamMapper.toDTO(exam, questions);
+        return candidateExamMapper.toDTO(exam, questions);
+    }
+
+    @Override
+    @Transactional
+    public void resendInvitation(String candidateId) {
+        ExamCandidate candidate = examCandidateRepo.findById(candidateId)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        sendInvitationEmail(candidate);
+
+        // Save the status change (if it was UNINVITED, it's now INVITED)
+        examCandidateRepo.save(candidate);
+    }
+
+    // ======================================================================================
+    // Helper methods
+    // ======================================================================================
+
+    private void validateExamDeletion(Exam exam) {
+        boolean isPublished = "PUBLISHED".equalsIgnoreCase(exam.getStatus());
+        boolean isOver = exam.getEndTime().isBefore(java.time.Instant.now());
+
+        if (isPublished && !isOver) {
+            throw new InvalidActionException("Cannot delete a published exam while it is still active.");
+        }
+    }
+
+    private void cleanupSubmissions(String examId) {
+        List<Submission> submissions = submissionRepository.findByExamId(examId);
+        for (Submission sub : submissions) {
+            answerRepository.deleteBySubmissionId(sub.getId());
+            snapshotService.deleteSnapshotsForSubmission(sub.getId());
+        }
+        // Flush child records (snapshots/answers) before removing the parent (submission)
+        entityManager.flush();
+        submissionRepository.deleteByExamId(examId);
+    }
+
+    private void cleanupQuestionsAndOptions(String examId) {
+        List<Question> questions = questionRepository.findByParentExamId(examId);
+        for (Question q : questions) {
+            optionRepository.deleteByQuestionId(q.getId());
+        }
+        questionRepository.deleteByParentExamId(examId);
+    }
+
+    private void cleanupCandidates(String examId) {
+        examCandidateRepo.deleteByExamId(examId);
+    }
+
+    private Exam findExamById(String id) {
+        return examRepository.findById(id)
+                .orElseThrow(() -> new ExamNotFoundException("Exam not found with id: " + id));
+    }
+
+    private Users findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException("User with email " + email + " not found."));
+    }
+
+    private void persistStatusUpdate(String examId, String status) {
+        int rowsUpdated = examRepository.updateExamStatus(examId, status);
+        if (rowsUpdated == 0) {
+            throw new ExamNotFoundException("Exam not found with id: " + examId);
+        }
+    }
+
+    private void sendInvitationsToUninvitedCandidates(String examId) {
+        List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
+        log.info("Processing invitations for {} candidates", candidates.size());
+
+        for (ExamCandidate candidate : candidates) {
+            if ("UNINVITED".equals(candidate.getStatus())) {
+                sendInvitationEmail(candidate);
+            }
+        }
+        examCandidateRepo.saveAll(candidates);
+    }
+
+    private void sendInvitationEmail(ExamCandidate candidate) {
+        try {
+            emailService.sendInvitation(candidate.getEmail(), candidate.getExam().getTitle());
+            candidate.setStatus("INVITED");
+        } catch (Exception e) {
+            log.error("Failed to send email to {}: {}", candidate.getEmail(), e.getMessage());
+            // We don't throw an exception here because we don't want one
+            // failed email to stop the entire publishing process.
+        }
     }
 }

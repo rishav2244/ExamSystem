@@ -6,6 +6,8 @@ import com.company.ExamBackend.dto.ExamResponseDTO;
 import com.company.ExamBackend.mapper.CandidateMapper;
 import com.company.ExamBackend.model.ExamCandidate;
 import com.company.ExamBackend.service.ExamService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +17,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/exams")
 @AllArgsConstructor
+@Tag(
+        name = "Exam Management",
+        description = "Endpoints for Exam management."
+)
 public class ExamController {
 
     private final ExamService examService;
 
+    @Operation(
+            summary = "Creates a new exam",
+            description = "Used by admin to create new exam."
+    )
     @PostMapping("/createExam")
     public ResponseEntity<ExamResponseDTO> createExam(@RequestBody CreateExamDTO createExamDTO) {
 
@@ -26,6 +36,11 @@ public class ExamController {
         return ResponseEntity.ok(response);
     }
 
+    //Gets all exams for the admin. May accept exam status if we want only one type later.
+    @Operation(
+            summary = "Fetches all exams",
+            description = "Used by admin to fetch all exams."
+    )
     @GetMapping("/getExams")
     public ResponseEntity<List<ExamResponseDTO>> getExams(@RequestParam(required = false) String status) {
 
@@ -36,22 +51,46 @@ public class ExamController {
         return ResponseEntity.ok(examService.getExams());
     }
 
+    //Publishes exam.
+    @Operation(
+            summary = "Publishes an exam",
+            description = "Used by admin to publish an exam."
+    )
     @PostMapping("/publishExam/{examId}")
     public ResponseEntity<String> publishExam(@PathVariable String examId) {
         examService.updateExam(examId, "PUBLISHED");
         return ResponseEntity.ok("Exam published");
     }
 
+    //Assigns candidates from group to Exam. Creates ExamCandidate entries.
+    @Operation(
+            summary = "Assigns candidates to exams",
+            description = "Used by admin to assign candidates of a group to exam."
+    )
     @PostMapping("/Candidates/{examId}/{groupId}")
     public ResponseEntity<List<CandidateResponseDTO>> setCandidate(@PathVariable String examId, @PathVariable String groupId) {
-        List<ExamCandidate> candidates = examService.assignGroupToExam(groupId, examId);
-        List<CandidateResponseDTO> response = CandidateMapper.toDTOList(candidates);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(examService.assignGroupToExam(groupId, examId));
     }
 
+    //Deletes exam.
+    @Operation(
+            summary = "Deletes an exam",
+            description = "Used by admin to delete an exam."
+    )
     @DeleteMapping("/delete/{examId}")
     public ResponseEntity<Void> deleteExam(@PathVariable String examId) {
         examService.deleteExam(examId);
         return ResponseEntity.noContent().build();
+    }
+
+    //Resend functionalities for uninvited candidates due to some reason.
+    @Operation(
+            summary = "Resends email invite",
+            description = "Used by admin to resend email invite, usually failed ones."
+    )
+    @PostMapping("/candidates/resend-invitation/{candidateId}")
+    public ResponseEntity<String> resendInvitation(@PathVariable String candidateId) {
+        examService.resendInvitation(candidateId);
+        return ResponseEntity.ok("Invitation resent successfully");
     }
 }

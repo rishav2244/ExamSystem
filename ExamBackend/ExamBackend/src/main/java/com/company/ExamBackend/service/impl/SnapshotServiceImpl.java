@@ -35,8 +35,9 @@ public class SnapshotServiceImpl implements SnapshotService {
         String savedPath = fileStorage.save(requestDTO.getImage());
         String type = requestDTO.getType();
         boolean violationStatus = requestDTO.isViolation();
+        Integer sl_violation = requestDTO.getSl_violation();
 
-        Snapshot snapshot = snapshotMapper.toEntity(submission, savedPath, type, violationStatus);
+        Snapshot snapshot = snapshotMapper.toEntity(submission, savedPath, type, violationStatus, sl_violation);
         Snapshot savedSnapshot = snapshotRepository.save(snapshot);
 
         return snapshotMapper.toResponseDTO(savedSnapshot);
@@ -44,7 +45,7 @@ public class SnapshotServiceImpl implements SnapshotService {
 
     @Override
     public List<SnapshotResponseDTO> getSnapshotsBySubmission(String submissionId) {
-        return snapshotRepository.findBySubmissionId(submissionId).stream()
+        return snapshotRepository.findBySubmissionIdOrderByCreatedAtAsc(submissionId).stream()
                 .map(snapshotMapper::toResponseDTO)
                 .toList();
     }
@@ -52,7 +53,7 @@ public class SnapshotServiceImpl implements SnapshotService {
     @Override
     @Transactional
     public void deleteSnapshotsForSubmission(String submissionId) {
-        List<Snapshot> snapshots = snapshotRepository.findBySubmissionId(submissionId);
+        List<Snapshot> snapshots = snapshotRepository.findBySubmissionIdOrderByCreatedAtAsc(submissionId);
         log.info("Found {} snapshots to delete for submission: {}", snapshots.size(), submissionId);
 
         for (Snapshot snapshot : snapshots) {

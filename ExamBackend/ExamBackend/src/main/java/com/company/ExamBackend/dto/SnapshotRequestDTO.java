@@ -8,8 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 public class SnapshotRequestDTO {
     private String submissionId;
-    private String studentId;
     private boolean violation;
+    private Integer sl_violation;
     private String type;
     private MultipartFile image;
 }

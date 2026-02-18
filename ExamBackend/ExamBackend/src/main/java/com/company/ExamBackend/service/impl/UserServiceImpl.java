@@ -34,64 +34,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO registerAttempt(RegisterRequestDTO registerRequestDTO) {
         try {
-            Users user = userMapper.toUser(registerRequestDTO); //We create a Users object from
-            //our DTO. This can now hold the encrypted password, manually decided for admin
-            //and auto-set for user.
-            user.setPassword(determineAndEncodePassword(registerRequestDTO));//Our function will
-            //set the password for this Users object.
+            Users user = createNewUserEntity(registerRequestDTO);
             Users savedUser = userRepository.save(user);
             return userMapper.toUserResponse(savedUser);
-        } catch (DataIntegrityViolationException e) {//Uses the unique=true of Users object to
-            //"automatically" prevent duplicate users over emails.
-            throw new EmailExistsException("Email already exists.");
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailExistsException("Email " + registerRequestDTO.getEmail() + " already exists.");
         }
-    }
-
-    //Method to set password. Auto password from our .env file for CANDIDATE, frontend-sent
-    //password for ADMIN.
-    private String determineAndEncodePassword(RegisterRequestDTO dto) {
-        String rawPassword = "CANDIDATE".equalsIgnoreCase(dto.getRole())
-                ? defaultCandidatePassword
-                : dto.getPassword();
-        return passwordEncoder.encode(rawPassword);
     }
 
     //Yeah, login service.
     @Override
     public UserResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO) {
-        //We fetch User from our database based on email.
-        Users user = userRepository.findByEmail(loginRequestDTO.getEmail())
-                .orElseThrow(() -> new EmailNotFoundException("Email not found."));
+        Users user = findUserByEmail(loginRequestDTO.getEmail());
 
-        //User our passwordEncoder to match hashes of stored and sent passwords.
-        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
-            throw new PasswordMismatchException("Invalid credentials");
-        }
+        verifyCurrentPassword(loginRequestDTO.getPassword(), user.getPassword());
 
-        //Returns name, email, role.
         return userMapper.toUserResponse(user);
     }
 
     @Transactional
     @Override
     public void resetPassword(String email, PasswordResetDTO passwordResetDTO) {
-        // Rule for character restriction
-        if (passwordResetDTO.getNewPassword().length() > passwordMaxLength) {
-            throw new InvalidActionException("Password cannot exceed "+passwordMaxLength+" characters.");
-        }
+        validatePasswordLength(passwordResetDTO.getNewPassword());
+        validatePasswordChange(passwordResetDTO.getOldPassword(), passwordResetDTO.getNewPassword());
 
-        // New and old password cannot be same
-        if (passwordResetDTO.getNewPassword().equals(passwordResetDTO.getOldPassword())) {
-            throw new InvalidActionException("New password cannot be the same as the current password.");
-        }
+        Users user = findUserByEmail(email);
 
-        Users user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EmailNotFoundException("User not found."));
-
-        // Default password check
-        if (!passwordEncoder.matches(passwordResetDTO.getOldPassword(), user.getPassword())) {
-            throw new PasswordMismatchException("The old password provided is incorrect.");
-        }
+        verifyCurrentPassword(passwordResetDTO.getOldPassword(), user.getPassword());
 
         user.setPassword(passwordEncoder.encode(passwordResetDTO.getNewPassword()));
         userRepository.save(user);
@@ -124,9 +93,67 @@ public class UserServiceImpl implements UserService {
     //Gets info about specific users. Right now nothing much to get.
     @Override
     public UserHeavyDTO getUserById(String id) {
-        return userMapper.
-                toUserHeavy(userRepository.
-                findById(id).
-                orElseThrow(() -> new UserNotFoundException("User not found.")));
+        return userMapper.toUserHeavy(findUserById(id));
+    }
+
+    // ======================================================================================
+    // Helper methods
+    // ======================================================================================
+
+    private Users findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException("User with email " + email + " not found."));
+    }
+
+    private Users findUserById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found."));
+    }
+
+    //Separate function to handle "redundant" password change.
+    private void validatePasswordChange(String oldPass, String newPass) {
+        if (newPass.equals(oldPass)) {
+            throw new InvalidActionException("New password cannot be the same as the current password.");
+        }
+    }
+
+    //Method to set password. Auto password from our .env file for CANDIDATE, frontend-sent
+    //password for ADMIN.
+    private String determineAndEncodePassword(RegisterRequestDTO dto) {
+        boolean isCandidate = "CANDIDATE".equalsIgnoreCase(dto.getRole());
+
+        if (isCandidate) {
+            return passwordEncoder.encode(defaultCandidatePassword);
+        }
+
+        // For ADMIN, password existence needs to be checked since validation for it is not possible
+        // on DTO level.
+        if (dto.getPassword() == null || dto.getPassword().isBlank()) {
+            throw new InvalidActionException("Password is required for non-candidate roles.");
+        }
+
+        validatePasswordLength(dto.getPassword());
+        return passwordEncoder.encode(dto.getPassword());
+    }
+
+    //Helps check password length
+    private void validatePasswordLength(String password) {
+        if (password != null && password.length() > passwordMaxLength) {
+            throw new InvalidActionException("Password cannot exceed " + passwordMaxLength + " characters.");
+        }
+    }
+
+    //Check if password exists in database in the first place.
+    private void verifyCurrentPassword(String rawPassword, String encodedPassword) {
+        if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
+            throw new PasswordMismatchException("The password provided is incorrect.");
+        }
+    }
+
+    //User registration
+    private Users createNewUserEntity(RegisterRequestDTO dto) {
+        Users user = userMapper.toUser(dto);
+        user.setPassword(determineAndEncodePassword(dto));
+        return user;
     }
 }

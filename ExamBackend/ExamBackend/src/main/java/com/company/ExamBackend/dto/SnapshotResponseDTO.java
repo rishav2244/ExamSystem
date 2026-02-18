@@ -14,5 +14,6 @@ public class SnapshotResponseDTO {
     private String imageUrl;
     private Instant createdAt;
     private String type;
+    private Integer sl_violation;
     private boolean violation;
 }

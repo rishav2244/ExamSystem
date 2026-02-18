@@ -32,4 +32,7 @@ public class Snapshot
 
     @Column(nullable = false)
     private Instant createdAt;
+
+    @Column(nullable = true)
+    private Integer violationSlNo; //Wrapper class since it handles null which primitives can't.
 }

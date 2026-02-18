@@ -16,6 +16,7 @@ public class ExamCandidateController {
 
     private final ExamCandidateService examCandidateService;
 
+    //Sends list of candidates assigned to exam.
     @GetMapping("/candidates/{examId}")
     public ResponseEntity<List<CandidateResponseDTO>> getCandidates(@PathVariable String examId) {
         List<CandidateResponseDTO> candidates = examCandidateService.getCandidates(examId);

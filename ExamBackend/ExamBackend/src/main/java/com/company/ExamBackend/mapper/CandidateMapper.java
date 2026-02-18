@@ -1,13 +1,16 @@
 package com.company.ExamBackend.mapper;
 
+import com.company.ExamBackend.dto.CandidateDashboardDTO;
 import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.model.ExamCandidate;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class CandidateMapper {
-    public static CandidateResponseDTO toDTO(ExamCandidate entity) {
+    public CandidateResponseDTO toDTO(ExamCandidate entity) {
         return CandidateResponseDTO.builder()
                 .id(entity.getId())
                 .email(entity.getEmail())
@@ -18,9 +21,20 @@ public class CandidateMapper {
                 .build();
     }
 
-    public static List<CandidateResponseDTO> toDTOList(List<ExamCandidate> entities) {
+    public List<CandidateResponseDTO> toDTOList(List<ExamCandidate> entities) {
         return entities.stream()
-                .map(CandidateMapper::toDTO)
+                .map(this::toDTO)//This calls current spring object.
                 .toList();
+    }
+
+    public CandidateDashboardDTO toDashboardDTO(ExamCandidate entity) {
+        return CandidateDashboardDTO.builder()
+                .examId(entity.getExam().getId())
+                .title(entity.getExam().getTitle())
+                .duration(entity.getExam().getDuration())
+                .startTime(entity.getExam().getStartTime())
+                .endTime(entity.getExam().getEndTime())
+                .candidateStatus(entity.getStatus())
+                .build();
     }
 }
