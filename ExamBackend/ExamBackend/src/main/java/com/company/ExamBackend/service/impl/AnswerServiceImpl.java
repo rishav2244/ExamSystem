@@ -70,7 +70,8 @@ public class AnswerServiceImpl implements AnswerService {
         long seconds = java.time.Duration.between(submission.getCreatedAt(), now).toSeconds();
         int minutesTaken = (int) Math.ceil(seconds / 60.0);
 
-        List<Answer> candidateAnswers = answerRepository.findBySubmissionId(submissionId);
+        List<Answer> candidateAnswers = answerRepository.findBySubmissionIdWithDetails(submissionId);
+        
         float totalScore = 0;
         //Calculates total score
         for (Answer answer : candidateAnswers) {
