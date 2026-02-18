@@ -2515,3 +2515,88 @@ button {
   font-weight: 700;
   border: 1px solid #fecaca;
 }
+
+.candidate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #f0f2f5;
+    transition: background-color 0.2s ease;
+}
+
+.candidate-item:hover {
+    background-color: #f9fafb;
+}
+
+.candidate-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.candidate-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.candidate-email {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.candidate-status-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.status-badge.INVITED {
+    background-color: #e6fffa;
+    color: #2c7a7b;
+    border: 1px solid #b2f5ea;
+}
+
+.status-badge.UNINVITED {
+    background-color: #fff5f5;
+    color: #c53030;
+    border: 1px solid #fed7d7;
+}
+
+.resend-btn {
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.resend-btn:hover:not(:disabled) {
+    background-color: #2d3748;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.resend-btn:disabled {
+    background-color: #cbd5e0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.resend-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}

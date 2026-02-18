@@ -119,6 +119,15 @@ export const publishExam = async (examId) => {
         throw err;
     }
 };
+export const resendInvitation = async (candidateId) => {
+    try {
+        const resp = await axios.post(`${API_URL}/exams/candidates/resend-invitation/${candidateId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Failed to resend invitation:", err);
+        throw err;
+    }
+};
 
 export const deleteExam = async (examId) => {
     try {
