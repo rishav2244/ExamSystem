@@ -30,11 +30,8 @@ public class QuestionServiceImpl implements QuestionService {
     @Transactional
     public void saveQuestions(String examId, List<QuestionDTO> questionDTOs) {
         Exam exam = findExamById(examId);
-
         questionRepository.deleteByParentExamId(examId);
-
         List<Question> questions = prepareQuestions(questionDTOs, exam);
-
         questionRepository.saveAll(questions);
         updateExamStatus(exam, "SAVED");
     }
@@ -42,12 +39,9 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional(readOnly = true)
     public List<QuestionResponseDTO> getQuestionsForExam(String examId) {
-        findExamById(examId); // Ensures 404 if exam doesn't exist
-
-        return questionRepository.findAllByParentExamIdOrderByIdAsc(examId)
-                .stream()
-                .map(questionMapper::toResponseDto)
-                .toList();
+        validateExamExists(examId);
+        List<Question> questions = questionRepository.findAllByExamIdWithOptions(examId);
+        return questionMapper.toResponseDtoList(questions);
     }
 
     // ======================================================================================
@@ -72,5 +66,11 @@ public class QuestionServiceImpl implements QuestionService {
     private void updateExamStatus(Exam exam, String status) {
         exam.setStatus(status);
         examRepository.save(exam);
+    }
+
+    private void validateExamExists(String examId) {
+        if (!examRepository.existsById(examId)) {
+            throw new ExamNotFoundException("Exam with ID " + examId + " not found.");
+        }
     }
 }

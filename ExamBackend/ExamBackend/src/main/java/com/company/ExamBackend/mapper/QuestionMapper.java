@@ -8,10 +8,8 @@ import com.company.ExamBackend.model.Option;
 import com.company.ExamBackend.model.Question;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class QuestionMapper {
@@ -24,7 +22,7 @@ public class QuestionMapper {
         if (dto.getOptions() != null) {
             question.setOptions(dto.getOptions().stream()
                     .map(oDto -> mapToOption(oDto, dto.getCorrectOptionIndex(), question))
-                    .collect(Collectors.toList()));
+                    .toList());
         }
         return question;
     }
@@ -63,6 +61,12 @@ public class QuestionMapper {
                         .optionIndex(opt.getOptionIndex())
                         .text(opt.getText())
                         .build())
+                .toList();
+    }
+
+    public List<QuestionResponseDTO> toResponseDtoList(List<Question> questions) {
+        return questions.stream()
+                .map(this::toResponseDto)
                 .toList();
     }
 }
