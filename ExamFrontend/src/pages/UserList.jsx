@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CreateUserCard } from "../components/cardType/CreateUserCard";
-import { UserCard } from "../components/cardType/UserCard";
+// import { CreateUserCard } from "../components/cardType/CreateUserCard";
+// import { UserCard } from "../components/cardType/UserCard";
 import { UserDetailsModal } from "./UserDetailsModal";
 import { CreateUserModal } from './CreateUserModal';
 import { getAllUsers } from "../api/api";
