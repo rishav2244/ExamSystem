@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { CreateExamCard } from '../components/cardType/CreateExamCard';
+
 import { CreateExamModal } from './CreateExamModal';
 import { ExamDetailsModal } from './ExamDetailsModal';
-import { ExamCard } from '../components/cardType/ExamCard';
+
 import { getExams } from '../api/api';
 
 export const Admin = () => {

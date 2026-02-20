@@ -7,12 +7,88 @@
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   font-family: 'Arial', sans-serif;
 }
-
+/* ADMIN.JSX PART */
 .AdminOverall {
   height: 100vh;
   width: 100vw;
   display: flex;
   flex-direction: column;
+}
+.AdminExamSection {
+  padding: 32px;
+  background-color: #f5f7fa;
+}
+.AdminExamHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.AdminExamHeader h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.CreateExamBtn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.CreateExamBtn:hover {
+  background-color: #1d4ed8;
+}
+.ExamTable {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.ExamTable th {
+  text-align: left;
+  padding: 14px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ExamTable td {
+  padding: 14px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ExamTable tr:hover {
+  background-color: #f9fafb;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.status.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status.saved {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.status.published {
+  background-color: #dcfce7;
+  color: #166534;
 }
 
 .CardArea {
@@ -1194,87 +1270,6 @@ button {
   color: #111827;
 }
 
-.AdminExamSection {
-  padding: 32px;
-  background-color: #f5f7fa;
-}
-
-.AdminExamHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.AdminExamHeader h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.CreateExamBtn {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.CreateExamBtn:hover {
-  background-color: #1d4ed8;
-}
-
-.ExamTable {
-  width: 100%;
-  background: white;
-  border-collapse: collapse;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.ExamTable th {
-  text-align: left;
-  padding: 14px;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: #6b7280;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.ExamTable td {
-  padding: 14px;
-  font-size: 0.9rem;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.ExamTable tr:hover {
-  background-color: #f9fafb;
-}
-
-.status {
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.status.pending {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.status.saved {
-  background-color: #e0e7ff;
-  color: #3730a3;
-}
-
-.status.published {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
 .ViewBtn {
   padding: 6px 14px;
   background-color: #f3f4f6;
@@ -1582,7 +1577,7 @@ button {
   color: #374151;
   align-items: center;
 }
-
+/* FOR CANDIDATE.JSX */
 .CandidateDashboard {
   background-color: #f5f7fa;
   min-height: calc(100vh - 64px);
