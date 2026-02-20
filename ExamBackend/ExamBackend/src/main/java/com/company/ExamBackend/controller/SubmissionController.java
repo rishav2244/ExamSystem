@@ -3,6 +3,7 @@ package com.company.ExamBackend.controller;
 import com.company.ExamBackend.dto.SubmissionDetailsDTO;
 import com.company.ExamBackend.dto.SubmissionResponseDTO;
 import com.company.ExamBackend.service.SubmissionService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,10 @@ public class SubmissionController {
     private final SubmissionService submissionService;
 
     @GetMapping("/exam/{examId}")
+    @Operation(
+            summary = "Gets submissions for an exam",
+            description = "Returns details of candidate's exam"
+    )
     public ResponseEntity<List<SubmissionResponseDTO>> getExamSubmissions(@PathVariable String examId) {
         List<SubmissionResponseDTO> submissions = submissionService.getSubmissionsByExam(examId);
         return ResponseEntity.ok(submissions);
