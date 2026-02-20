@@ -27,6 +27,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
 
+    private final SubmissionMapper submissionMapper;
+
     //Check eligibility has two purposes.
     //First purpose is to not let candidate just log off and a come back to an unsubmitted exam, then continue it.
     //While this is already covered in getCandidateDashboard(String email) method, we wish to keep it for now.
@@ -65,9 +67,9 @@ public class SubmissionServiceImpl implements SubmissionService {
         checkEligibility(dto.getExamId(), dto.getCandidateEmail());
 
         Exam exam = examRepository.findById(dto.getExamId())
-                .orElseThrow(() -> new RuntimeException("Exam not found"));
+                .orElseThrow(() -> new ExamNotFoundException("EXAM_NOT_FOUND")); // Consistent exception
 
-        Submission submission = SubmissionMapper.toNewEntity(dto, exam);
+        Submission submission = submissionMapper.toNewEntity(dto, exam);
         submission.setStatus("IN_PROGRESS");
         submission.setCandidateEmail(dto.getCandidateEmail());
 
@@ -79,19 +81,10 @@ public class SubmissionServiceImpl implements SubmissionService {
         return new StartExamResponseDTO(savedId, exam.getDuration());
     }
 
-    @Transactional
-    public void reportViolation(String submissionId) {
-        Submission submission = submissionRepository.findById(submissionId)
-                .orElseThrow(() -> new RuntimeException("Submission not found"));
-
-        submission.setViolations(submission.getViolations() + 1);
-        submissionRepository.save(submission);
-    }
-
     @Override
     public List<SubmissionResponseDTO> getSubmissionsByExam(String examId) {
         List<Submission> submissions = submissionRepository.findByExamId(examId);
-        return SubmissionMapper.toDTOList(submissions);
+        return submissionMapper.toDTOList(submissions);
     }
 
     @Override
@@ -101,6 +94,15 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         var questions = questionRepository.findByParentExamId(submission.getExam().getId());
         var answers = answerRepository.findBySubmissionId(submissionId);
-        return SubmissionMapper.toDetailsDTO(submission, questions, answers);
+        return submissionMapper.toDetailsDTO(submission, questions, answers);
+    }
+
+    @Transactional
+    public void reportViolation(String submissionId) {
+        Submission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new RuntimeException("Submission not found"));
+
+        submission.setViolations(submission.getViolations() + 1);
+        submissionRepository.save(submission);
     }
 }
