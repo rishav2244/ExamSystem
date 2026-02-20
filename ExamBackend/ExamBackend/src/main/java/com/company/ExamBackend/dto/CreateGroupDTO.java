@@ -15,14 +15,9 @@ public class CreateGroupDTO {
             description = "Name of group to be created."
     )
     private String groupName;
-    @Schema(
-            example = "admin@test.com",
-            description = "Mail of admin creating group."
-    )
-    private String creatorMail;
 
     @Schema(
-            description = "List of group members."
+            description = "Emails of group members."
     )
     private List<String> groupMembers;
 }

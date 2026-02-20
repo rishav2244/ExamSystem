@@ -4,7 +4,9 @@ import com.company.ExamBackend.dto.CreateGroupDTO;
 import com.company.ExamBackend.dto.GrpMemberDTO;
 import com.company.ExamBackend.dto.UserGroupResponseDTO;
 import com.company.ExamBackend.exception.EmailNotFoundException;
+import com.company.ExamBackend.exception.GroupAlreadyExistsException;
 import com.company.ExamBackend.exception.GroupNotFoundException;
+import com.company.ExamBackend.exception.InvalidActionException;
 import com.company.ExamBackend.mapper.UserGroupMapper;
 import com.company.ExamBackend.model.GroupMember;
 import com.company.ExamBackend.model.UserGroup;
@@ -14,6 +16,7 @@ import com.company.ExamBackend.repository.UserGroupRepository;
 import com.company.ExamBackend.repository.UserRepository;
 import com.company.ExamBackend.service.UserGroupService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,46 +33,64 @@ public class UserGroupServiceImpl  implements UserGroupService {
 
     @Transactional
     @Override
-    public void createUserGroup(CreateGroupDTO createGroupDTO) {
-        Users creator = userRepository.findByEmail(createGroupDTO.getCreatorMail())
-                .orElseThrow(() -> new EmailNotFoundException("Email not found"));
-
-        UserGroup userGroup = userGroupMapper.toUserGroupEntity(createGroupDTO, creator);
-        UserGroup savedGroup = userGroupRepository.save(userGroup);
-
-        List<Users> candidates = userRepository.findAllByEmailIn(createGroupDTO.getGroupMembers());
-
-        List<GroupMember> membersList = candidates.stream()
-                .filter(u -> "CANDIDATE".equalsIgnoreCase(u.getRole()))
-                .map(u -> userGroupMapper.toGroupMemberEntity(savedGroup, u))
-                .toList();
-
-        groupMemberRepository.saveAll(membersList);
+    public void createUserGroup(CreateGroupDTO dto, String creatorEmail) {
+        validateNewGroup(dto); // Validation
+        Users creator = findUserByEmail(creatorEmail); // Resolve Entities
+        UserGroup savedGroup = persistGroup(dto, creator); // Persist Parent
+        linkMembersToGroup(savedGroup, dto.getGroupMembers()); // Link Children
     }
 
     @Override
     public List<UserGroupResponseDTO> getAllUserGroups() {
-        return userGroupRepository.findAll()
-                .stream()
-                .map(userGroupMapper::toGroupResponseDTO)
-                .toList();
+        List<UserGroup> groups = userGroupRepository.findAllWithCreator();
+        return userGroupMapper.toGroupResponseDTOList(groups);
     }
 
     @Override
     public List<GrpMemberDTO> getMembersByGroupId(String groupId) {
-        return groupMemberRepository.findByGroupId(groupId)
-                .stream()
-                .map(userGroupMapper::toGrpMemberDTO) // Clean one-liner
-                .toList();
+        List<GroupMember> members = groupMemberRepository.findByGroupId(groupId);
+        return userGroupMapper.toGrpMemberDTOList(members);
     }
 
     @Transactional
     @Override
     public void deleteUserGroup(String groupId) {
-
-        UserGroup group = userGroupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupNotFoundException("Group not found"));
+        UserGroup group = findGroupById(groupId);
         groupMemberRepository.deleteByGroupId(groupId);
         userGroupRepository.delete(group);
+    }
+
+    // ======================================================================================
+    // Helper methods
+    // ======================================================================================
+
+    private void validateNewGroup(CreateGroupDTO dto) {
+        if (userGroupRepository.existsByName(dto.getGroupName())) {
+            throw new GroupAlreadyExistsException("Group name '" + dto.getGroupName() + "' is already taken.");
+        }
+        if (dto.getGroupMembers() == null || dto.getGroupMembers().isEmpty()) {
+            throw new InvalidActionException("A group must have at least one candidate.");
+        }
+    }
+
+    private Users findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException("User not found: " + email));
+    }
+
+    private UserGroup findGroupById(String id) {
+        return userGroupRepository.findById(id)
+                .orElseThrow(() -> new GroupNotFoundException("Group not found with ID: " + id));
+    }
+
+    private UserGroup persistGroup(CreateGroupDTO dto, Users creator) {
+        UserGroup userGroup = userGroupMapper.toUserGroupEntity(dto, creator);
+        return userGroupRepository.save(userGroup);
+    }
+
+    private void linkMembersToGroup(UserGroup group, List<String> memberEmails) {
+        List<Users> users = userRepository.findAllByEmailIn(memberEmails);
+        List<GroupMember> membersList = userGroupMapper.toMemberEntities(group, users);
+        groupMemberRepository.saveAll(membersList);
     }
 }

@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,8 +31,12 @@ public class UserGroupController {
             description = "Used by admin to create a new group."
     )
     @PostMapping("create")
-    public ResponseEntity<Void> createUser(@RequestBody CreateGroupDTO createGroupDTO) {
-        userGroupService.createUserGroup(createGroupDTO);
+    public ResponseEntity<Void> createUser(
+            @RequestBody CreateGroupDTO createGroupDTO,
+            @AuthenticationPrincipal UserDetails userDetails //Contrary to popular belief, if
+            //you check JwtUtils, it returns user email.
+    ) {
+        userGroupService.createUserGroup(createGroupDTO, userDetails.getUsername());
         return ResponseEntity.ok().build();
     }
 

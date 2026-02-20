@@ -27,7 +27,14 @@ public class GlobalExceptionHandler {
     //=========================================================================================================//
     //Conflicts and duplicates
     @ExceptionHandler(EmailExistsException.class)
-    public ResponseEntity<ErrorResponseDTO> handleConflictException(EmailExistsException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleEmailConflictException(EmailExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseDTO(409, ex.getMessage()));
+    }
+
+    //Thrown when trying to create group of existing name.
+    @ExceptionHandler(GroupAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleGroupConflictException(EmailExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseDTO(409, ex.getMessage()));
     }
@@ -45,7 +52,7 @@ public class GlobalExceptionHandler {
     //=========================================================================================================//
     //Problems with business logic
 
-    //Made this earlier while using generic exceptions. Might not be require anymore?
+    //Made this earlier while using generic exceptions. Might not be required anymore?
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponseDTO> handleIllegalState(IllegalStateException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -59,7 +66,7 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDTO(403, ex.getMessage()));
     }
 
-    //Thrown for eligibility cheeck
+    //Thrown for eligibility check
     @ExceptionHandler(EligibilityException.class)
     public ResponseEntity<ErrorResponseDTO> handleEligibility(EligibilityException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
