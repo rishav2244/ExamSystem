@@ -1,6 +1,5 @@
 package com.company.ExamBackend.mapper;
 
-import com.company.ExamBackend.dto.RegisterRequestDTO;
 import com.company.ExamBackend.dto.UserHeavyDTO;
 import com.company.ExamBackend.dto.UserResponseDTO;
 import com.company.ExamBackend.model.Users;
@@ -26,15 +25,5 @@ public class UserMapper
         userHeavyDTO.setRole(user.getRole());
         userHeavyDTO.setName(user.getName());
         return userHeavyDTO;
-    }
-
-    public Users toUser(RegisterRequestDTO registerRequestDTO)
-    {
-        Users user = new Users();
-        user.setEmail(registerRequestDTO.getEmail());
-        user.setPassword(registerRequestDTO.getPassword());
-        user.setRole(registerRequestDTO.getRole());
-        user.setName(registerRequestDTO.getName());
-        return user;
     }
 }

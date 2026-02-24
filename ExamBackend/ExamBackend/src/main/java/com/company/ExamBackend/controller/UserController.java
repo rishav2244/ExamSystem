@@ -25,12 +25,24 @@ public class UserController {
     private final UserService userService;
 
     @Operation(
-            summary = "Register a new user",
-            description = "Used by admin to create new user."
+            summary = "Register new users (Admin side)",
+            description = "Used by admin to register new users, usually from a list of users."
     )
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> userRegister(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
-        UserResponseDTO createdUser = userService.registerAttempt(registerRequestDTO);
+    @PostMapping("/bulk-register")
+    public ResponseEntity<BulkRegistrationSummaryDTO> adminUserRegister(
+            @Valid @RequestBody AdminRegisterRequestDTO registerRequestDTO) {
+
+        BulkRegistrationSummaryDTO summary = userService.adminRegisterAttempt(registerRequestDTO);
+        return ResponseEntity.status(201).body(summary);
+    }
+
+    @Operation(
+            summary = "Register new user (Candidate side)",
+            description = "Used by candidate to have himself registered."
+    )
+    @PostMapping("/self-register")
+    public ResponseEntity<UserResponseDTO> candidateUserRegister(@Valid @RequestBody CandidateRegisterRequestDTO registerRequestDTO) {
+        UserResponseDTO createdUser = userService.candidateRegisterAttempt(registerRequestDTO);
         return ResponseEntity.status(201).body(createdUser);
     }
 

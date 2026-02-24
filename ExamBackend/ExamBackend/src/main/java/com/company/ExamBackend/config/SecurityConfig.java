@@ -26,10 +26,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/user/login").permitAll()
+                        .requestMatchers("/api/user/self-register").permitAll()
                         .requestMatchers("/api/user/reset-password").authenticated()
                         .requestMatchers("/api/candidateUser/**").hasRole("CANDIDATE")
                         .requestMatchers("/api/snapshots/submission/**").hasRole("ADMIN")
                         .requestMatchers("/api/snapshots/**").hasRole("CANDIDATE")
+                        .requestMatchers("/api/user/bulk-register").hasRole("ADMIN")
                         .requestMatchers("/api/user/**").hasRole("ADMIN")//Done after normal login
                         //since doing before that would override login's permitAll and thus restrict
                         //login only to admin.
