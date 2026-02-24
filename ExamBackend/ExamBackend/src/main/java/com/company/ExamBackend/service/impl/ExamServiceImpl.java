@@ -59,6 +59,7 @@ public class ExamServiceImpl implements ExamService {
         exam.setEndTime(dto.getEndTime());
         exam.setStatus(dto.getStatus());
         exam.setCreatedBy(user);
+        exam.setCutoff(dto.getCutoff());
         Exam saved = examRepository.save(exam);
         return examMapper.toDTO(saved);
     }

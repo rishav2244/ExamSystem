@@ -15,7 +15,8 @@ public class ExamMapper {
         dto.setStartTime(entity.getStartTime());
         dto.setEndTime(entity.getEndTime());
         dto.setStatus(entity.getStatus());
-        dto.setCreatedBy(entity.getCreatedBy().getId());
+        dto.setCreatedBy(entity.getCreatedBy().getEmail());
+        dto.setCutoff(entity.getCutoff());
         return dto;
     }
 
@@ -26,6 +27,7 @@ public class ExamMapper {
         entity.setDuration(dto.getDuration());
         entity.setStartTime(dto.getStartTime());
         entity.setEndTime(dto.getEndTime());
+        entity.setCutoff(dto.getCutoff());
         entity.setStatus(dto.getStatus());
         return entity;
     }

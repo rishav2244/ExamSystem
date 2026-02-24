@@ -32,6 +32,9 @@ public class Exam
     @Column(nullable = false)
     private String status;
 
+    @Column(nullable = false)
+    private int cutoff;
+
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
     private Users createdBy;
