@@ -21,7 +21,6 @@ public class SubmissionMapper {
         submission.setCandidateName(dto.getCandidateName());
         submission.setCandidateEmail(dto.getCandidateEmail());
         submission.setLocation(dto.getLocation());
-        submission.setCreatedAt(Instant.now());
         submission.setStatus("IN_PROGRESS");
         submission.setViolations(0);
         submission.setScore(0.0f);

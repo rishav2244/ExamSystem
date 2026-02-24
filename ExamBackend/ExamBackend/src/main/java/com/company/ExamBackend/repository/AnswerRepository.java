@@ -16,7 +16,13 @@ public interface AnswerRepository extends JpaRepository<Answer, String> {
     Optional<Answer> findBySubmissionIdAndQuestionId(String submissionId, String questionId);
     List<Answer> findBySubmissionId(String submissionId);
 
-    //Reportedly more efficient due to no n+1 queries
+    // Reportedly more efficient due to no n+1 queries
+    // Also note that without FETCH, Hibernate tends to just make references instead of getting actual
+    // data. So when we  try to get actual info about a question, it goes "Oh right forgot brb" and make
+    // another call to db to get the corresponding question. What "Physically" happens without FETCH is
+    // that you get only questionId in the JOINed table's q attribute unless you use JOIN FETCH.
+    // Also, if you're confused, this is particularly useful in the service that calculates score of
+    // a candidate.
     @Query("SELECT a FROM Answer a " +
             "JOIN FETCH a.question q " +
             "LEFT JOIN FETCH a.selectedOption o " +

@@ -36,7 +36,6 @@ public class SnapshotMapper {
         Snapshot snapshot = new Snapshot();
         snapshot.setSubmission(submission);
         snapshot.setImagePath(savedPath);
-        snapshot.setCreatedAt(Instant.now());
         snapshot.setType(type);
         snapshot.setViolationSlNo(slNo);
         snapshot.setViolation(violation);
