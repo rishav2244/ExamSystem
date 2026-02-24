@@ -24,10 +24,10 @@ public class Exam
     private int duration;
 
     @Column(nullable = false)
-    private Instant StartTime;
+    private Instant startTime;
 
     @Column(nullable = false)
-    private Instant EndTime;
+    private Instant endTime;
 
     @Column(nullable = false)
     private String status;
