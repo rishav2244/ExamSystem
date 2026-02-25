@@ -31,7 +31,7 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
         return candidateMapper.toDTOList(candidates);
     }
 
-    //Removes candidate from exam, to be implemented later.
+    //Removes candidate from exam
     @Transactional
     @Override
     public void removeCandidate(String examId, String email) {
