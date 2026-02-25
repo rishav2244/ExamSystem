@@ -296,7 +296,15 @@ export const getSnapshots = async (submissionId) => {
         throw err;
     }
 };
-
+export const bulkRegistrationAttempt = async (usersList) => {
+    const payload = { users: usersList };
+    try {
+        const resp = await axios.post(`${API_URL}/user/bulk-register`, payload);
+        return resp.data; 
+    } catch (err) {
+        throw err;
+    }
+};
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));
