@@ -296,13 +296,11 @@ export const getSnapshots = async (submissionId) => {
         throw err;
     }
 };
-// Add this to your api.js file
 export const bulkRegistrationAttempt = async (usersList) => {
-    // Backend expects { users: [ {name, email, role, password}, ... ] }
     const payload = { users: usersList };
     try {
         const resp = await axios.post(`${API_URL}/user/bulk-register`, payload);
-        return resp.data; // This returns the BulkRegistrationSummaryDTO
+        return resp.data; 
     } catch (err) {
         throw err;
     }

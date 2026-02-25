@@ -11,7 +11,7 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
     });
     
     const [isUploading, setIsUploading] = useState(false);
-    const [uploadResults, setUploadResults] = useState(null); // To store error details
+    const [uploadResults, setUploadResults] = useState(null); 
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +22,7 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
         if (!file) return;
 
         setIsUploading(true);
-        setUploadResults(null); // Clear previous results
+        setUploadResults(null); 
 
         Papa.parse(file, {
             header: true,
@@ -37,15 +37,15 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
 
                 try {
                     const summary = await bulkRegistrationAttempt(formattedUsers);
-                    setUploadResults(summary); // Store the DTO (successCount, errorCount, details)
+                    setUploadResults(summary); 
                     
                     if (summary.errorCount === 0) {
                         alert("All users uploaded successfully!");
                         onUserCreated();
                         onClose();
                     } else {
-                        // We stay on the modal to show the errors
-                        onUserCreated(); // Refresh the list for the ones that did succeed
+                        
+                        onUserCreated(); 
                     }
                 } catch (err) {
                     const errMsg = err.response?.data?.message || "Bulk upload failed.";
@@ -88,7 +88,7 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                             <input type="file" accept=".csv" onChange={handleCsvUpload} hidden disabled={isUploading} />
                         </label>
 
-                        {/* --- ERROR DISPLAY SECTION --- */}
+                        
                         {uploadResults && uploadResults.errorCount > 0 && (
                             <div className="error-log-container">
                                 <p className="error-summary">

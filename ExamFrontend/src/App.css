@@ -2725,7 +2725,6 @@ button {
     font-weight: 500;
 }
 
-/* Optional: custom scrollbar for the error list */
 .error-list::-webkit-scrollbar {
     width: 6px;
 }
