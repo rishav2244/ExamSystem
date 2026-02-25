@@ -2631,3 +2631,105 @@ button {
 .resend-btn:active:not(:disabled) {
   transform: translateY(1px);
 }
+.bulk-registration-section {
+    background-color: #f8f9fa;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.bulk-title {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.csv-upload-label {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.csv-upload-label:hover {
+    background-color: #1d4ed8;
+}
+
+.modal-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: #9ca3af;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.modal-divider::before,
+.modal-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-divider span {
+    padding: 0 10px;
+}
+.error-log-container {
+    margin-top: 15px;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.error-summary {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.success-text {
+    color: #059669;
+}
+
+.failure-text {
+    color: #dc2626;
+}
+
+.error-list {
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 0.8rem;
+}
+
+.error-item {
+    padding: 4px 0;
+    color: #4b5563;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.error-item strong {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+/* Optional: custom scrollbar for the error list */
+.error-list::-webkit-scrollbar {
+    width: 6px;
+}
+.error-list::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 10px;
+}
