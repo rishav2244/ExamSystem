@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Papa from 'papaparse';
-import { registrationAttempt, bulkRegistrationAttempt } from '../api/api';
+import { bulkRegistrationAttempt } from '../api/api';
 
 export const CreateUserModal = ({ onClose, onUserCreated }) => {
     const [formData, setFormData] = useState({
@@ -9,9 +9,9 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
         password: '',
         role: 'CANDIDATE'
     });
-    
+
     const [isUploading, setIsUploading] = useState(false);
-    const [uploadResults, setUploadResults] = useState(null); 
+    const [uploadResults, setUploadResults] = useState(null);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +22,7 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
         if (!file) return;
 
         setIsUploading(true);
-        setUploadResults(null); 
+        setUploadResults(null);
 
         Papa.parse(file, {
             header: true,
@@ -37,15 +37,15 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
 
                 try {
                     const summary = await bulkRegistrationAttempt(formattedUsers);
-                    setUploadResults(summary); 
-                    
+                    setUploadResults(summary);
+
                     if (summary.errorCount === 0) {
                         alert("All users uploaded successfully!");
                         onUserCreated();
                         onClose();
                     } else {
-                        
-                        onUserCreated(); 
+
+                        onUserCreated();
                     }
                 } catch (err) {
                     const errMsg = err.response?.data?.message || "Bulk upload failed.";
@@ -60,14 +60,31 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const passwordValue = formData.role === 'CANDIDATE' ? 'default_placeholder' : formData.password;
+        const userPayload = {
+            users: [{
+                name: formData.name.trim(),
+                email: formData.email.trim(),
+                role: formData.role.toUpperCase(),
+                password: formData.role === 'ADMIN' ? formData.password : null
+            }]
+        };
+
         try {
-            await registrationAttempt(formData.email, formData.name, passwordValue, formData.role);
-            alert("User created successfully!");
-            onUserCreated();
-            onClose();
+            const summary = await bulkRegistrationAttempt(userPayload.users);
+
+            if (summary.errorCount > 0) {
+                const errorReason = summary.details[0]?.reason || "Validation Error";
+                alert(`Registration Error: ${errorReason}`);
+            } else {
+                alert("User created successfully!");
+                onUserCreated();
+                onClose();
+            }
         } catch (err) {
-            alert(`Error: ${err.response?.data?.message || "Failed to create user."}`);
+            console.error("Full Error Object:", err);
+            const serverMessage = err.response?.data?.message;
+            const validationErrors = err.response?.data?.errors;
+            alert(`Error: ${serverMessage || "Check console for validation details"}`);
         }
     };
 
@@ -75,7 +92,7 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-window user-create-window" onClick={(e) => e.stopPropagation()}>
                 <button className="modal-close" onClick={onClose}>✕</button>
-                
+
                 <div className="user-create-header">
                     <h2>Register New User</h2>
                 </div>
@@ -88,12 +105,12 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                             <input type="file" accept=".csv" onChange={handleCsvUpload} hidden disabled={isUploading} />
                         </label>
 
-                        
+
                         {uploadResults && uploadResults.errorCount > 0 && (
                             <div className="error-log-container">
                                 <p className="error-summary">
-                                    Processed {uploadResults.totalProcessed}: 
-                                    <span className="success-text"> {uploadResults.successCount} Success</span>, 
+                                    Processed {uploadResults.totalProcessed}:
+                                    <span className="success-text"> {uploadResults.successCount} Success</span>,
                                     <span className="failure-text"> {uploadResults.errorCount} Failed</span>
                                 </p>
                                 <div className="error-list">
@@ -142,11 +159,11 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                             </form>
                         </>
                     )}
-                    
+
                     {uploadResults && (
-                         <div className="modal-footer">
+                        <div className="modal-footer">
                             <button className="form-submit" onClick={onClose}>Finish</button>
-                         </div>
+                        </div>
                     )}
                 </div>
             </div>

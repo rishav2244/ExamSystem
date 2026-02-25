@@ -16,20 +16,15 @@ export const loginAttempt = async (email, password) => {
     }
 }
 
-export const registrationAttempt = async (email, name, password, role) => {
-    const registerReqJSON = {
-        email: email,
-        name: name,
-        password: password,
-        role: role,
-    }
+export const bulkRegistrationAttempt = async (usersList) => {
+    const payload = { users: usersList };
     try {
-        const resp = await axios.post(`${API_URL}/user/register`, registerReqJSON);
-        return resp.data;
+        const resp = await axios.post(`${API_URL}/user/bulk-register`, payload);
+        return resp.data; 
     } catch (err) {
         throw err;
     }
-}
+};
 
 export const resetPassword = async (oldPassword, newPassword) => {
     const payload = { oldPassword, newPassword };
@@ -296,15 +291,7 @@ export const getSnapshots = async (submissionId) => {
         throw err;
     }
 };
-export const bulkRegistrationAttempt = async (usersList) => {
-    const payload = { users: usersList };
-    try {
-        const resp = await axios.post(`${API_URL}/user/bulk-register`, payload);
-        return resp.data; 
-    } catch (err) {
-        throw err;
-    }
-};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));
