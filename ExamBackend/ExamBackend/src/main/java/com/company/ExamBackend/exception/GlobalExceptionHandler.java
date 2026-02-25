@@ -16,7 +16,8 @@ public class GlobalExceptionHandler {
             ExamNotFoundException.class,
             EmailNotFoundException.class,
             UserNotFoundException.class,
-            GroupNotFoundException.class
+            GroupNotFoundException.class,
+            ExamCandidateNotFoundException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleNotFoundException(Exception ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
