@@ -28,7 +28,7 @@ public class SubmissionController {
     @GetMapping("/exam/{examId}")
     @Operation(
             summary = "Gets submissions for an exam",
-            description = "Returns details of candidate's exam"
+            description = "Returns all submissions of an exam with light details."
     )
     public ResponseEntity<List<SubmissionResponseDTO>> getExamSubmissions(@PathVariable String examId) {
         List<SubmissionResponseDTO> submissions = submissionService.getSubmissionsByExam(examId);
@@ -36,7 +36,7 @@ public class SubmissionController {
     }
 
     @Operation(
-            summary = "Gets submissions for an exam",
+            summary = "Gets details of a submission.",
             description = "Returns details of candidate's exam"
     )
     @GetMapping("/{submissionId}")

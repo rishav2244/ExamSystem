@@ -37,6 +37,7 @@ public class SubmissionMapper {
                 .timeTaken(submission.getTimeTaken())
                 .submittedAt(submission.getSubmittedAt())
                 .status(submission.getStatus())
+                .passed(submission.isPassed())
                 .violations(submission.getViolations())
                 .build();
     }
@@ -49,7 +50,7 @@ public class SubmissionMapper {
         SubmissionDetailsDTO dto = new SubmissionDetailsDTO();
         dto.setSubmissionId(submission.getId());
         dto.setCandidateName(submission.getCandidateName());
-        dto.setTotalScore(submission.getScore());
+        dto.setTotalScore(submission.getScore());    //This is actual score btw. Yes nomenclature is poor.
 
         Map<String, Answer> answerMap = answers.stream()
                 .collect(Collectors.toMap(a -> a.getQuestion().getId(), a -> a));

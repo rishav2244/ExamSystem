@@ -94,6 +94,9 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                     <th onClick={() => requestSort('submittedAt')} className="sortable">
                                         Submitted {getSortIcon('submittedAt')}
                                     </th>
+                                    <th onClick={() => requestSort('passed')} className="sortable">
+                                        Result {getSortIcon('passed')}
+                                    </th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -102,7 +105,7 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                     <tr
                                         key={sub.id}
                                         className="clickable-row"
-                                        onClick={() => navigate(`/admin/submissions/${sub.id}`)}
+                                        onClick={() => navigate(`/admin/submissions/${sub.id}`, { state: { sub } })}
                                     >
                                         <td>{sub.candidateName}</td>
                                         <td>{sub.candidateEmail}</td>
@@ -112,6 +115,11 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                         </td>
                                         <td>{sub.timeTaken} min</td>
                                         <td>{formatDate(sub.submittedAt)}</td>
+                                        <td>
+                                            <span className={`result-badge ${sub.passed ? 'pass' : 'fail'}`}>
+                                                {sub.passed ? "PASS" : "FAIL"}
+                                            </span>
+                                        </td>
                                         <td>
                                             <span className={`status-badge ${sub.status}`}>
                                                 {sub.status}

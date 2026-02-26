@@ -53,4 +53,10 @@ public class SubmissionResponseDTO {
             description = "Number of times candidate caused violations."
     )
     private int violations;
+
+    @Schema(
+            example = "true",
+            description = "Whether the candidate passed the exam."
+    )
+    private boolean passed;
 }

@@ -3131,3 +3131,53 @@ button:hover {
 .logout-btn:hover {
   background: #dc2626 !important;
 }
+
+.score-pass {
+    color: #16a34a;
+    font-weight: bold;
+}
+
+.score-fail {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+/* Result Banner in Summary */
+.result-banner {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 800;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.banner-pass {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+}
+
+.banner-fail {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+/* Result Badges for the Submission Table */
+.result-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.result-badge.pass {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.result-badge.fail {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
