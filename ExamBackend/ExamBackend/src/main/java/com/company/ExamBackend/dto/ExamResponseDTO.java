@@ -40,10 +40,10 @@ public class ExamResponseDTO {
     private String status;
 
     @Schema(
-            description = "Passing cutoff of exam.",
+            description = "Passing cutoff percentage of exam.",
             example = "50"
     )
-    private int cutoff;
+    private double cutoff;
 
     @Schema(
             description = "Email of exam creator(ADMIN)",

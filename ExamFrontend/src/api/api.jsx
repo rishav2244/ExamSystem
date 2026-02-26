@@ -67,22 +67,19 @@ export const getExamQuestions = async (examId) => {
     return response.data;
 };
 
-export const uploadExamQuestions = async (examId, questions) => {
+export const uploadExamQuestions = async (examId, questions, cutoff) => {
     try {
-        const payload = questions.map((q) => {
-
-            const options = [];
-            for (let i = 1; i <= 4; i++) {
-                if (q[i]) {
-                    options.push({
-                        optionIndex: i - 1,
-                        text: q[i],
-                    });
-                }
-            }
+        const questionPayload = questions.map((q) => {
+            const options = Object.keys(q)
+                .filter(key => !isNaN(key) && q[key] !== null && q[key] !== undefined)
+                .sort((a, b) => Number(a) - Number(b))
+                .map((key, idx) => ({
+                    optionIndex: idx,
+                    text: String(q[key]).trim()
+                }));
 
             const correctOptionIndex = options.findIndex(
-                (opt) => opt.text.trim() === q.Ans.trim()
+                (opt) => opt.text.trim() === String(q.Ans || "").trim()
             );
 
             return {
@@ -92,6 +89,11 @@ export const uploadExamQuestions = async (examId, questions) => {
                 options,
             };
         });
+
+        const payload = {
+            questions: questionPayload,
+            cutoff: Number(cutoff) || 40.0
+        };
 
         const response = await axios.post(
             `${API_URL}/exams/${examId}/questions`,

@@ -33,7 +33,10 @@ public class Exam
     private String status;
 
     @Column(nullable = false)
-    private int cutoff;
+    private double cutoff;
+
+    @Column(nullable = false)
+    private int totalScore;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)

@@ -29,7 +29,7 @@ public class SubmissionResponseDTO {
             example = "5",
             description = "Score of candidate in this exam."
     )
-    private Float score;
+    private double score;
 
     @Schema(
             example = "2",

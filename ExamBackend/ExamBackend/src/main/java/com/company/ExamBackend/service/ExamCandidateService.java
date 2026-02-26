@@ -8,5 +8,5 @@ import java.util.List;
 public interface ExamCandidateService {
     List<CandidateResponseDTO> getCandidates(String examId);
     void removeCandidate(String examId, String email);
-    public List<CandidateDashboardDTO> getCandidateDashboard(String email);
+    List<CandidateDashboardDTO> getCandidateDashboard(String email);
 }

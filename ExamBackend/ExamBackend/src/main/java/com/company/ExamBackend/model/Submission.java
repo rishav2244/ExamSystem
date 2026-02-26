@@ -31,7 +31,10 @@ public class Submission
     private String candidateEmail;
 
     @Column
-    private Float score;
+    private Double score;
+
+    @Column
+    private boolean passed;
 
     @Column(nullable = false)
     private int timeTaken;

@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
 
     //Thrown when trying to create group of existing name.
     @ExceptionHandler(GroupAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponseDTO> handleGroupConflictException(EmailExistsException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleGroupConflictException(GroupAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseDTO(409, ex.getMessage()));
     }

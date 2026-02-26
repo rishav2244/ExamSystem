@@ -14,22 +14,23 @@ import {
     getExamCandidates,
     deleteExam
 } from "../api/api";
- 
+
 export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const { email } = useContext(AuthenticationContext);
- 
+
     const [CSVObj, setCSVObj] = useState(null);
     const [backendQuestions, setBackendQuestions] = useState([]);
     const [availableGroups, setAvailableGroups] = useState([]);
     const [selectedGroupId, setSelectedGroupId] = useState("");
     const [candidates, setCandidates] = useState([]);
- 
+    const [cutoff, setCutoff] = useState(40);
+
     const isPending = exam?.status === "PENDING";
     const canPublish = exam?.status === "SAVED" && selectedGroupId !== "";
- 
+
     useEffect(() => {
         if (isPending || !exam?.id) return;
- 
+
         getExamQuestions(exam.id)
             .then((data) => {
                 const transformed = transformBackendQuestions(data || []);
@@ -39,7 +40,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 console.log("Couldn't load questions", err);
             });
     }, [exam?.id, isPending]);
- 
+
     useEffect(() => {
         if (exam?.status === "SAVED") {
             getAllUserGroups()
@@ -47,16 +48,16 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 .catch(err => console.error("Failed to load groups", err));
         }
     }, [exam?.status]);
- 
- 
+
+
     useEffect(() => {
         if (exam?.status === "PUBLISHED") {
- 
+
             getExamCandidates(exam.id)
                 .then(data => setCandidates(data || []))
                 .catch(err => console.error("Failed to load assigned candidates", err));
         } else if (exam?.status === "SAVED" && selectedGroupId) {
- 
+
             getGroupMembers(selectedGroupId)
                 .then(data => setCandidates(data || []))
                 .catch(err => console.error("Failed to preview group", err));
@@ -64,7 +65,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             setCandidates([]);
         }
     }, [exam?.status, exam?.id, selectedGroupId]);
- 
+
     const transformCSV = (rows) => {
         return rows.map((row) => {
             const result = {
@@ -82,26 +83,26 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             return result;
         });
     };
- 
+
     const validateCSVData = (data) => {
         if (!data || data.length === 0) return "The CSV file is empty.";
- 
+
         for (let i = 0; i < data.length; i++) {
             const row = data[i];
             const questionNum = i + 1;
- 
+
             if (isNaN(row["Marks"]) || row["Marks"].trim() === "") {
                 return `Row ${questionNum}: "Marks" must be a number.`;
             }
- 
+
             const options = Object.keys(row)
                 .filter(key => key.startsWith("Option") && row[key]?.trim() !== "")
                 .map(key => row[key].trim());
- 
+
             if (options.length < 2) {
                 return `Row ${questionNum}: Must have at least 2 non-empty options.`;
             }
- 
+
             const correctAns = row["Correction Option"]?.trim();
             if (!options.includes(correctAns)) {
                 return `Row ${questionNum}: The "Correction Option" (${correctAns}) does not exactly match any of the provided options. Check for typos!`;
@@ -109,54 +110,54 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         }
         return null;
     };
- 
+
     const validateDraftData = (questions) => {
         for (let i = 0; i < questions.length; i++) {
             const q = questions[i];
             const label = `Question ${i + 1}`;
- 
+
             if (!q.Question || q.Question.trim() === "") {
                 return `${label}: Question text cannot be empty.`;
             }
- 
+
             if (q.Marks === "" || isNaN(q.Marks) || Number(q.Marks) < 0) {
                 return `${label}: Marks must be a positive number.`;
             }
- 
+
             const optionKeys = Object.keys(q).filter(key => !isNaN(key));
             if (optionKeys.length < 2) {
                 return `${label}: Must have at least 2 options.`;
             }
- 
+
             const optionValues = optionKeys.map(k => q[k].trim());
             if (optionValues.some(val => val === "")) {
                 return `${label}: One or more options are empty.`;
             }
- 
+
             if (!optionValues.includes(q.Ans.trim())) {
                 return `${label}: The Correct Answer does not match any of the provided options.`;
             }
         }
         return null;
     };
- 
+
     const handleConfirmAndPublish = async () => {
         if (!selectedGroupId) {
             alert("Please select a group first.");
             return;
         }
- 
+
         if (!window.confirm("This will assign the group and publish the exam. Students will see it immediately. Proceed?")) {
             return;
         }
- 
+
         try {
             console.log("Assigning group...");
             await assignGroupToExam(exam.id, selectedGroupId);
- 
+
             console.log("Publishing exam...");
             await publishExam(exam.id);
- 
+
             alert("Group assigned and Exam published successfully!");
             onQuestionsUploaded();
             onClose();
@@ -165,24 +166,24 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             console.error(err);
         }
     };
- 
+
     const handleExamCreation = (e) => {
         const csvFile = e.target.files[0];
         if (!csvFile) return;
- 
+
         Papa.parse(csvFile, {
             header: true,
             skipEmptyLines: true,
             transformHeader: (header) => header.trim(),
             complete: (resultant) => {
                 const validationError = validateCSVData(resultant.data);
- 
+
                 if (validationError) {
                     alert(`Invalid CSV: ${validationError}`);
                     e.target.value = null;
                     return;
                 }
- 
+
                 const transformed = transformCSV(resultant.data);
                 setCSVObj(transformed);
             },
@@ -191,7 +192,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             },
         });
     };
- 
+
     const handleQuestionUpdate = (qIndex, fieldKey, newValue) => {
         setCSVObj((prevCSV) => {
             return prevCSV.map((item, index) => {
@@ -202,7 +203,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             });
         });
     };
- 
+
     const transformBackendQuestions = (questions) => {
         return questions.map((q) => {
             const transformed = {
@@ -223,7 +224,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             return transformed;
         });
     };
- 
+
     const handleDeleteExam = async () => {
         if (!window.confirm("ARE YOU SURE? This will permanently delete the exam and all its questions, submissions, and candidate records. This cannot be undone.")) {
             return;
@@ -241,38 +242,43 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             console.error(err);
         }
     };
- 
+
     const handleSave = async () => {
         if (!CSVObj || CSVObj.length === 0) return;
- 
+
         const error = validateDraftData(CSVObj);
         if (error) {
             alert(`Validation Error:\n${error}`);
             return;
         }
- 
-        if (!window.confirm("Do you want to save these questions to the exam?")) {
+
+        if (cutoff < 0 || cutoff > 100) {
+            alert("Cutoff percentage must be between 0 and 100.");
             return;
         }
- 
+
+        if (!window.confirm(`Save questions with a ${cutoff}% passing cutoff?`)) {
+            return;
+        }
+
         try {
-            await uploadExamQuestions(exam.id, CSVObj);
-            alert("Questions saved successfully!");
+            await uploadExamQuestions(exam.id, CSVObj, cutoff);
+            alert("Questions and Cutoff saved successfully!");
             setCSVObj(null);
             onQuestionsUploaded();
             onClose();
         } catch (err) {
-            alert("Failed to save questions. Please check console for details.");
+            alert("Failed to save. Check console.");
         }
     };
- 
+
     return (
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-window" onClick={(e) => e.stopPropagation()}>
                 <button className="modal-close" onClick={onClose}>✕</button>
- 
+
                 <h2>Exam details</h2>
- 
+
                 {exam && (
                     <div className="modal-exam-header">
                         <h3>{exam.title}</h3>
@@ -281,7 +287,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                         <p className="exam-meta">Ends: {new Date(exam.endTime).toLocaleString()}</p>
                     </div>
                 )}
- 
+
                 <div className="modal-body">
                     {isPending ? (
                         <div className="upload-section">
@@ -308,8 +314,8 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                     <ExamQuestion key={index} question={q} index={index} />
                                 ))}
                             </div>
- 
- 
+
+
                             {exam?.status === "SAVED" && (
                                 <div className="group-assignment-section">
                                     <h4>Select Candidate Group</h4>
@@ -327,8 +333,8 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                     </div>
                                 </div>
                             )}
- 
- 
+
+
                             {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
                                 <div className="candidate-list-container">
                                     <h5>
@@ -351,20 +357,35 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                         </div>
                     )}
                 </div>
- 
+
                 <div className="modal-footer">
                     <button onClick={handleDeleteExam} className="DeleteExamButton">
                         Delete Exam
                     </button>
- 
- 
+
+                    {isPending && CSVObj && CSVObj.length > 0 && (
+                        <div className="save-actions-container">
+                            <div className="cutoff-input-wrapper">
+                                <label>Pass Cutoff (%): </label>
+                                <input
+                                    type="number"
+                                    value={cutoff}
+                                    onChange={(e) => setCutoff(e.target.value)}
+                                    min="0"
+                                    max="100"
+                                    className="cutoff-input"
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     {isPending && CSVObj && CSVObj.length > 0 && (
                         <button onClick={handleSave} className="QuestionsSaveButton">
                             Save Questions to Exam
                         </button>
                     )}
- 
- 
+
+
                     {exam?.status === "SAVED" && selectedGroupId !== "" && (
                         <button onClick={handleConfirmAndPublish} className="PublishExamButton">
                             Confirm & Publish Exam

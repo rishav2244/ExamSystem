@@ -113,7 +113,6 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     private Submission createSubmissionEntity(StartExamRequestDTO dto, Exam exam) {
         Submission submission = submissionMapper.toNewEntity(dto, exam);
-        submission.setStatus("IN_PROGRESS");
         submission.setCandidateEmail(dto.getCandidateEmail());
         return submission;
     }

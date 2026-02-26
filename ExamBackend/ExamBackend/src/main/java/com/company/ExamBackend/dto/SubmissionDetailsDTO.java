@@ -25,7 +25,7 @@ public class SubmissionDetailsDTO {
             example = "10",
             description = "Total marks possible in exam"
     )
-    private float totalScore;
+    private double totalScore;
 
     @Schema(
             description = "Questions in exam."

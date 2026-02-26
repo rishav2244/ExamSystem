@@ -23,7 +23,8 @@ public class SubmissionMapper {
         submission.setLocation(dto.getLocation());
         submission.setStatus("IN_PROGRESS");
         submission.setViolations(0);
-        submission.setScore(0.0f);
+        submission.setScore(0.0);
+        submission.setPassed(false);
         return submission;
     }
 

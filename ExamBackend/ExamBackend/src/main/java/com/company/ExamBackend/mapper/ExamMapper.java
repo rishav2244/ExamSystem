@@ -1,5 +1,6 @@
 package com.company.ExamBackend.mapper;
 
+import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
 import com.company.ExamBackend.model.Exam;
 import org.springframework.stereotype.Component;
@@ -20,14 +21,14 @@ public class ExamMapper {
         return dto;
     }
 
-    public Exam toEntity(ExamResponseDTO dto) {
+    public Exam toEntity(CreateExamDTO dto) {
         Exam entity = new Exam();
-        entity.setId(dto.getId());
         entity.setTitle(dto.getTitle());
         entity.setDuration(dto.getDuration());
         entity.setStartTime(dto.getStartTime());
         entity.setEndTime(dto.getEndTime());
         entity.setCutoff(dto.getCutoff());
+        entity.setTotalScore(0);
         entity.setStatus(dto.getStatus());
         return entity;
     }

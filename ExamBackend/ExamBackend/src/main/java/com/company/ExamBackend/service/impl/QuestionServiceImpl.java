@@ -1,5 +1,6 @@
 package com.company.ExamBackend.service.impl;
 
+import com.company.ExamBackend.dto.ExamSetupDTO;
 import com.company.ExamBackend.dto.QuestionDTO;
 import com.company.ExamBackend.dto.QuestionResponseDTO;
 import com.company.ExamBackend.exception.ExamNotFoundException;
@@ -28,10 +29,17 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     @Transactional
-    public void saveQuestions(String examId, List<QuestionDTO> questionDTOs) {
+    public void saveQuestions(String examId, ExamSetupDTO examSetupDTO) {
         Exam exam = findExamById(examId);
         questionRepository.deleteByParentExamId(examId);
-        List<Question> questions = prepareQuestions(questionDTOs, exam);
+
+        int totalScore = examSetupDTO.getQuestions().stream()
+                .mapToInt(QuestionDTO::getMarks)
+                .sum();
+
+        exam.setTotalScore(totalScore);
+        exam.setCutoff(examSetupDTO.getCutoff());
+        List<Question> questions = prepareQuestions(examSetupDTO.getQuestions(), exam);
         questionRepository.saveAll(questions);
         updateExamStatus(exam, "SAVED");
     }

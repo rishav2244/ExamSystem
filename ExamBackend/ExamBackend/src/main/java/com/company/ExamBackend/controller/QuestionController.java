@@ -1,10 +1,12 @@
 package com.company.ExamBackend.controller;
 
+import com.company.ExamBackend.dto.ExamSetupDTO;
 import com.company.ExamBackend.dto.QuestionDTO;
 import com.company.ExamBackend.dto.QuestionResponseDTO;
 import com.company.ExamBackend.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +25,15 @@ public class QuestionController {
     private final QuestionService questionService;
 
     @Operation(
-            summary = "Adds questions against and exam and answers against those questions.",
-            description = "Used by admin to create new exam."
+            summary = "Uploads exam data.",
+            description = "Adds questions and cutoff against exams and answers against those questions."
     )
     @PostMapping("/{examId}/questions")
-    public ResponseEntity<Void> uploadQuestions(@PathVariable String examId, @RequestBody List<QuestionDTO> questions) {
+    public ResponseEntity<Void> uploadQuestions(
+            @PathVariable String examId,
+            @Valid @RequestBody ExamSetupDTO examSetupDTO) {
 
-        questionService.saveQuestions(examId, questions);
+        questionService.saveQuestions(examId, examSetupDTO);
         return ResponseEntity.ok().build();
     }
 

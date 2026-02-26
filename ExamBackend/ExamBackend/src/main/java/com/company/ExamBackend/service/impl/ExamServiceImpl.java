@@ -52,14 +52,8 @@ public class ExamServiceImpl implements ExamService {
 
         Users user = findUserByEmail(dto.getCreatedBy());
 
-        Exam exam = new Exam();
-        exam.setTitle(dto.getTitle());
-        exam.setDuration(dto.getDuration());
-        exam.setStartTime(dto.getStartTime());
-        exam.setEndTime(dto.getEndTime());
-        exam.setStatus(dto.getStatus());
+        Exam exam = examMapper.toEntity(dto);
         exam.setCreatedBy(user);
-        exam.setCutoff(dto.getCutoff());
         Exam saved = examRepository.save(exam);
         return examMapper.toDTO(saved);
     }
