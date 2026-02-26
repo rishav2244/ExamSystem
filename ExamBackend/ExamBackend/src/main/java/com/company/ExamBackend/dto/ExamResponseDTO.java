@@ -46,6 +46,12 @@ public class ExamResponseDTO {
     private double cutoff;
 
     @Schema(
+            description = "Total marks of exam.",
+            example = "10"
+    )
+    private int totalMarks;
+
+    @Schema(
             description = "Email of exam creator(ADMIN)",
             example = "admin@test.com"
     )

@@ -285,6 +285,8 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                         <p>Status: {exam.status}</p>
                         <p className="exam-meta">Starts: {new Date(exam.startTime).toLocaleString()}</p>
                         <p className="exam-meta">Ends: {new Date(exam.endTime).toLocaleString()}</p>
+                        <p className="exam-meta">Total Marks: {exam.totalMarks}</p>
+                        <p className="exam-meta">Cutoff Marks: {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}</p>
                     </div>
                 )}
 

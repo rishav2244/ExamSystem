@@ -18,6 +18,7 @@ public class ExamMapper {
         dto.setStatus(entity.getStatus());
         dto.setCreatedBy(entity.getCreatedBy().getEmail());
         dto.setCutoff(entity.getCutoff());
+        dto.setTotalMarks(entity.getTotalScore());
         return dto;
     }
 
