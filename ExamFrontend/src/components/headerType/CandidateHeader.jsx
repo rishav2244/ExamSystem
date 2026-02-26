@@ -1,11 +1,31 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AuthenticationContext } from "../../context/AuthenticationContext";
 import { ResetPasswordModal } from "../../pages/ResetPasswordModal";
 
 export const CandidateHeader = () => {
 
-    const { name, email, logout } = useContext(AuthenticationContext);
+    const { name, email, role, logout } =
+        useContext(AuthenticationContext);
+
+    const [showDropdown, setShowDropdown] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
+
+    const dropdownRef = useRef();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     return (
         <header className="admin-header">
@@ -14,33 +34,55 @@ export const CandidateHeader = () => {
                 Welcome, <span>{name}</span>
             </h4>
 
-            <div className="admin-header__nav">
+            <div className="profile-container" ref={dropdownRef}>
 
-
-                <button
-                    className="change-password-btn"
-                    onClick={() => setShowResetModal(true)}
+                <div
+                    className="profile-icon"
+                    onClick={() =>
+                        setShowDropdown(!showDropdown)
+                    }
                 >
-                    Change Password
-                </button>
+                    👤
+                </div>
 
+                {showDropdown && (
+                    <div className="profile-dropdown">
+
+                        <p className="profile-name">
+                            {name}
+                        </p>
+
+                        <p className="profile-role">
+                            Role: {role}
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                setShowResetModal(true)
+                            }
+                        >
+                            Change Password
+                        </button>
+
+                        <button
+                            className="logout-btn"
+                            onClick={logout}
+                        >
+                            Logout
+                        </button>
+
+                    </div>
+                )}
             </div>
-
-
-            <button
-                className="admin-header__logout"
-                onClick={logout}
-            >
-                Log out
-            </button>
 
             {showResetModal && (
                 <ResetPasswordModal
                     email={email}
-                    onClose={() => setShowResetModal(false)}
+                    onClose={() =>
+                        setShowResetModal(false)
+                    }
                 />
             )}
-
         </header>
     );
 };
