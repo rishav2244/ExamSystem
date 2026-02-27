@@ -65,6 +65,15 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                 <button className="modal-close" onClick={onClose}>✕</button>
                 <h2>Results: {exam.title}</h2>
 
+                {/* <div className="modal-actions">
+                    <input
+                        type="text"
+                        placeholder="Search by name or email..."
+                        className="table-search-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div> */}
                 <div className="modal-actions">
                     <input
                         type="text"
@@ -73,6 +82,20 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
+
+                    <button
+                        className="stats-btn"
+                        onClick={() =>
+                            navigate(`/admin/exam-statistics/${exam.id}`, {
+                                state: {
+                                    exam,
+                                    submissions
+                                }
+                            })
+                        }
+                    >
+                        📊 View Statistics
+                    </button>
                 </div>
 
                 {loading ? <p>Loading...</p> : (
