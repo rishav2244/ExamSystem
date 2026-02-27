@@ -59,13 +59,17 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public List<SubmissionResponseDTO> getSubmissionsByExam(String examId) {
-        return submissionMapper.toDTOList(submissionRepository.findByExamId(examId));
+    public List<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail) {
+        // Uses your @Query to filter submissions belonging to the admin's exam
+        List<Submission> submissions = submissionRepository.findByExamIdAndAdminEmail(examId, adminEmail);
+        return submissionMapper.toDTOList(submissions);
     }
 
     @Override
-    public SubmissionDetailsDTO getSubmissionDetails(String submissionId) {
-        Submission submission = findSubmissionById(submissionId);
+    public SubmissionDetailsDTO getSubmissionDetails(String submissionId, String adminEmail) {
+        // Security check: Only return details if the submission belongs to this admin's exam
+        Submission submission = submissionRepository.findByIdAndAdminEmail(submissionId, adminEmail)
+                .orElseThrow(() -> new SubmissionNotFoundException("SUBMISSION_NOT_FOUND_OR_ACCESS_DENIED"));
 
         var questions = questionRepository.findAllByExamIdWithOptions(submission.getExam().getId());
         var answers = answerRepository.findBySubmissionIdWithDetails(submissionId);

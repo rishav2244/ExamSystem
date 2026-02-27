@@ -11,6 +11,6 @@ public interface SubmissionService {
     StartExamResponseDTO startExam(StartExamRequestDTO dto);
     void reportViolation(String submissionId);
     void checkEligibility(String examId, String email);
-    List<SubmissionResponseDTO> getSubmissionsByExam(String examId);
-    SubmissionDetailsDTO getSubmissionDetails(String submissionId);
+    List<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail);
+    SubmissionDetailsDTO getSubmissionDetails(String submissionId, String adminEmail);
 }

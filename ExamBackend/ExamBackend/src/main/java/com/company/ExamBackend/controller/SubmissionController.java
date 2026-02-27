@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +32,10 @@ public class SubmissionController {
             summary = "Gets submissions for an exam",
             description = "Returns all submissions of an exam with light details."
     )
-    public ResponseEntity<List<SubmissionResponseDTO>> getExamSubmissions(@PathVariable String examId) {
-        List<SubmissionResponseDTO> submissions = submissionService.getSubmissionsByExam(examId);
+    public ResponseEntity<List<SubmissionResponseDTO>> getExamSubmissions(
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        List<SubmissionResponseDTO> submissions = submissionService.getSubmissionsByExam(examId, userDetails.getUsername());
         return ResponseEntity.ok(submissions);
     }
 
@@ -40,8 +44,11 @@ public class SubmissionController {
             description = "Returns details of candidate's exam"
     )
     @GetMapping("/{submissionId}")
-    public ResponseEntity<SubmissionDetailsDTO> getSubmissionDetails(@PathVariable String submissionId) {
-        var details = submissionService.getSubmissionDetails(submissionId);
+    public ResponseEntity<SubmissionDetailsDTO> getSubmissionDetails(
+            @PathVariable String submissionId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        var details = submissionService.getSubmissionDetails(submissionId, userDetails.getUsername());
         return ResponseEntity.ok(details);
     }
 }
