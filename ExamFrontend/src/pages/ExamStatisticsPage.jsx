@@ -136,13 +136,9 @@ export const ExamStatisticsPage = () => {
 
             </div>
 
-            {/* ===============================
-               CHARTS
-            =============================== */}
 
             <div className="charts-container">
 
-                {/* ===== BAR CHART ===== */}
                 <div className="chart-box">
                     <h3>Score Distribution</h3>
 
@@ -173,33 +169,6 @@ export const ExamStatisticsPage = () => {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
-
-                {/* ===== PIE CHART ===== */}
-                {/* <div className="chart-box">
-                    <h3>Pass vs Fail</h3>
-
-                    <ResponsiveContainer width="100%" height={320}>
-                        <PieChart>
-                            <Pie
-                                data={stats.pieData}
-                                dataKey="value"
-                                nameKey="name"
-                                outerRadius={110}
-                                label
-                                animationDuration={900}
-                            >
-                                {stats.pieData.map((_, index) => (
-                                    <Cell
-                                        key={index}
-                                        fill={PIE_COLORS[index]}
-                                    />
-                                ))}
-                            </Pie>
-
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div> */}
                 <div className="chart-box">
                     <h3>Pass vs Fail</h3>
 
@@ -222,8 +191,6 @@ export const ExamStatisticsPage = () => {
                                 <Tooltip />
                             </PieChart>
                         </ResponsiveContainer>
-
-                        {/* ✅ CUSTOM LEGEND */}
                         <div className="pie-legend">
                             <div className="legend-item">
                                 <span className="legend-color pass"></span>
