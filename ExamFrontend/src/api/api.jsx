@@ -294,6 +294,16 @@ export const getSnapshots = async (submissionId) => {
     }
 };
 
+export const getSecureImageUrl = async (fullUrl) => {
+    try {
+        const response = await axios.get(fullUrl, { responseType: 'blob' });
+        return URL.createObjectURL(response.data);
+    } catch (error) {
+        console.error("Image fetch failed", error);
+        return null;
+    }
+};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));

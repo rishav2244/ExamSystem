@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getSnapshots } from "../api/api";
+import { getSnapshots, getSecureImageUrl} from "../api/api";
 import { SnapshotSet } from "../components/FYIType/SnapshotSet";
 import { SnapshotModal } from "./SnapshotModal";
 
@@ -13,7 +13,13 @@ export const SnapshotGallery = () => {
 
     useEffect(() => {
         getSnapshots(submissionId)
-            .then(setSnapshots)
+            .then(async (data) => {
+                const unlockedSnapshots = await Promise.all(data.map(async (snap) => ({
+                    ...snap,
+                    imageUrl: await getSecureImageUrl(snap.imageUrl)
+                })));
+                setSnapshots(unlockedSnapshots);
+            })
             .catch(console.error)
             .finally(() => setLoading(false));
     }, [submissionId]);
