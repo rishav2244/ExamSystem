@@ -43,10 +43,24 @@ public class GlobalExceptionHandler {
 
     //=========================================================================================================//
     //Security business
+
+    //Password doesn't match
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthException(PasswordMismatchException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponseDTO(401, ex.getMessage()));
+    }
+
+    //Token expired
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTokenExpiredException(TokenExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body((new ErrorResponseDTO(401, ex.getMessage())));
+    }
+
+    //Token invalid
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTokenExpiredException(InvalidTokenException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body((new ErrorResponseDTO(401, ex.getMessage())));
     }
     //=========================================================================================================//
 
