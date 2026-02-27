@@ -16,16 +16,18 @@ import { Submissions } from "./pages/Submissions";
 import { SubmissionReview } from "./pages/SubmissionReview";
 import { SnapshotGallery } from "./pages/SnapshotGallery";
 
+import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
+
 
 function App() {
   return (
     <AuthenticationContextProvider>
       <BrowserRouter>
         <Routes>
-          
+
           <Route path="/login" element={<Login />} />
 
-          
+
           <Route element={<ProtectedRoute />}>
             <Route path="/user" element={<Candidate />} />
 
@@ -33,12 +35,12 @@ function App() {
 
             <Route path="/candidate/exam-room" element={<ExamInterface />} />
 
-            
+
             <Route element={<AdminRoute />}>
 
               <Route path="/admin" element={<AdminLayout />}>
 
-                
+
                 <Route index element={<Admin />} />
 
                 <Route path="exams" element={<Admin />} />
@@ -52,7 +54,9 @@ function App() {
                 <Route path="submissions/:submissionId" element={<SubmissionReview />} />
 
                 <Route path="submissions/:submissionId/snapshots" element={<SnapshotGallery />} />
-                
+
+                <Route path="/admin/exam-statistics/:examId" element={<ExamStatisticsPage />} />
+
               </Route>
             </Route>
           </Route>
