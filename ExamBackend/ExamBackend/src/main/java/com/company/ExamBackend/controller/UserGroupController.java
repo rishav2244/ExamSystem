@@ -45,8 +45,9 @@ public class UserGroupController {
             summary = "Gets all groups",
             description = "Used by admin to create new user."
     )
-    public ResponseEntity<List<UserGroupResponseDTO>> getAllUserGroups() {
-        return ResponseEntity.ok(userGroupService.getAllUserGroups());
+    public ResponseEntity<List<UserGroupResponseDTO>> getAllUserGroups(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(userGroupService.getAllUserGroups(userDetails.getUsername()));
     }
 
     @Operation(

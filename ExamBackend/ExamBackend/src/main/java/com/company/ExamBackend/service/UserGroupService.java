@@ -8,8 +8,8 @@ import com.company.ExamBackend.model.UserGroup;
 import java.util.List;
 
 public interface UserGroupService {
-    void createUserGroup(CreateGroupDTO createGroupDTO, String creatorEmail);
-    List<UserGroupResponseDTO> getAllUserGroups();
+    void createUserGroup(CreateGroupDTO dto, String creatorEmail);
+    List<UserGroupResponseDTO> getAllUserGroups(String adminEmail);
     List<GrpMemberDTO> getMembersByGroupId(String groupId);
     void deleteUserGroup(String groupId);
 }

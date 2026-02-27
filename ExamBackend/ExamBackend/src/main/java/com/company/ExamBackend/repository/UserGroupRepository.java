@@ -10,10 +10,10 @@ import java.util.List;
 @Repository
 public interface UserGroupRepository extends JpaRepository<UserGroup, String > {
 
-    //Used to see if group name is already taken.
-    boolean existsByName(String name);
+    // Scopes the name check to the specific admin
+    boolean existsByNameAndCreatedBy_Email(String name, String email);
 
-    // Gets all relevant info since we require some user info as well.
-    @Query("SELECT ug FROM UserGroup ug JOIN FETCH ug.createdBy")
-    List<UserGroup> findAllWithCreator();
+    // Only fetches groups belonging to the parent admin
+    @Query("SELECT ug FROM UserGroup ug JOIN FETCH ug.createdBy WHERE ug.createdBy.email = :email")
+    List<UserGroup> findByCreatedBy_Email(String email);
 }

@@ -34,22 +34,29 @@ public class UserGroupServiceImpl  implements UserGroupService {
     @Transactional
     @Override
     public void createUserGroup(CreateGroupDTO dto, String creatorEmail) {
-        validateNewGroup(dto); // Validation
-        Users creator = findUserByEmail(creatorEmail); // Resolve Entities
-        UserGroup savedGroup = persistGroup(dto, creator); // Persist Parent
-        linkMembersToGroup(savedGroup, dto.getGroupMembers()); // Link Children
+        // Delegate validation logic
+        validateNewGroup(dto, creatorEmail);
+
+        // Logic execution
+        Users creator = findUserByEmail(creatorEmail);
+        UserGroup savedGroup = persistGroup(dto, creator);
+        linkMembersToGroup(savedGroup, dto.getGroupMembers());
     }
 
     @Override
-    public List<UserGroupResponseDTO> getAllUserGroups() {
-        List<UserGroup> groups = userGroupRepository.findAllWithCreator();
-        return userGroupMapper.toGroupResponseDTOList(groups);
+    public List<UserGroupResponseDTO> getAllUserGroups(String adminEmail) {
+        return userGroupRepository.findByCreatedBy_Email(adminEmail)
+                .stream()
+                .map(userGroupMapper::toGroupResponseDTO)
+                .toList();
     }
 
     @Override
     public List<GrpMemberDTO> getMembersByGroupId(String groupId) {
-        List<GroupMember> members = groupMemberRepository.findByGroupId(groupId);
-        return userGroupMapper.toGrpMemberDTOList(members);
+        return groupMemberRepository.findByGroupId(groupId)
+                .stream()
+                .map(userGroupMapper::toGrpMemberDTO)
+                .toList();
     }
 
     @Transactional
@@ -64,10 +71,11 @@ public class UserGroupServiceImpl  implements UserGroupService {
     // Helper methods
     // ======================================================================================
 
-    private void validateNewGroup(CreateGroupDTO dto) {
-        if (userGroupRepository.existsByName(dto.getGroupName())) {
-            throw new GroupAlreadyExistsException("Group name '" + dto.getGroupName() + "' is already taken.");
+    private void validateNewGroup(CreateGroupDTO dto, String creatorEmail) {
+        if (userGroupRepository.existsByNameAndCreatedBy_Email(dto.getGroupName(), creatorEmail)) {
+            throw new GroupAlreadyExistsException("You already have a group named '" + dto.getGroupName() + "'");
         }
+
         if (dto.getGroupMembers() == null || dto.getGroupMembers().isEmpty()) {
             throw new InvalidActionException("A group must have at least one candidate.");
         }
