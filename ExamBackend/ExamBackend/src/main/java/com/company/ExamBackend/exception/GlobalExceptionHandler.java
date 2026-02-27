@@ -62,6 +62,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleTokenExpiredException(InvalidTokenException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body((new ErrorResponseDTO(401, ex.getMessage())));
     }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponseDTO(403, "You do not have permission to access this resource."));
+    }
+
     //=========================================================================================================//
 
     //=========================================================================================================//
