@@ -43,7 +43,6 @@ export const createExam = async (title, duration, startTime, endTime, status, cr
         startTime: startTime,
         endTime: endTime,
         status: status,
-        createdBy: createdBy
     }
     try {
         const resp = await axios.post(`${API_URL}/exams/createExam`, createExamReqJSON);

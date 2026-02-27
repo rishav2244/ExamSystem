@@ -43,10 +43,4 @@ public class CreateExamDTO {
             example = "50"
     )
     private int cutoff;
-
-    @Schema(
-            description = "Email of exam creator(ADMIN)",
-            example = "admin@test.com"
-    )
-    private String createdBy;
 }
