@@ -3141,7 +3141,6 @@ button:hover {
     font-weight: bold;
 }
 
-/* Result Banner in Summary */
 .result-banner {
     padding: 8px 16px;
     border-radius: 6px;
@@ -3163,7 +3162,6 @@ button:hover {
     border: 1px solid #fca5a5;
 }
 
-/* Result Badges for the Submission Table */
 .result-badge {
     padding: 4px 10px;
     border-radius: 12px;
@@ -3244,9 +3242,6 @@ button:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.back-btn {
-    margin-bottom: 10px;
-}
 .stats-dashboard {
     padding: 30px;
     background: #f8fafc;
@@ -3298,7 +3293,6 @@ button:hover {
     align-items: center;
 }
 
-/* Legend */
 .pie-legend {
     display: flex;
     gap: 25px;
@@ -3324,4 +3318,34 @@ button:hover {
 
 .legend-color.fail {
     background: #ef4444;
+}
+.back-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    transition: all 0.25s ease;
+}
+
+/* Hover */
+.back-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.4);
+}
+
+/* Click */
+.back-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
 }
