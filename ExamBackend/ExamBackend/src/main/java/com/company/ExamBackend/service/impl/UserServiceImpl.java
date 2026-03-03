@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO candidateRegisterAttempt(CandidateRegisterRequestDTO dto) {
         ensureEmailUnique(dto.getEmail());
-        Users user = buildUserEntity(dto.getEmail(), dto.getName(), "CANDIDATE", dto.getPassword());
+        Users user = buildUserEntity(dto.getEmail(), dto.getName(), "CANDIDATE", dto.getPassword(), true);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
             String email = validateAndNormalizeEmail(req.getEmail());
             checkCollisions(email, existingInDb, processedInBatch);
 
-            Users userEntity = buildUserEntity(email, req.getName(), req.getRole(), req.getPassword());
+            Users userEntity = buildUserEntity(email, req.getName(), req.getRole(), req.getPassword(),false);
             usersToSave.add(userEntity);
             processedInBatch.add(email);
         } catch (Exception e) {
@@ -138,14 +138,20 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    private Users buildUserEntity(String email, String name, String role, String rawPassword) {
+    private Users buildUserEntity(String email, String name, String role, String rawPassword, boolean isCandidateSide) {
         if (role == null || role.isBlank()) throw new InvalidActionException("Role is required.");
 
         Users user = new Users();
         user.setEmail(email);
         user.setName(name);
         user.setRole(role.toUpperCase());
-        user.setPassword(processPassword(user.getRole(), rawPassword));
+        if(isCandidateSide)
+        {
+            user.setPassword(rawPassword);
+        }
+        else {
+            user.setPassword(processPassword(user.getRole(), rawPassword));
+        }
         return user;
     }
 
