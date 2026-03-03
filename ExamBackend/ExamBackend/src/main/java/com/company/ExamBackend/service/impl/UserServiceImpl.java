@@ -145,18 +145,12 @@ public class UserServiceImpl implements UserService {
         user.setEmail(email);
         user.setName(name);
         user.setRole(role.toUpperCase());
-        if(isCandidateSide)
-        {
-            user.setPassword(rawPassword);
-        }
-        else {
-            user.setPassword(processPassword(user.getRole(), rawPassword));
-        }
+        user.setPassword(processPassword(user.getRole(), rawPassword, isCandidateSide));
         return user;
     }
 
-    private String processPassword(String role, String rawPassword) {
-        if ("CANDIDATE".equalsIgnoreCase(role)) return passwordEncoder.encode(defaultCandidatePassword);
+    private String processPassword(String role, String rawPassword, boolean isCandidateSide) {
+        if ("CANDIDATE".equalsIgnoreCase(role) && !isCandidateSide) return passwordEncoder.encode(defaultCandidatePassword);
 
         if (rawPassword == null || rawPassword.isBlank()) {
             throw new InvalidActionException("Password is required for role: " + role);
