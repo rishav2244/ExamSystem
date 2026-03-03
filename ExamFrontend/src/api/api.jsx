@@ -15,12 +15,29 @@ export const loginAttempt = async (email, password) => {
         throw err;
     }
 }
+export const registerCandidate = async (name, email, password) => {
+    const payload = {
+        name,
+        email,
+        password
+    };
+
+    try {
+        const resp = await axios.post(
+            `${API_URL}/user/self-register`,
+            payload
+        );
+        return resp.data;
+    } catch (err) {
+        throw err;
+    }
+};
 
 export const bulkRegistrationAttempt = async (usersList) => {
     const payload = { users: usersList };
     try {
         const resp = await axios.post(`${API_URL}/user/bulk-register`, payload);
-        return resp.data; 
+        return resp.data;
     } catch (err) {
         throw err;
     }
@@ -267,7 +284,7 @@ export const uploadSnapshot = async (submissionId, imageBlob, type, isViolation 
     formData.append('submissionId', submissionId);
     formData.append('violation', isViolation);
     formData.append('type', type);
-    
+
     if (slViolation !== null) {
         formData.append('sl_violation', slViolation);
     }
@@ -275,7 +292,7 @@ export const uploadSnapshot = async (submissionId, imageBlob, type, isViolation 
     formData.append('image', imageBlob, `snapshot_${Date.now()}.jpg`);
 
     try {
-        const resp = await axios.post(`${API_URL}/snapshots`, formData); 
+        const resp = await axios.post(`${API_URL}/snapshots`, formData);
         return resp.data;
     } catch (err) {
         console.error("Snapshot upload failed", err.response?.data || err.message);

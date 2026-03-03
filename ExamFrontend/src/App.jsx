@@ -17,7 +17,7 @@ import { SubmissionReview } from "./pages/SubmissionReview";
 import { SnapshotGallery } from "./pages/SnapshotGallery";
 
 import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
-
+import { Register } from "./pages/Register";
 
 function App() {
   return (
@@ -26,7 +26,8 @@ function App() {
         <Routes>
 
           <Route path="/login" element={<Login />} />
-
+          {/* <Route path="/login" element={<Login />} /> */}
+          <Route path="/register" element={<Register />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/user" element={<Candidate />} />
