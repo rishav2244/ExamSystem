@@ -24,7 +24,8 @@ public class EmailServiceImpl implements EmailService {
         message.setText("Hello! You have been invited to take the exam: " + examTitle +
                 ". If this is your first time logging in," +
                 " login to the portal with the password "+defaultCandidatePassword+
-                ". You should reset this password later."); //Literally content
+                ". You should reset this password later." +
+                " If you are self-registered, ignore the default password."); //Literally content
         mailSender.send(message);
     }
 }
