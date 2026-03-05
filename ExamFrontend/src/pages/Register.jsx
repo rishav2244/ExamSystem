@@ -7,14 +7,10 @@ import { OtpVerification } from "../components/formType/OTPVerification";
 export const Register = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
-    
-    // Form State
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [otp, setOtp] = useState("");
-
-    // Configuration from Backend
     const [resendDelay, setResendDelay] = useState(60);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
@@ -25,6 +21,7 @@ export const Register = () => {
         setMessage("");
         try {
             const data = await registerCandidate(name, email, password);
+            console.log(data);
             setResendDelay(data.resendSeconds);
             setStep(2);
             setMessage(data.message);
