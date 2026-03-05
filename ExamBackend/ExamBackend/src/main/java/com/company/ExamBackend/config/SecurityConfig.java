@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/login").permitAll()
                         .requestMatchers("/api/user/self-register").permitAll()
                         .requestMatchers("/api/user/verify-otp").permitAll()
+                        .requestMatchers("/api/user/resend-otp").permitAll()
                         .requestMatchers("/api/user/reset-password").authenticated()
                         .requestMatchers("/api/candidateUser/**").hasRole("CANDIDATE")
                         .requestMatchers("/api/snapshots/submission/**").hasRole("ADMIN")

@@ -52,9 +52,12 @@ public class UserServiceImpl implements UserService {
     @Value("${app.registration.cooldown-duration:3600000}")
     private long cooldownDuration;
 
+    @Value("${app.registration.resend-delay:60000}")
+    private long resendDelay;
+
     @Transactional
     @Override
-    public void candidateRegisterAttempt(CandidateRegisterRequestDTO dto) {
+    public RegistrationResponseDTO candidateRegisterAttempt(CandidateRegisterRequestDTO dto) {
         log.info("Starting registration attempt for email: {}", dto.getEmail());
         ensureEmailUnique(dto.getEmail());
         String email = dto.getEmail().toLowerCase().trim();
@@ -63,20 +66,17 @@ public class UserServiceImpl implements UserService {
         validateCoolDown(pending);
 
         String rawOtp = generateNumericOtp();
-        log.debug("Generated OTP for {}: {}", email, rawOtp);
-
         updatePendingDetails(pending, dto, rawOtp);
 
         pendingRegistrationRepository.save(pending);
-        log.info("Pending registration saved. Attempting to send email to {}", email);
+        emailService.sendOtp(email, rawOtp);
 
-        try {
-            emailService.sendOtp(email, rawOtp);
-            log.info("Email sent successfully to {}", email);
-        } catch (Exception e) {
-            log.error("Failed to send OTP email to {}: {}", email, e.getMessage());
-            throw e;
-        }
+        return new RegistrationResponseDTO(
+                "OTP sent to " + email,
+                otpTtl / 1000,   // Expiry timer for FE
+                resendDelay / 1000, // Resend button delay for FE
+                maxAttempts
+        );
     }
 
     @Transactional(noRollbackFor = {PasswordMismatchException.class, InvalidActionException.class})
@@ -117,6 +117,36 @@ public class UserServiceImpl implements UserService {
         }
 
         return new BulkRegistrationSummaryDTO(requestedUsers.size(), usersToSave.size(), errors.size(), errors);
+    }
+
+    @Transactional
+    @Override
+    public ResendResponseDTO resendOtp(String email) {
+        String normalizedEmail = email.toLowerCase().trim();
+        PendingRegistration pending = findPendingOrThrow(normalizedEmail);
+
+        validateCoolDown(pending);
+
+        // Rate Limit: (Current time) vs (Last Send Time)
+        // Last Send = validUntil - otpTtl
+        Instant lastGenerated = pending.getValidUntil().minusMillis(otpTtl);
+        Instant now = Instant.now();
+        long millisSinceLast = java.time.Duration.between(lastGenerated, now).toMillis();
+
+        if (millisSinceLast < resendDelay) {
+            long remainingSeconds = (resendDelay - millisSinceLast) / 1000;
+            throw new InvalidActionException("Please wait " + remainingSeconds + " seconds before resending.");
+        }
+
+        String newOtp = generateNumericOtp();
+        pending.setOtp(passwordEncoder.encode(newOtp));
+        pending.setValidUntil(now.plusMillis(otpTtl));
+        // We do NOT reset attempts here to prevent brute force resetting
+
+        pendingRegistrationRepository.save(pending);
+        emailService.sendOtp(normalizedEmail, newOtp);
+
+        return new ResendResponseDTO(true, "A new OTP has been sent.", resendDelay / 1000);
     }
 
     @Override

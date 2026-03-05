@@ -38,12 +38,14 @@ public class UserController {
 
     @Operation(
             summary = "Register new user (Candidate side)",
-            description = "Used by candidate to have himself registered."
+            description = "Initiates registration and returns metadata for the frontend timers."
     )
     @PostMapping("/self-register")
-    public ResponseEntity<String> candidateUserRegister(@Valid @RequestBody CandidateRegisterRequestDTO registerRequestDTO) {
-        userService.candidateRegisterAttempt(registerRequestDTO);
-        return ResponseEntity.ok("Email sent.");
+    public ResponseEntity<RegistrationResponseDTO> candidateUserRegister(
+            @Valid @RequestBody CandidateRegisterRequestDTO registerRequestDTO) {
+
+        RegistrationResponseDTO response = userService.candidateRegisterAttempt(registerRequestDTO);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -54,6 +56,16 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> verifyOtp(@Valid @RequestBody VerifyOtpRequestDTO verifyRequestDTO) {
         UserResponseDTO response = userService.verifyRegistration(verifyRequestDTO);
         return ResponseEntity.status(201).body(response);
+    }
+
+    @Operation(
+            summary = "Resend OTP",
+            description = "Generates a new OTP if the resend-delay has passed."
+    )
+    @PostMapping("/resend-otp")
+    public ResponseEntity<ResendResponseDTO> resendOtp(@RequestParam String email) {
+        ResendResponseDTO response = userService.resendOtp(email);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
