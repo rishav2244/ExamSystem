@@ -11,16 +11,18 @@ import com.company.ExamBackend.repository.UserRepository;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PendingRegistrationRepository pendingRegistrationRepository;
@@ -44,15 +46,16 @@ public class UserServiceImpl implements UserService {
     @Value("${app.registration.lockout-message:Account locked due to too many attempts.}")
     private String lockoutMessage;
 
-    @Value("${app.timers.otp-ttl:600000}")
+    @Value("${app.registration.otp-ttl:600000}")
     private long otpTtl;
 
-    @Value("${app.timers.cooldown-duration:3600000}")
+    @Value("${app.registration.cooldown-duration:3600000}")
     private long cooldownDuration;
 
     @Transactional
     @Override
     public void candidateRegisterAttempt(CandidateRegisterRequestDTO dto) {
+        log.info("Starting registration attempt for email: {}", dto.getEmail());
         ensureEmailUnique(dto.getEmail());
         String email = dto.getEmail().toLowerCase().trim();
 
@@ -60,21 +63,35 @@ public class UserServiceImpl implements UserService {
         validateCoolDown(pending);
 
         String rawOtp = generateNumericOtp();
+        log.debug("Generated OTP for {}: {}", email, rawOtp);
+
         updatePendingDetails(pending, dto, rawOtp);
 
         pendingRegistrationRepository.save(pending);
-        emailService.sendOtp(email, rawOtp);
+        log.info("Pending registration saved. Attempting to send email to {}", email);
+
+        try {
+            emailService.sendOtp(email, rawOtp);
+            log.info("Email sent successfully to {}", email);
+        } catch (Exception e) {
+            log.error("Failed to send OTP email to {}: {}", email, e.getMessage());
+            throw e;
+        }
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = {PasswordMismatchException.class, InvalidActionException.class})
     @Override
     public UserResponseDTO verifyRegistration(VerifyOtpRequestDTO dto) {
+        log.info("Verifying OTP for email: {}", dto.getEmail());
         String email = dto.getEmail().toLowerCase().trim();
         PendingRegistration pending = findPendingOrThrow(email);
 
         validatePendingState(pending);
+
+        log.debug("Comparing provided OTP with stored hash for {}", email);
         verifyOtpAndHandleAttempts(pending, dto.getOtp());
 
+        log.info("OTP verified. Promoting {} to full user.", email);
         Users newUser = userMapper.pendingToUser(pending);
         Users savedUser = userRepository.save(newUser);
         pendingRegistrationRepository.delete(pending);
@@ -218,6 +235,8 @@ public class UserServiceImpl implements UserService {
                 !pending.isValid() &&
                 pending.getValidUntil().isAfter(java.time.Instant.now())) {
 
+            log.warn("Registration blocked by cooldown for {}. Lock expires at: {}",
+                    pending.getEmail(), pending.getValidUntil());
             throw new InvalidActionException(lockoutMessage);
         }
     }
@@ -236,7 +255,10 @@ public class UserServiceImpl implements UserService {
             int currentAttempts = pending.getAttempts() + 1;
             pending.setAttempts(currentAttempts);
 
+            log.warn("Incorrect OTP attempt #{} for {}", currentAttempts, pending.getEmail());
+
             if (currentAttempts >= maxAttempts) {
+                log.error("User {} reached max attempts. Locking account.", pending.getEmail());
                 lockOutUser(pending);
                 throw new InvalidActionException(lockoutMessage);
             }
@@ -246,6 +268,7 @@ public class UserServiceImpl implements UserService {
                     String.format("Invalid OTP. Attempts remaining: %d", (maxAttempts - currentAttempts))
             );
         }
+        log.info("OTP match confirmed for {}", pending.getEmail());
     }
 
     // ======================================================================================
@@ -288,11 +311,19 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validatePendingState(PendingRegistration pending) {
-        if (!pending.isValid() && pending.getValidUntil().isAfter(java.time.Instant.now())) {
+        Instant now = java.time.Instant.now();
+
+        // 1. Check Lockout
+        if (!pending.isValid() && pending.getValidUntil().isAfter(now)) {
             throw new InvalidActionException("Account locked. Please try again later.");
         }
-        if (pending.getValidUntil().isBefore(java.time.Instant.now())) {
-            throw new InvalidActionException("OTP has expired.");
+
+        // 2. Check Expiry
+        if (pending.getValidUntil().isBefore(now)) {
+            log.warn("OTP expired for: {}. Cleaning up record.", pending.getEmail());
+            // CRITICAL: Delete the expired record so they can try candidateRegisterAttempt again
+            pendingRegistrationRepository.delete(pending);
+            throw new InvalidActionException("OTP has expired. Please register again.");
         }
     }
 
