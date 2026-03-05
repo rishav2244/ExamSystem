@@ -32,6 +32,7 @@ export const registerCandidate = async (name, email, password) => {
         throw err;
     }
 };
+
 export const verifyOtp = async (email, otp) => {
 
     const payload = {
@@ -47,6 +48,17 @@ export const verifyOtp = async (email, otp) => {
 
         return resp.data;
 
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const resendOtp = async (email) => {
+    try {
+        const resp = await axios.post(`${API_URL}/user/resend-otp`, null, {
+            params: { email }
+        });
+        return resp.data;
     } catch (err) {
         throw err;
     }

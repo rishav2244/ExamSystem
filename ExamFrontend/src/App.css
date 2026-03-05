@@ -3403,3 +3403,33 @@ button:hover {
     cursor: pointer;
     font-weight: 600;
 }
+
+.resend-button {
+    width: 100%;
+    margin-top: 10px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.resend-button:hover:not(:disabled) {
+    background-color: #5a6268;
+}
+
+.resend-button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+.auth-message {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 500;
+}
