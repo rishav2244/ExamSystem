@@ -1,87 +1,154 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerCandidate } from "../api/api";
-import "../App.css";
+import { registerCandidate, verifyOtp } from "../api/api";
 
 export const Register = () => {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleRegister = async (e) => {
+    const [step, setStep] = useState(1);
+
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [otp, setOtp] = useState("");
+
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleSendOtp = async (e) => {
         e.preventDefault();
+
         setLoading(true);
         setMessage("");
 
         try {
+
             await registerCandidate(name, email, password);
 
-            setMessage("Registration successful! You can now login.");
+            setStep(2);
+            setMessage("OTP sent to your email.");
+
+        } catch (err) {
+
+            setMessage(
+                err.response?.data ||
+                "Failed to send OTP"
+            );
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const handleVerifyOtp = async (e) => {
+
+        e.preventDefault();
+
+        setLoading(true);
+        setMessage("");
+
+        try {
+
+            await verifyOtp(email, otp);
+
+            setMessage("Registration successful!");
 
             setTimeout(() => {
                 navigate("/login");
             }, 2000);
 
         } catch (err) {
+
             setMessage(
-                err.response?.data?.message ||
                 err.response?.data ||
-                "Registration failed"
+                "OTP verification failed"
             );
+
         } finally {
             setLoading(false);
         }
     };
 
+
     return (
         <div className="auth-container">
+
             <div className="auth-card">
+
                 <h2>Candidate Registration</h2>
 
-                <form onSubmit={handleRegister}>
 
-                    <input
-                        type="text"
-                        placeholder="Full Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                    />
+                {step === 1 && (
 
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
+                    <form onSubmit={handleSendOtp}>
 
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                        <input
+                            type="text"
+                            placeholder="Full Name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? "Registering..." : "Register"}
-                    </button>
-                </form>
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+
+                        <button type="submit" disabled={loading}>
+                            {loading ? "Sending OTP..." : "Send OTP"}
+                        </button>
+
+                    </form>
+
+                )}
+
+
+                {step === 2 && (
+
+                    <form onSubmit={handleVerifyOtp}>
+
+                        <input
+                            type="text"
+                            placeholder="Enter OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            required
+                        />
+
+                        <button type="submit" disabled={loading}>
+                            {loading ? "Verifying..." : "Verify OTP"}
+                        </button>
+
+                    </form>
+
+                )}
 
                 {message && <p className="auth-message">{message}</p>}
 
                 <p className="switch-auth">
-                    Already have an account?{" "}
+                    Already registered?{" "}
                     <span onClick={() => navigate("/login")}>
                         Login
                     </span>
                 </p>
+
             </div>
+
         </div>
     );
 };
