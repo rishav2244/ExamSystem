@@ -37,7 +37,7 @@ app:
     default-candidate-password: ${DEFAULT_CANDIDATE_PASSWORD}
     candidate-password-max-length: ${CANDIDATE_PASSWORD_MAX_LENGTH}
   registration:
-    max-attempts: ${MAX_OTP_ATTEMTPS}
+    max-attempts: ${MAX_OTP_ATTEMPTS}
     otp-ttl: ${OTP_TTL_IN_MS}
     cooldown-duration: ${CANDIDATE_REGISTRATION_COOLDOWN_IN_MS}
     lockout-message: ${CANDIDATE_REGISTRATION_LOCKOUT_MESSAGE}

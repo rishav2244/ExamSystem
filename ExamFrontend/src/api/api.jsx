@@ -32,6 +32,25 @@ export const registerCandidate = async (name, email, password) => {
         throw err;
     }
 };
+export const verifyOtp = async (email, otp) => {
+
+    const payload = {
+        email,
+        otp
+    };
+
+    try {
+        const resp = await axios.post(
+            `${API_URL}/user/verify-otp`,
+            payload
+        );
+
+        return resp.data;
+
+    } catch (err) {
+        throw err;
+    }
+};
 
 export const bulkRegistrationAttempt = async (usersList) => {
     const payload = { users: usersList };
