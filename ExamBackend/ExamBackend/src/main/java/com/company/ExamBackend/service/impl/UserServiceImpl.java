@@ -4,8 +4,11 @@ import com.company.ExamBackend.config.JwtUtils;
 import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.exception.*;
 import com.company.ExamBackend.mapper.UserMapper;
+import com.company.ExamBackend.model.PendingRegistration;
 import com.company.ExamBackend.model.Users;
+import com.company.ExamBackend.repository.PendingRegistrationRepository;
 import com.company.ExamBackend.repository.UserRepository;
+import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,13 +17,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final PendingRegistrationRepository pendingRegistrationRepository;
+
     private final UserMapper userMapper;
+    private final EmailService emailService;
+
     private final PasswordEncoder passwordEncoder;
+
     private final JwtUtils jwtUtils;
 
     @Value("${app.security.default-candidate-password:test}")
@@ -29,12 +38,48 @@ public class UserServiceImpl implements UserService {
     @Value("${app.security.candidate-password-max-length:40}")
     private int passwordMaxLength;
 
+    @Value("${app.registration.max-attempts:6}")
+    private int maxAttempts;
+
+    @Value("${app.registration.lockout-message:Account locked due to too many attempts.}")
+    private String lockoutMessage;
+
+    @Value("${app.timers.otp-ttl:600000}")
+    private long otpTtl;
+
+    @Value("${app.timers.cooldown-duration:3600000}")
+    private long cooldownDuration;
+
     @Transactional
     @Override
-    public UserResponseDTO candidateRegisterAttempt(CandidateRegisterRequestDTO dto) {
+    public void candidateRegisterAttempt(CandidateRegisterRequestDTO dto) {
         ensureEmailUnique(dto.getEmail());
-        Users user = buildUserEntity(dto.getEmail(), dto.getName(), "CANDIDATE", dto.getPassword(), true);
-        return userMapper.toUserResponse(userRepository.save(user));
+        String email = dto.getEmail().toLowerCase().trim();
+
+        PendingRegistration pending = getOrCreatePendingRegistration(email);
+        validateCoolDown(pending);
+
+        String rawOtp = generateNumericOtp();
+        updatePendingDetails(pending, dto, rawOtp);
+
+        pendingRegistrationRepository.save(pending);
+        emailService.sendOtp(email, rawOtp);
+    }
+
+    @Transactional
+    @Override
+    public UserResponseDTO verifyRegistration(VerifyOtpRequestDTO dto) {
+        String email = dto.getEmail().toLowerCase().trim();
+        PendingRegistration pending = findPendingOrThrow(email);
+
+        validatePendingState(pending);
+        verifyOtpAndHandleAttempts(pending, dto.getOtp());
+
+        Users newUser = userMapper.pendingToUser(pending);
+        Users savedUser = userRepository.save(newUser);
+        pendingRegistrationRepository.delete(pending);
+
+        return userMapper.toUserResponse(savedUser);
     }
 
     @Override
@@ -159,6 +204,50 @@ public class UserServiceImpl implements UserService {
         return passwordEncoder.encode(rawPassword);
     }
 
+    private PendingRegistration getOrCreatePendingRegistration(String email) {
+        return pendingRegistrationRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    PendingRegistration p = new PendingRegistration();
+                    p.setEmail(email);
+                    return p;
+                });
+    }
+
+    private void validateCoolDown(PendingRegistration pending) {
+        if (pending.getValidUntil() != null &&
+                !pending.isValid() &&
+                pending.getValidUntil().isAfter(java.time.Instant.now())) {
+
+            throw new InvalidActionException(lockoutMessage);
+        }
+    }
+
+    private void updatePendingDetails(PendingRegistration pending, CandidateRegisterRequestDTO dto, String rawOtp) {
+        pending.setName(dto.getName());
+        pending.setPassword(passwordEncoder.encode(dto.getPassword()));
+        pending.setOtp(passwordEncoder.encode(rawOtp));
+        pending.setAttempts(0); // Reset attempts on new OTP request
+        pending.setValid(true);
+        pending.setValidUntil(java.time.Instant.now().plusMillis(otpTtl));
+    }
+
+    private void verifyOtpAndHandleAttempts(PendingRegistration pending, String rawOtp) {
+        if (!passwordEncoder.matches(rawOtp, pending.getOtp())) {
+            int currentAttempts = pending.getAttempts() + 1;
+            pending.setAttempts(currentAttempts);
+
+            if (currentAttempts >= maxAttempts) {
+                lockOutUser(pending);
+                throw new InvalidActionException(lockoutMessage);
+            }
+
+            pendingRegistrationRepository.save(pending);
+            throw new PasswordMismatchException(
+                    String.format("Invalid OTP. Attempts remaining: %d", (maxAttempts - currentAttempts))
+            );
+        }
+    }
+
     // ======================================================================================
     // Small Utility Helpers
     // ======================================================================================
@@ -191,5 +280,30 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
             throw new PasswordMismatchException("Incorrect password.");
         }
+    }
+
+    private PendingRegistration findPendingOrThrow(String email) {
+        return pendingRegistrationRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidActionException("No registration attempt found."));
+    }
+
+    private void validatePendingState(PendingRegistration pending) {
+        if (!pending.isValid() && pending.getValidUntil().isAfter(java.time.Instant.now())) {
+            throw new InvalidActionException("Account locked. Please try again later.");
+        }
+        if (pending.getValidUntil().isBefore(java.time.Instant.now())) {
+            throw new InvalidActionException("OTP has expired.");
+        }
+    }
+
+    private void lockOutUser(PendingRegistration pending) {
+        pending.setValid(false);
+        pending.setValidUntil(java.time.Instant.now().plusMillis(cooldownDuration));
+        pendingRegistrationRepository.save(pending);
+    }
+
+    // 6-digit OTP
+    private String generateNumericOtp() {
+        return String.valueOf(new java.util.Random().nextInt(900000) + 100000);
     }
 }

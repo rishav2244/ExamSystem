@@ -2,6 +2,7 @@ package com.company.ExamBackend.mapper;
 
 import com.company.ExamBackend.dto.UserHeavyDTO;
 import com.company.ExamBackend.dto.UserResponseDTO;
+import com.company.ExamBackend.model.PendingRegistration;
 import com.company.ExamBackend.model.Users;
 import org.springframework.stereotype.Component;
 
@@ -25,5 +26,14 @@ public class UserMapper
         userHeavyDTO.setRole(user.getRole());
         userHeavyDTO.setName(user.getName());
         return userHeavyDTO;
+    }
+
+    public Users pendingToUser(PendingRegistration pending) {
+        Users user = new Users();
+        user.setEmail(pending.getEmail());
+        user.setName(pending.getName());
+        user.setPassword(pending.getPassword());
+        user.setRole("CANDIDATE");
+        return user;
     }
 }

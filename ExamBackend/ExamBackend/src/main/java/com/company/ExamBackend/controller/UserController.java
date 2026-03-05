@@ -41,9 +41,19 @@ public class UserController {
             description = "Used by candidate to have himself registered."
     )
     @PostMapping("/self-register")
-    public ResponseEntity<UserResponseDTO> candidateUserRegister(@Valid @RequestBody CandidateRegisterRequestDTO registerRequestDTO) {
-        UserResponseDTO createdUser = userService.candidateRegisterAttempt(registerRequestDTO);
-        return ResponseEntity.status(201).body(createdUser);
+    public ResponseEntity<String> candidateUserRegister(@Valid @RequestBody CandidateRegisterRequestDTO registerRequestDTO) {
+        userService.candidateRegisterAttempt(registerRequestDTO);
+        return ResponseEntity.ok("Email sent.");
+    }
+
+    @Operation(
+            summary = "Verify OTP",
+            description = "Verifies the OTP and promotes the candidate to a full user."
+    )
+    @PostMapping("/verify-otp")
+    public ResponseEntity<UserResponseDTO> verifyOtp(@Valid @RequestBody VerifyOtpRequestDTO verifyRequestDTO) {
+        UserResponseDTO response = userService.verifyRegistration(verifyRequestDTO);
+        return ResponseEntity.status(201).body(response);
     }
 
     @Operation(

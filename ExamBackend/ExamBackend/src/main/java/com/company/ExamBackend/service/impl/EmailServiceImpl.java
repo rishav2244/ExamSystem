@@ -16,6 +16,9 @@ public class EmailServiceImpl implements EmailService {
     //derives the value from a .env file.
     private String defaultCandidatePassword; //Default password as in the .env file.
 
+    @Value("${app.registration.otp-ttl}") // OTP TTL as in the .env file
+    private String expiryTime;
+
     @Override
     public void sendInvitation(String to, String examTitle) {
         SimpleMailMessage message = new SimpleMailMessage(); //Creating new SimpleMailMessage obj
@@ -26,6 +29,19 @@ public class EmailServiceImpl implements EmailService {
                 " login to the portal with the password "+defaultCandidatePassword+
                 ". You should reset this password later." +
                 " If you are self-registered, ignore the default password."); //Literally content
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendOtp(String to, String otp) {
+        long minutes = Long.parseLong(expiryTime) / 60000;
+        String expiryInMinutes = String.valueOf(minutes);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Your Examination Portal Verification Code");
+        message.setText("Your OTP for registration is: " + otp +
+                ". This code is valid for " + expiryInMinutes +
+                " minutes.");
         mailSender.send(message);
     }
 }
