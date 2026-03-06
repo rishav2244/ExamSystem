@@ -3600,3 +3600,46 @@ button:hover {
     width: 100%; padding: 0.7rem; background: #334155;
     color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
 }
+
+/* --- CSV Preview Section --- */
+.csv-preview-section {
+    margin-top: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.csv-preview-header {
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.csv-clear-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.csv-preview-list {
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.csv-preview-item {
+    font-size: 0.8rem;
+    color: #475569;
+    padding: 0.2rem 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.csv-preview-item:last-child { border-bottom: none; }

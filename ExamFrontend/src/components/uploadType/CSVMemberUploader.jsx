@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 
 export const CSVMemberUploader = ({ onEmailsParsed, onError }) => {
     const [fileName, setFileName] = useState('');
+    const [previewList, setPreviewList] = useState([]);
 
     const validateEmail = (email) => {
         return String(email)
@@ -16,29 +17,37 @@ export const CSVMemberUploader = ({ onEmailsParsed, onError }) => {
         setFileName(file.name);
 
         Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
+            header: false,
+            skipEmptyLines: 'greedy',
             complete: (results) => {
-                const data = results.data;
-                if (data.length === 0) {
-                    onError("The CSV file is empty.");
+                const rows = results.data;
+                if (rows.length < 2) {
+                    onError("The CSV file must have a header row and at least one data row.");
                     return;
                 }
 
-                const headers = Object.keys(data[0]);
-                const emailColumns = headers.filter(h => h.toLowerCase() === 'email');
+                const headerRow = rows[0];
+                const emailIndices = headerRow.reduce((acc, header, idx) => {
+                    if (header && header.toLowerCase().trim() === 'email') {
+                        acc.push(idx);
+                    }
+                    return acc;
+                }, []);
 
-                if (emailColumns.length === 0) {
-                    onError("No column named 'Email' was found in the CSV.");
+                if (emailIndices.length === 0) {
+                    onError("No column named 'Email' was found.");
                     return;
                 }
 
                 const extractedEmails = new Set();
                 let invalidCount = 0;
 
-                data.forEach(row => {
-                    emailColumns.forEach(col => {
-                        const email = row[col]?.trim();
+                // 2. Iterate through rows (skipping header)
+                for (let i = 1; i < rows.length; i++) {
+                    const currentRow = rows[i];
+
+                    emailIndices.forEach(index => {
+                        const email = currentRow[index]?.trim();
                         if (email) {
                             if (validateEmail(email)) {
                                 extractedEmails.add(email.toLowerCase());
@@ -47,34 +56,50 @@ export const CSVMemberUploader = ({ onEmailsParsed, onError }) => {
                             }
                         }
                     });
-                });
+                }
 
-                if (extractedEmails.size === 0) {
-                    onError("No valid email formats found in the specified columns.");
+                const finalArray = Array.from(extractedEmails);
+                setPreviewList(finalArray);
+                onEmailsParsed(finalArray);
+
+                if (finalArray.length === 0) {
+                    onError("No valid emails detected in the columns.");
                 } else if (invalidCount > 0) {
-                    onError(`Imported ${extractedEmails.size} emails, but skipped ${invalidCount} invalid formats.`, 'warning');
-                    onEmailsParsed(Array.from(extractedEmails));
-                } else {
-                    onEmailsParsed(Array.from(extractedEmails));
+                    onError(`Detected ${finalArray.length} unique emails. ${invalidCount} invalid entries were ignored.`, 'warning');
                 }
             }
         });
     };
 
     return (
-        <div className="csv-upload-zone">
-            <div className="upload-instructions">
-                <p>Upload a CSV file containing at least one <strong>'Email'</strong> column.</p>
+        <div className="csv-uploader-container">
+            <div className="csv-upload-zone">
+                <div className="upload-instructions">
+                    <p>Upload CSV. <strong>All</strong> columns named 'Email' will be scanned.</p>
+                </div>
+                <label className="file-input-label">
+                    {fileName || "Choose CSV File"}
+                    <input type="file" accept=".csv" onChange={handleFileUpload} hidden />
+                </label>
             </div>
-            <label className="file-input-label">
-                {fileName || "Click to choose CSV file"}
-                <input 
-                    type="file" 
-                    accept=".csv" 
-                    onChange={handleFileUpload} 
-                    hidden 
-                />
-            </label>
+
+            {previewList.length > 0 && (
+                <div className="csv-preview-section">
+                    <div className="csv-preview-header">
+                        <strong>Detected Emails ({previewList.length}):</strong>
+                        <button type="button" className="csv-clear-btn" onClick={() => {
+                            setPreviewList([]);
+                            onEmailsParsed([]);
+                            setFileName('');
+                        }}>Clear</button>
+                    </div>
+                    <div className="csv-preview-list">
+                        {previewList.map((email, idx) => (
+                            <div key={idx} className="csv-preview-item">{email}</div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
