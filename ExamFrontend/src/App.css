@@ -3466,3 +3466,137 @@ button:hover {
     background-color: #f3f4f6;
     transform: translateY(1px);
 }
+
+/* --- Namespaced Group Modal --- */
+.grp-modal-title { margin-bottom: 1.5rem; color: #1e293b; }
+
+.grp-form-group { margin-bottom: 1rem; }
+
+.grp-tab-container {
+    display: flex;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 1.2rem;
+    gap: 0.5rem;
+}
+
+.grp-tab-btn {
+    background: none;
+    border: none;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: #94a3b8;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.grp-tab-btn.active { color: #2563eb; }
+.grp-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; width: 100%; height: 2px;
+    background-color: #2563eb;
+}
+
+.grp-field-label { display: block; font-weight: 500; margin-bottom: 0.4rem; color: #475569; }
+.grp-text-input {
+    width: 100%; padding: 0.7rem; border: 1px solid #cbd5e1;
+    border-radius: 6px; margin-bottom: 1rem;
+}
+
+/* --- CSV Upload Specific Styles --- */
+.csv-upload-zone {
+    padding: 2rem;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    text-align: center;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    margin: 10px 0;
+}
+
+.csv-upload-zone:hover {
+    border-color: #2563eb;
+    background: #f1f5f9;
+}
+
+.upload-instructions {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.file-input-label {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.file-input-label:hover {
+    background-color: #1d4ed8;
+}
+
+/* --- Modal Footer & Controls --- */
+.grp-modal-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;
+}
+
+.grp-member-count { font-size: 0.85rem; color: #64748b; }
+.grp-primary-submit {
+    background-color: #10b981; color: white; padding: 0.6rem 1.2rem;
+    border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
+}
+
+.grp-secondary-btn {
+    background: white; border: 1px solid #e2e8f0; padding: 0.6rem 1.2rem;
+    border-radius: 6px; margin-right: 0.5rem; cursor: pointer;
+}
+
+/* --- Status Popup & Report --- */
+.pop-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6); display: flex;
+    align-items: center; justify-content: center; z-index: 9999;
+}
+
+.pop-card {
+    background: white; padding: 1.5rem; border-radius: 12px;
+    width: 90%; max-width: 400px; text-align: center;
+}
+
+.pop-card.wide { max-width: 500px; }
+.pop-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.pop-msg { font-weight: 500; margin-bottom: 1rem; color: #1e293b; }
+
+.pop-report-area {
+    text-align: left; background: #fff1f2; border-radius: 8px;
+    padding: 1rem; margin-bottom: 1rem; border: 1px solid #ffe4e6;
+}
+
+.pop-list { max-height: 150px; overflow-y: auto; margin: 0.5rem 0; }
+
+.pop-item {
+    display: flex; justify-content: space-between; font-size: 0.8rem;
+    padding: 0.3rem 0; border-bottom: 1px solid #fecaca;
+}
+
+.pop-email { font-weight: 700; color: #991b1b; }
+.pop-reason { color: #7f1d1d; opacity: 0.8; }
+
+.pop-dl-btn {
+    width: 100%; padding: 0.5rem; margin-top: 0.5rem;
+    background: white; border: 1px solid #cbd5e1; border-radius: 6px;
+    cursor: pointer; font-size: 0.8rem; font-weight: 600;
+}
+
+.pop-close-btn {
+    width: 100%; padding: 0.7rem; background: #334155;
+    color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+}
