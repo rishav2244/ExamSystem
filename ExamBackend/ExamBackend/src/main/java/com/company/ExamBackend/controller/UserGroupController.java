@@ -1,9 +1,9 @@
 package com.company.ExamBackend.controller;
 
 import com.company.ExamBackend.dto.CreateGroupDTO;
+import com.company.ExamBackend.dto.CreateGroupResponseDTO;
 import com.company.ExamBackend.dto.GrpMemberDTO;
 import com.company.ExamBackend.dto.UserGroupResponseDTO;
-import com.company.ExamBackend.model.UserGroup;
 import com.company.ExamBackend.service.UserGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,16 +28,15 @@ public class UserGroupController {
 
     @Operation(
             summary = "Creates a new group",
-            description = "Used by admin to create a new group."
+            description = "Used by admin to create a new group. Returns a report of successes and failures."
     )
-    @PostMapping("create")
-    public ResponseEntity<Void> createUser(
+    @PostMapping("/create")
+    public ResponseEntity<CreateGroupResponseDTO> createGroup(
             @RequestBody CreateGroupDTO createGroupDTO,
-            @AuthenticationPrincipal UserDetails userDetails //Contrary to popular belief, if
-            //you check JwtUtils, it returns user email.
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        userGroupService.createUserGroup(createGroupDTO, userDetails.getUsername());
-        return ResponseEntity.ok().build();
+        CreateGroupResponseDTO response = userGroupService.createUserGroup(createGroupDTO, userDetails.getUsername());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("")

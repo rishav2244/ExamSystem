@@ -1,8 +1,6 @@
 package com.company.ExamBackend.service.impl;
 
-import com.company.ExamBackend.dto.CreateGroupDTO;
-import com.company.ExamBackend.dto.GrpMemberDTO;
-import com.company.ExamBackend.dto.UserGroupResponseDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.exception.GroupAlreadyExistsException;
 import com.company.ExamBackend.exception.GroupNotFoundException;
@@ -20,7 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -33,14 +32,27 @@ public class UserGroupServiceImpl  implements UserGroupService {
 
     @Transactional
     @Override
-    public void createUserGroup(CreateGroupDTO dto, String creatorEmail) {
-        // Delegate validation logic
+    public CreateGroupResponseDTO createUserGroup(CreateGroupDTO dto, String creatorEmail) {
         validateNewGroup(dto, creatorEmail);
 
-        // Logic execution
         Users creator = findUserByEmail(creatorEmail);
+
+        List<GroupEmailFailureDTO> failures = new ArrayList<>();
+        List<Users> validCandidates = auditAndCategorizeMembers(dto.getGroupMembers(), failures);
+
+        if (validCandidates.isEmpty()) {
+            throw new InvalidActionException("Group creation failed: No valid 'CANDIDATE' users found.");
+        }
+
         UserGroup savedGroup = persistGroup(dto, creator);
-        linkMembersToGroup(savedGroup, dto.getGroupMembers());
+        saveGroupMembers(savedGroup, validCandidates);
+
+        return CreateGroupResponseDTO.builder()
+                .groupName(savedGroup.getName())
+                .totalAdded(validCandidates.size())
+                .failedUsers(failures)
+                .message(failures.isEmpty() ? "Group created successfully." : "Group created with some exclusions.")
+                .build();
     }
 
     @Override
@@ -71,14 +83,64 @@ public class UserGroupServiceImpl  implements UserGroupService {
     // Helper methods
     // ======================================================================================
 
+    private List<Users> auditAndCategorizeMembers(List<String> rawEmails, List<GroupEmailFailureDTO> failures) {
+        // Java 17: Create a unique set of lowercased emails
+        var uniqueEmails = rawEmails.stream()
+                .filter(Objects::nonNull)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet()); // Need a mutable set for comparison or a Set for O(1) lookup
+
+        // Single Bulk Fetch
+        List<Users> existingUsers = userRepository.findAllByEmailIn(uniqueEmails.stream().toList());
+
+        // Track found emails for "Not Found" detection
+        var foundEmails = existingUsers.stream()
+                .map(user -> user.getEmail().toLowerCase())
+                .collect(Collectors.toSet());
+
+        // Categorize found users
+        List<Users> validCandidates = new ArrayList<>();
+        for (Users user : existingUsers) {
+            if ("CANDIDATE".equalsIgnoreCase(user.getRole())) {
+                validCandidates.add(user);
+            } else {
+                failures.add(createFailure(user.getEmail(), "Invalid role: " + user.getRole()));
+            }
+        }
+
+        // Java 17: Identify "Missing" emails via filtering
+        uniqueEmails.stream()
+                .filter(email -> !foundEmails.contains(email))
+                .map(email -> createFailure(email, "User not found"))
+                .forEach(failures::add);
+
+        return validCandidates;
+    }
+
+    private void saveGroupMembers(UserGroup group, List<Users> candidates) {
+        List<GroupMember> membersList = userGroupMapper.toMemberEntities(group, candidates);
+        groupMemberRepository.saveAll(membersList);
+    }
+
+    private GroupEmailFailureDTO createFailure(String email, String reason) {
+        return GroupEmailFailureDTO.builder()
+                .email(email)
+                .reason(reason)
+                .build();
+    }
+
     private void validateNewGroup(CreateGroupDTO dto, String creatorEmail) {
         if (userGroupRepository.existsByNameAndCreatedBy_Email(dto.getGroupName(), creatorEmail)) {
             throw new GroupAlreadyExistsException("You already have a group named '" + dto.getGroupName() + "'");
         }
-
         if (dto.getGroupMembers() == null || dto.getGroupMembers().isEmpty()) {
             throw new InvalidActionException("A group must have at least one candidate.");
         }
+    }
+
+    private UserGroup persistGroup(CreateGroupDTO dto, Users creator) {
+        UserGroup userGroup = userGroupMapper.toUserGroupEntity(dto, creator);
+        return userGroupRepository.save(userGroup);
     }
 
     private Users findUserByEmail(String email) {
@@ -89,16 +151,5 @@ public class UserGroupServiceImpl  implements UserGroupService {
     private UserGroup findGroupById(String id) {
         return userGroupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found with ID: " + id));
-    }
-
-    private UserGroup persistGroup(CreateGroupDTO dto, Users creator) {
-        UserGroup userGroup = userGroupMapper.toUserGroupEntity(dto, creator);
-        return userGroupRepository.save(userGroup);
-    }
-
-    private void linkMembersToGroup(UserGroup group, List<String> memberEmails) {
-        List<Users> users = userRepository.findAllByEmailIn(memberEmails);
-        List<GroupMember> membersList = userGroupMapper.toMemberEntities(group, users);
-        groupMemberRepository.saveAll(membersList);
     }
 }
