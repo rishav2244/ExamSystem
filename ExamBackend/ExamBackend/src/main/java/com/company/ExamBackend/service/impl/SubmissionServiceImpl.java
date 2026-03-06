@@ -6,6 +6,7 @@ import com.company.ExamBackend.dto.SubmissionDetailsDTO;
 import com.company.ExamBackend.dto.SubmissionResponseDTO;
 import com.company.ExamBackend.exception.EligibilityException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
+import com.company.ExamBackend.exception.SubmissionNotFoundException;
 import com.company.ExamBackend.mapper.SubmissionMapper;
 import com.company.ExamBackend.model.*;
 import com.company.ExamBackend.repository.*;
@@ -27,6 +28,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
 
+    private final SubmissionMapper submissionMapper;
+
     //Check eligibility has two purposes.
     //First purpose is to not let candidate just log off and a come back to an unsubmitted exam, then continue it.
     //While this is already covered in getCandidateDashboard(String email) method, we wish to keep it for now.
@@ -34,22 +37,75 @@ public class SubmissionServiceImpl implements SubmissionService {
     //For example, candidate enters dashboard and waits until end time of exam. Then he tries to log into it
     //since the exam is already listed. In that case, candidate should not be able to do so.
     //We also have a case where candidate tries to enter an exam with not enough duration left,
-    //following which he'll fail rejection again.
+    //following which he'll fail validation again.
     @Override
     public void checkEligibility(String examId, String email) {
-        boolean alreadyExists = submissionRepository.existsByExamIdAndCandidateEmail(examId, email);
+        Exam exam = findExamById(examId);
+        performEligibilityChecks(exam, email);
+    }
 
-        if (alreadyExists) {
+    @Override
+    @Transactional
+    public StartExamResponseDTO startExam(StartExamRequestDTO dto) {
+        Exam exam = findExamById(dto.getExamId());
+
+        performEligibilityChecks(exam, dto.getCandidateEmail());
+
+        Submission submission = createSubmissionEntity(dto, exam);
+        updateCandidateStatus(dto.getExamId(), dto.getCandidateEmail(), "ATTEMPTED");
+
+        String savedId = submissionRepository.save(submission).getId();
+        return new StartExamResponseDTO(savedId, exam.getDuration());
+    }
+
+    @Override
+    public List<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail) {
+        // Uses your @Query to filter submissions belonging to the admin's exam
+        List<Submission> submissions = submissionRepository.findByExamIdAndAdminEmail(examId, adminEmail);
+        return submissionMapper.toDTOList(submissions);
+    }
+
+    @Override
+    public SubmissionDetailsDTO getSubmissionDetails(String submissionId, String adminEmail) {
+        // Security check: Only return details if the submission belongs to this admin's exam
+        Submission submission = submissionRepository.findByIdAndAdminEmail(submissionId, adminEmail)
+                .orElseThrow(() -> new SubmissionNotFoundException("SUBMISSION_NOT_FOUND_OR_ACCESS_DENIED"));
+
+        var questions = questionRepository.findAllByExamIdWithOptions(submission.getExam().getId());
+        var answers = answerRepository.findBySubmissionIdWithDetails(submissionId);
+
+        return submissionMapper.toDetailsDTO(submission, questions, answers);
+    }
+
+    @Override
+    @Transactional
+    public void reportViolation(String submissionId) {
+        Submission submission = findSubmissionById(submissionId);
+        submission.setViolations(submission.getViolations() + 1);
+        submissionRepository.save(submission);
+    }
+
+    // ======================================================================================
+    // Helper Methods
+    // ======================================================================================
+
+    private Exam findExamById(String id) {
+        return examRepository.findById(id)
+                .orElseThrow(() -> new ExamNotFoundException("EXAM_NOT_FOUND"));
+    }
+
+    private Submission findSubmissionById(String id) {
+        return submissionRepository.findById(id)
+                .orElseThrow(() -> new SubmissionNotFoundException("SUBMISSION_NOT_FOUND"));
+    }
+
+    private void performEligibilityChecks(Exam exam, String email) {
+        if (submissionRepository.existsByExamIdAndCandidateEmail(exam.getId(), email)) {
             throw new EligibilityException("ALREADY_STARTED_OR_COMPLETED");
         }
 
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new ExamNotFoundException("EXAM_NOT_FOUND"));
-
         Instant now = Instant.now();
-        boolean isTooLate = now.isAfter(exam.getEndTime());
-
-        if (isTooLate) {
+        if (now.isAfter(exam.getEndTime())) {
             throw new EligibilityException("EXAM_ALREADY_ENDED");
         }
 
@@ -59,48 +115,17 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
     }
 
-    @Override
-    @Transactional
-    public StartExamResponseDTO startExam(StartExamRequestDTO dto) {
-        checkEligibility(dto.getExamId(), dto.getCandidateEmail());
-
-        Exam exam = examRepository.findById(dto.getExamId())
-                .orElseThrow(() -> new RuntimeException("Exam not found"));
-
-        Submission submission = SubmissionMapper.toNewEntity(dto, exam);
-        submission.setStatus("IN_PROGRESS");
+    private Submission createSubmissionEntity(StartExamRequestDTO dto, Exam exam) {
+        Submission submission = submissionMapper.toNewEntity(dto, exam);
         submission.setCandidateEmail(dto.getCandidateEmail());
-
-        ExamCandidate candidate = examCandidateRepo.findByExamIdAndEmail(dto.getExamId(), dto.getCandidateEmail());
-        candidate.setStatus("ATTEMPTED");
-        examCandidateRepo.save(candidate);
-
-        String savedId = submissionRepository.save(submission).getId();
-        return new StartExamResponseDTO(savedId, exam.getDuration());
+        return submission;
     }
 
-    @Transactional
-    public void reportViolation(String submissionId) {
-        Submission submission = submissionRepository.findById(submissionId)
-                .orElseThrow(() -> new RuntimeException("Submission not found"));
-
-        submission.setViolations(submission.getViolations() + 1);
-        submissionRepository.save(submission);
-    }
-
-    @Override
-    public List<SubmissionResponseDTO> getSubmissionsByExam(String examId) {
-        List<Submission> submissions = submissionRepository.findByExamId(examId);
-        return SubmissionMapper.toDTOList(submissions);
-    }
-
-    @Override
-    public SubmissionDetailsDTO getSubmissionDetails(String submissionId) {
-        var submission = submissionRepository.findById(submissionId)
-                .orElseThrow(() -> new RuntimeException("Submission not found"));
-
-        var questions = questionRepository.findByParentExamId(submission.getExam().getId());
-        var answers = answerRepository.findBySubmissionId(submissionId);
-        return SubmissionMapper.toDetailsDTO(submission, questions, answers);
+    private void updateCandidateStatus(String examId, String email, String status) {
+        ExamCandidate candidate = examCandidateRepo.findByExamIdAndEmail(examId, email);
+        if (candidate != null) {
+            candidate.setStatus(status);
+            examCandidateRepo.save(candidate);
+        }
     }
 }

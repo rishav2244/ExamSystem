@@ -53,7 +53,12 @@ export const Login = () => {
             />
 
             <button onClick={handleLogin}>Login</button>
-
+            <p className="switch-auth">
+                Don’t have an account?{" "}
+                <span onClick={() => navigate("/register")}>
+                    Register here
+                </span>
+            </p>
             {message && <p>{message}</p>}
         </div>
     );

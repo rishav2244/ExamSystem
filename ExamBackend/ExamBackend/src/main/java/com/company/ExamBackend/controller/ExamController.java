@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,10 +32,12 @@ public class ExamController {
             description = "Used by admin to create new exam."
     )
     @PostMapping("/createExam")
-    public ResponseEntity<ExamResponseDTO> createExam(@RequestBody CreateExamDTO createExamDTO) {
+    public ResponseEntity<ExamResponseDTO> createExam(
+            @RequestBody CreateExamDTO createExamDTO,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        ExamResponseDTO response = examService.createExam(createExamDTO);
-        return ResponseEntity.ok(response);
+        // Pass the verified email from the token
+        return ResponseEntity.ok(examService.createExam(createExamDTO, userDetails.getUsername()));
     }
 
     //Gets all exams for the admin. May accept exam status if we want only one type later.
@@ -42,13 +46,15 @@ public class ExamController {
             description = "Used by admin to fetch all exams."
     )
     @GetMapping("/getExams")
-    public ResponseEntity<List<ExamResponseDTO>> getExams(@RequestParam(required = false) String status) {
+    public ResponseEntity<List<ExamResponseDTO>> getExams(
+            @RequestParam(required = false) String status,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
+        String adminEmail = userDetails.getUsername();
         if (status != null && !status.isEmpty()) {
-            return ResponseEntity.ok(examService.getExamsByStatus(status));
+            return ResponseEntity.ok(examService.getExamsByStatus(status, adminEmail));
         }
-
-        return ResponseEntity.ok(examService.getExams());
+        return ResponseEntity.ok(examService.getExams(adminEmail));
     }
 
     //Publishes exam.
@@ -78,8 +84,11 @@ public class ExamController {
             description = "Used by admin to delete an exam."
     )
     @DeleteMapping("/delete/{examId}")
-    public ResponseEntity<Void> deleteExam(@PathVariable String examId) {
-        examService.deleteExam(examId);
+    public ResponseEntity<Void> deleteExam(
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        examService.deleteExam(examId, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 

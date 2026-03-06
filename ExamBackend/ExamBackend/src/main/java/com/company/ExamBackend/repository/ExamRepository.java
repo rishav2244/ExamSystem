@@ -9,14 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, String> {
-    List<Exam> findCreatedById(String id);
+    List<Exam> findByStatusAndCreatedBy_Email(String status, String email);
 
-    List<Exam> findByStartTimeBeforeAndEndTimeAfter(Instant now1, Instant now2);
-
-    List<Exam> findByStatus(String status);
+    List<Exam> findByCreatedBy_Email(String email);
 
     @Modifying
     @Transactional

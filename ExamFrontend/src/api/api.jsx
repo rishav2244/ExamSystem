@@ -15,21 +15,64 @@ export const loginAttempt = async (email, password) => {
         throw err;
     }
 }
+export const registerCandidate = async (name, email, password) => {
+    const payload = {
+        name,
+        email,
+        password
+    };
 
-export const registrationAttempt = async (email, name, password, role) => {
-    const registerReqJSON = {
-        email: email,
-        name: name,
-        password: password,
-        role: role,
-    }
     try {
-        const resp = await axios.post(`${API_URL}/user/register`, registerReqJSON);
+        const resp = await axios.post(
+            `${API_URL}/user/self-register`,
+            payload
+        );
         return resp.data;
     } catch (err) {
         throw err;
     }
-}
+};
+
+export const verifyOtp = async (email, otp) => {
+
+    const payload = {
+        email,
+        otp
+    };
+
+    try {
+        const resp = await axios.post(
+            `${API_URL}/user/verify-otp`,
+            payload
+        );
+
+        return resp.data;
+
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const resendOtp = async (email) => {
+    try {
+        const resp = await axios.post(`${API_URL}/user/resend-otp`, null, {
+            params: { email }
+        });
+        return resp.data;
+    } catch (err) {
+        throw err;
+    }
+};
+
+export const bulkRegistrationAttempt = async (usersList) => {
+    const payload = { users: usersList };
+    try {
+        const resp = await axios.post(`${API_URL}/user/bulk-register`, payload);
+        return resp.data;
+    } catch (err) {
+        throw err;
+    }
+};
 
 export const resetPassword = async (oldPassword, newPassword) => {
     const payload = { oldPassword, newPassword };
@@ -48,7 +91,6 @@ export const createExam = async (title, duration, startTime, endTime, status, cr
         startTime: startTime,
         endTime: endTime,
         status: status,
-        createdBy: createdBy
     }
     try {
         const resp = await axios.post(`${API_URL}/exams/createExam`, createExamReqJSON);
@@ -72,22 +114,19 @@ export const getExamQuestions = async (examId) => {
     return response.data;
 };
 
-export const uploadExamQuestions = async (examId, questions) => {
+export const uploadExamQuestions = async (examId, questions, cutoff) => {
     try {
-        const payload = questions.map((q) => {
-
-            const options = [];
-            for (let i = 1; i <= 4; i++) {
-                if (q[i]) {
-                    options.push({
-                        optionIndex: i - 1,
-                        text: q[i],
-                    });
-                }
-            }
+        const questionPayload = questions.map((q) => {
+            const options = Object.keys(q)
+                .filter(key => !isNaN(key) && q[key] !== null && q[key] !== undefined)
+                .sort((a, b) => Number(a) - Number(b))
+                .map((key, idx) => ({
+                    optionIndex: idx,
+                    text: String(q[key]).trim()
+                }));
 
             const correctOptionIndex = options.findIndex(
-                (opt) => opt.text.trim() === q.Ans.trim()
+                (opt) => opt.text.trim() === String(q.Ans || "").trim()
             );
 
             return {
@@ -97,6 +136,11 @@ export const uploadExamQuestions = async (examId, questions) => {
                 options,
             };
         });
+
+        const payload = {
+            questions: questionPayload,
+            cutoff: Number(cutoff) || 40.0
+        };
 
         const response = await axios.post(
             `${API_URL}/exams/${examId}/questions`,
@@ -271,7 +315,7 @@ export const uploadSnapshot = async (submissionId, imageBlob, type, isViolation 
     formData.append('submissionId', submissionId);
     formData.append('violation', isViolation);
     formData.append('type', type);
-    
+
     if (slViolation !== null) {
         formData.append('sl_violation', slViolation);
     }
@@ -279,7 +323,7 @@ export const uploadSnapshot = async (submissionId, imageBlob, type, isViolation 
     formData.append('image', imageBlob, `snapshot_${Date.now()}.jpg`);
 
     try {
-        const resp = await axios.post(`${API_URL}/snapshots`, formData); 
+        const resp = await axios.post(`${API_URL}/snapshots`, formData);
         return resp.data;
     } catch (err) {
         console.error("Snapshot upload failed", err.response?.data || err.message);
@@ -294,6 +338,16 @@ export const getSnapshots = async (submissionId) => {
     } catch (err) {
         console.error("Error fetching snapshots:", err);
         throw err;
+    }
+};
+
+export const getSecureImageUrl = async (fullUrl) => {
+    try {
+        const response = await axios.get(fullUrl, { responseType: 'blob' });
+        return URL.createObjectURL(response.data);
+    } catch (error) {
+        console.error("Image fetch failed", error);
+        return null;
     }
 };
 

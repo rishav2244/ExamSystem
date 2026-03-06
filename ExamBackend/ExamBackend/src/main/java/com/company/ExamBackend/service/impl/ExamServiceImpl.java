@@ -48,39 +48,37 @@ public class ExamServiceImpl implements ExamService {
 
     @Transactional
     @Override
-    public ExamResponseDTO createExam(CreateExamDTO dto) {
+    public ExamResponseDTO createExam(CreateExamDTO dto, String adminEmail) {
 
-        Users user = findUserByEmail(dto.getCreatedBy());
+        Users user = findUserByEmail(adminEmail);
 
-        Exam exam = new Exam();
-        exam.setTitle(dto.getTitle());
-        exam.setDuration(dto.getDuration());
-        exam.setStartTime(dto.getStartTime());
-        exam.setEndTime(dto.getEndTime());
-        exam.setStatus(dto.getStatus());
+        Exam exam = examMapper.toEntity(dto);
         exam.setCreatedBy(user);
         Exam saved = examRepository.save(exam);
         return examMapper.toDTO(saved);
     }
 
     @Override
-    public List<ExamResponseDTO> getExams() {
-        return examRepository.findAll().stream()
+    public List<ExamResponseDTO> getExams(String adminEmail) {
+        // Java 17 .toList() creates an unmodifiable list and is more concise
+        return examRepository.findByCreatedBy_Email(adminEmail)
+                .stream()
                 .map(examMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    public List<ExamResponseDTO> getExamsByStatus(String status) {
-        return examRepository.findByStatus(status).stream()
+    public List<ExamResponseDTO> getExamsByStatus(String status, String adminEmail) {
+        return examRepository.findByStatusAndCreatedBy_Email(status, adminEmail)
+                .stream()
                 .map(examMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
     @Override
-    public void deleteExam(String examId) {
-        Exam exam = findExamById(examId);
+    public void deleteExam(String examId, String adminEmail) {
+        Exam exam = findExamByIdAndOwner(examId, adminEmail);
 
         //Validate if deletion is allowed
         validateExamDeletion(exam);
@@ -227,14 +225,15 @@ public class ExamServiceImpl implements ExamService {
 
     private void sendInvitationsToUninvitedCandidates(String examId) {
         List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
-        log.info("Processing invitations for {} candidates", candidates.size());
 
-        for (ExamCandidate candidate : candidates) {
-            if ("UNINVITED".equals(candidate.getStatus())) {
-                sendInvitationEmail(candidate);
-            }
+        List<ExamCandidate> toUpdate = candidates.stream()
+                .filter(c -> "UNINVITED".equals(c.getStatus()))
+                .peek(this::sendInvitationEmail) // Side-effect: sends email and sets status
+                .toList();
+
+        if (!toUpdate.isEmpty()) {
+            examCandidateRepo.saveAll(toUpdate);
         }
-        examCandidateRepo.saveAll(candidates);
     }
 
     private void sendInvitationEmail(ExamCandidate candidate) {
@@ -246,5 +245,14 @@ public class ExamServiceImpl implements ExamService {
             // We don't throw an exception here because we don't want one
             // failed email to stop the entire publishing process.
         }
+    }
+
+    private Exam findExamByIdAndOwner(String examId, String adminEmail) {
+        Exam exam = findExamById(examId);
+        if (!exam.getCreatedBy().getEmail().equalsIgnoreCase(adminEmail)) {
+            log.warn("Unauthorized access attempt: User {} tried to access Exam {}", adminEmail, examId);
+            throw new InvalidActionException("You do not have permission to modify this exam.");
+        }
+        return exam;
     }
 }

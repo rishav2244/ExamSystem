@@ -9,9 +9,18 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubmissionRepository extends JpaRepository<Submission, String> {
+
+    // Fetches submissions for an exam ONLY if that exam belongs to the admin
+    @Query("SELECT s FROM Submission s WHERE s.exam.id = :examId AND s.exam.createdBy.email = :adminEmail")
+    List<Submission> findByExamIdAndAdminEmail(String examId, String adminEmail);
+
+    // Fetches a single submission details ONLY if it belongs to the admin's exam
+    @Query("SELECT s FROM Submission s WHERE s.id = :submissionId AND s.exam.createdBy.email = :adminEmail")
+    Optional<Submission> findByIdAndAdminEmail(String submissionId, String adminEmail);
 
     List<Submission> findByStatus(String status);
 

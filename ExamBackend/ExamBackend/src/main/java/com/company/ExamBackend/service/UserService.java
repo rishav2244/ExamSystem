@@ -7,7 +7,10 @@ import java.util.List;
 public interface UserService
 {
     UserResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO);
-    UserResponseDTO registerAttempt(RegisterRequestDTO registerRequestDTO);
+    RegistrationResponseDTO candidateRegisterAttempt(CandidateRegisterRequestDTO candidateRegisterRequestDTO);
+    UserResponseDTO verifyRegistration(VerifyOtpRequestDTO dto);
+    ResendResponseDTO resendOtp(String email);
+    BulkRegistrationSummaryDTO adminRegisterAttempt(AdminRegisterRequestDTO adminRegisterRequestDTO);
     List<UserHeavyDTO> getCandidates();
     List<UserHeavyDTO> getUsers();
     UserHeavyDTO getUserById(String id);

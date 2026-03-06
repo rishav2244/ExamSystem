@@ -11,7 +11,7 @@ import java.time.Instant;
 @Component
 public class SnapshotMapper {
 
-    @Value("${APP_IMAGE_BASE_URL}")
+    @Value("${IMAGE_BASE_URL}")
     private String BASE_URL;
 
     public SnapshotResponseDTO toResponseDTO(Snapshot snapshot) {
@@ -22,7 +22,7 @@ public class SnapshotMapper {
         dto.setViolation(snapshot.isViolation());
         dto.setType(snapshot.getType());
         dto.setSl_violation(snapshot.getViolationSlNo());
-        dto.setImageUrl(BASE_URL + snapshot.getImagePath());
+        dto.setImageUrl(BASE_URL + "admin/" + snapshot.getImagePath());
         return dto;
     }
 
@@ -36,7 +36,6 @@ public class SnapshotMapper {
         Snapshot snapshot = new Snapshot();
         snapshot.setSubmission(submission);
         snapshot.setImagePath(savedPath);
-        snapshot.setCreatedAt(Instant.now());
         snapshot.setType(type);
         snapshot.setViolationSlNo(slNo);
         snapshot.setViolation(violation);

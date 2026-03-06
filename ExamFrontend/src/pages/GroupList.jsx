@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getAllUserGroups, deleteGroup } from "../api/api";
-import { CreateGroupCard } from "../components/cardType/CreateGroupCard";
-import { GroupCard } from "../components/cardType/GroupCard";
+
 import { CreateGroupModal } from './CreateGroupModal';
 import { GroupDetailsModal } from './GroupDetailsModal';
 

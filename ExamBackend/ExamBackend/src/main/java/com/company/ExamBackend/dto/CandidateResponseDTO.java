@@ -13,7 +13,7 @@ import lombok.Setter;
 public class CandidateResponseDTO {
     private String id;
     @Schema(
-            example = "admin@test.com",
+            example = "candidate@test.com",
             description = "Candidate's email."
     )
     private String email;
@@ -26,7 +26,7 @@ public class CandidateResponseDTO {
 
     @Schema(
             example = "INVITED",
-            description = "Candidate's invitation status."
+            description = "Candidate's exam status."
     )
     private String status;
 

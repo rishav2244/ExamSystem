@@ -1,5 +1,6 @@
 package com.company.ExamBackend.service.impl;
 
+import com.company.ExamBackend.dto.ExamSetupDTO;
 import com.company.ExamBackend.dto.QuestionDTO;
 import com.company.ExamBackend.dto.QuestionResponseDTO;
 import com.company.ExamBackend.exception.ExamNotFoundException;
@@ -24,27 +25,60 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionRepository questionRepository;
     private final ExamRepository examRepository;
 
+    private final QuestionMapper questionMapper;
+
     @Override
-    public void saveQuestions(String examId, List<QuestionDTO> questionDTOs) {
-        Exam exam = examRepository.findById(examId)
-                .orElseThrow(() -> new ExamNotFoundException("Exam not found"));
+    @Transactional
+    public void saveQuestions(String examId, ExamSetupDTO examSetupDTO) {
+        Exam exam = findExamById(examId);
+        questionRepository.deleteByParentExamId(examId);
 
-        for (QuestionDTO dto : questionDTOs) {
-            Question question = QuestionMapper.toEntity(dto);
-            question.setParentExam(exam);
-            questionRepository.save(question);
-        }
+        int totalScore = examSetupDTO.getQuestions().stream()
+                .mapToInt(QuestionDTO::getMarks)
+                .sum();
 
-        exam.setStatus("SAVED");
-        examRepository.save(exam);
+        exam.setTotalScore(totalScore);
+        exam.setCutoff(examSetupDTO.getCutoff());
+        List<Question> questions = prepareQuestions(examSetupDTO.getQuestions(), exam);
+        questionRepository.saveAll(questions);
+        updateExamStatus(exam, "SAVED");
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<QuestionResponseDTO> getQuestionsForExam(String examId) {
+        validateExamExists(examId);
+        List<Question> questions = questionRepository.findAllByExamIdWithOptions(examId);
+        return questionMapper.toResponseDtoList(questions);
+    }
+
+    // ======================================================================================
+    // Helper methods
+    // ======================================================================================
+
+    private Exam findExamById(String examId) {
+        return examRepository.findById(examId)
+                .orElseThrow(() -> new ExamNotFoundException("Exam with ID " + examId + " not found."));
+    }
+
+    private List<Question> prepareQuestions(List<QuestionDTO> dtos, Exam exam) {
+        return dtos.stream()
+                .map(dto -> {
+                    Question question = questionMapper.toEntity(dto);
+                    question.setParentExam(exam);
+                    return question;
+                })
+                .toList();
+    }
+
+    private void updateExamStatus(Exam exam, String status) {
+        exam.setStatus(status);
+        examRepository.save(exam);
+    }
+
+    private void validateExamExists(String examId) {
         if (!examRepository.existsById(examId)) {
-            throw new RuntimeException("Exam not found");
+            throw new ExamNotFoundException("Exam with ID " + examId + " not found.");
         }
-        List<Question> questions = questionRepository.findAllByParentExamIdOrderByIdAsc(examId);
-        return QuestionMapper.toResponseDtoList(questions);
     }
 }

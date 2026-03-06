@@ -9,10 +9,10 @@ import com.company.ExamBackend.model.ExamCandidate;
 import java.util.List;
 
 public interface ExamService {
-    ExamResponseDTO createExam(CreateExamDTO createExamDTO);
-    List<ExamResponseDTO> getExams();
-    List<ExamResponseDTO> getExamsByStatus(String status);
-    void deleteExam(String id);
+    ExamResponseDTO createExam(CreateExamDTO createExamDTO, String adminEmail);
+    List<ExamResponseDTO> getExams(String adminEmail);
+    List<ExamResponseDTO> getExamsByStatus(String status, String adminEmail);
+    void deleteExam(String id, String adminEmail);
     void updateExam(String examId, String status);
     void resendInvitation(String candidateId);
     List<CandidateResponseDTO> assignGroupToExam(String examId, String groupId);

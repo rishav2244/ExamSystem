@@ -24,13 +24,19 @@ public class Exam
     private int duration;
 
     @Column(nullable = false)
-    private Instant StartTime;
+    private Instant startTime;
 
     @Column(nullable = false)
-    private Instant EndTime;
+    private Instant endTime;
 
     @Column(nullable = false)
     private String status;
+
+    @Column(nullable = false)
+    private double cutoff;
+
+    @Column(nullable = false)
+    private int totalScore;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)

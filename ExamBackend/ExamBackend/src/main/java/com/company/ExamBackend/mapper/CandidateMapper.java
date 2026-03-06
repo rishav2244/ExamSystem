@@ -6,7 +6,6 @@ import com.company.ExamBackend.model.ExamCandidate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class CandidateMapper {

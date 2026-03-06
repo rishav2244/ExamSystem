@@ -1,13 +1,29 @@
-import { useContext } from "react"
+import { useContext, useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { AuthenticationContext } from "../../context/AuthenticationContext"
+import { AuthenticationContext } from "../../context/AuthenticationContext";
 
 export const AdminHeader = () => {
-    const { name, logout } = useContext(AuthenticationContext);
 
-    const handleLogout = (e) => {
-        logout();
-    };
+    const { name, role, logout } =
+        useContext(AuthenticationContext);
+
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     return (
         <header className="admin-header">
@@ -17,42 +33,57 @@ export const AdminHeader = () => {
             </h4>
 
             <nav className="admin-header__nav">
-                <NavLink
-                    to="/admin/exams"
-                    className={({ isActive }) =>
-                        isActive ? "nav-item active" : "nav-item"
-                    }
-                >
+                <NavLink to="/admin/exams" className="nav-item">
                     Exams
                 </NavLink>
-                <NavLink
-                    to="/admin/users"
-                    className={({ isActive }) =>
-                        isActive ? "nav-item active" : "nav-item"
-                    }
-                >
+
+                <NavLink to="/admin/users" className="nav-item">
                     User List
                 </NavLink>
-                <NavLink
-                    to="/admin/groups"
-                    className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
-                >
+
+                <NavLink to="/admin/groups" className="nav-item">
                     Groups
                 </NavLink>
-                <NavLink
-                    to="/admin/submissions"
-                    className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+
+                <NavLink to="/admin/submissions" className="nav-item">
                     Submissions
                 </NavLink>
             </nav>
 
+            
+            <div className="profile-container" ref={dropdownRef}>
 
-            <button
-                className="admin-header__logout"
-                onClick={handleLogout}
-            >
-                Log out
-            </button>
+                <div
+                    className="profile-icon"
+                    onClick={() =>
+                        setShowDropdown(!showDropdown)
+                    }
+                >
+                    👤
+                </div>
+
+                {showDropdown && (
+                    <div className="profile-dropdown">
+
+                        <p className="profile-name">
+                            {name}
+                        </p>
+
+                        <p className="profile-role">
+                            Role: {role}
+                        </p>
+
+                        <button
+                            className="logout-btn"
+                            onClick={logout}
+                        >
+                            Logout
+                        </button>
+
+                    </div>
+                )}
+            </div>
+
         </header>
     );
-}
+};
