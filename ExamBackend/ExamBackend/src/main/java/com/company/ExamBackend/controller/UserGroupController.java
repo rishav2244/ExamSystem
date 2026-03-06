@@ -51,7 +51,7 @@ public class UserGroupController {
     }
 
     @Operation(
-            summary = "Gets list of users ina  group",
+            summary = "Gets list of users in a group",
             description = "Used by admin list users from group."
     )
     @GetMapping("/userList/{groupId}")
