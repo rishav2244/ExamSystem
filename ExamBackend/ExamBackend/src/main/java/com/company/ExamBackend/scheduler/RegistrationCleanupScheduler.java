@@ -17,7 +17,7 @@ public class RegistrationCleanupScheduler {
     private final PendingRegistrationRepository pendingRepository;
 
     @Transactional
-    @Scheduled(fixedRate = 5000) // 5 seconds
+    @Scheduled(fixedRateString = "${app.registration.otp-cleanup-rate:60000}") // 60 seconds default
     public void purgeStaleRegistrations() {
         log.debug("Cleanup cycle triggered at {}", Instant.now());
         pendingRepository.deleteExpiredRequests(Instant.now());

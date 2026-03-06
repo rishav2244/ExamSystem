@@ -41,7 +41,10 @@ app:
     otp-ttl: ${OTP_TTL_IN_MS}
     cooldown-duration: ${CANDIDATE_REGISTRATION_COOLDOWN_IN_MS}
     lockout-message: ${CANDIDATE_REGISTRATION_LOCKOUT_MESSAGE}
-    resend-delay: ${RESEND_OTP_DELAY_SECONDS:60}
+    resend-delay: ${RESEND_OTP_DELAY_MS:60000}
+  schedulers:
+    otp-cleanup-rate: ${OTP_CLEANUP_RATE_IN_MS:60000}
+    orphan-exam-cleanup-rate: ${ORPHAN_EXAMS_CLEANUP_RATE_IN_MS:60000}
 
 logging:
   level:

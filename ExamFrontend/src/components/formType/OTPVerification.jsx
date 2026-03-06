@@ -15,6 +15,7 @@ export const OtpVerification = ({ email, otp, setOtp, onSubmit, loading, initial
     const handleResend = async () => {
         try {
             const data = await resendOtp(email);
+            console.log(data);
             setSecondsLeft(data.waitTimeSeconds);
             setMessage(data.message);
         } catch (err) {

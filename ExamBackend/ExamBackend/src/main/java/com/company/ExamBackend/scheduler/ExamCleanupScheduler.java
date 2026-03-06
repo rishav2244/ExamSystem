@@ -18,7 +18,7 @@ public class ExamCleanupScheduler {
     private final AnswerService answerService;
 
     //Checks every 1 minute.
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRateString = "${app.registration.orphan-exam-cleanup-rate:60000}")
     public void autoSubmitExpiredExams() {
         List<Submission> activeSubmissions = submissionRepository.findByStatus("IN_PROGRESS");
 
