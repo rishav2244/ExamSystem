@@ -88,17 +88,14 @@ public class UserGroupServiceImpl  implements UserGroupService {
         var uniqueEmails = rawEmails.stream()
                 .filter(Objects::nonNull)
                 .map(String::toLowerCase)
-                .collect(Collectors.toSet()); // Need a mutable set for comparison or a Set for O(1) lookup
+                .collect(Collectors.toSet());
 
-        // Single Bulk Fetch
         List<Users> existingUsers = userRepository.findAllByEmailIn(uniqueEmails.stream().toList());
 
-        // Track found emails for "Not Found" detection
         var foundEmails = existingUsers.stream()
                 .map(user -> user.getEmail().toLowerCase())
                 .collect(Collectors.toSet());
 
-        // Categorize found users
         List<Users> validCandidates = new ArrayList<>();
         for (Users user : existingUsers) {
             if ("CANDIDATE".equalsIgnoreCase(user.getRole())) {
@@ -108,7 +105,6 @@ public class UserGroupServiceImpl  implements UserGroupService {
             }
         }
 
-        // Java 17: Identify "Missing" emails via filtering
         uniqueEmails.stream()
                 .filter(email -> !foundEmails.contains(email))
                 .map(email -> createFailure(email, "User not found"))

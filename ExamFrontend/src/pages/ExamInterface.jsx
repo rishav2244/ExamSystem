@@ -61,6 +61,16 @@ export const ExamInterface = () => {
         }
     };
 
+    const handleClearOption = async (questionId) => {
+        setSelectedOptions(prev => ({ ...prev, [questionId]: null }));
+
+        try {
+            await saveAnswer(submissionId, questionId, null);
+        } catch (err) {
+            console.error("Failed to clear answer", err);
+        }
+    };
+
     const handleDismissWarning = () => {
         setShowWarning(false);
         if (!document.fullscreenElement) document.documentElement.requestFullscreen();
