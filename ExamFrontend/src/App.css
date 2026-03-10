@@ -3810,3 +3810,30 @@ button:hover {
     transform:scale(1);
   }
 }
+.confirm-buttons{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  margin-top:20px;
+}
+
+.confirm-ok{
+  padding:8px 18px;
+  border:none;
+  border-radius:6px;
+  background:#dc2626;
+  color:white;
+  cursor:pointer;
+}
+
+.confirm-ok:hover{
+  background:#b91c1c;
+}
+
+.confirm-cancel{
+  padding:8px 18px;
+  border:none;
+  border-radius:6px;
+  background:#e5e7eb;
+  cursor:pointer;
+}
