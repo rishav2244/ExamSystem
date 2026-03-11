@@ -7,7 +7,10 @@ import Papa from "papaparse";
 import { ExamQuestion } from "../components/FYIType/ExamQuestion";
 import { ExamQuestionDraft } from "../components/FYIType/ExamQuestionDraft";
 import { CandidateRow } from "../components/FYIType/CandidateRow";
-import { MailSendingPopup } from "../components/popupType/MailSendingPopup";
+
+import { MailSendingModal } from "../components/popupType/MailSendingModal";
+
+
 import {
     getExamQuestions,
     uploadExamQuestions,
@@ -34,6 +37,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
     const isPending = exam?.status === "PENDING";
     const [sendingMail, setSendingMail] = useState(false);
+
     useEffect(() => {
 
         if (isPending || !exam?.id) return;
@@ -207,18 +211,24 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
         try {
 
-            showPopup("Sending exam invitation emails... Please wait.", "info", 0);
+            setSendingMail(true);
+
+            await new Promise(r => setTimeout(r, 50));
 
             await assignGroupToExam(exam.id, selectedGroupId);
 
             await publishExam(exam.id);
 
-            showPopup("Group assigned and exam published successfully!", "success", 2000);
+            setSendingMail(false);
+
+            showPopup("Exam published and invitations sent successfully!", "success");
 
             onQuestionsUploaded();
             onClose();
 
         } catch (err) {
+
+            setSendingMail(false);
 
             showPopup("An error occurred during the publish process.", "error");
             console.error(err);
@@ -402,9 +412,10 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     return (
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-window" onClick={(e) => e.stopPropagation()}>
-                {sendingMail && (
-                    <MailSendingPopup message="Sending Exam Invitations..." />
-                )}
+
+                {sendingMail && <MailSendingModal />}
+
+                <button className="modal-close" onClick={onClose}>✕</button>
                 <button className="modal-close" onClick={onClose}>✕</button>
 
                 <h2>Exam details</h2>
