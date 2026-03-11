@@ -7,7 +7,7 @@ import Papa from "papaparse";
 import { ExamQuestion } from "../components/FYIType/ExamQuestion";
 import { ExamQuestionDraft } from "../components/FYIType/ExamQuestionDraft";
 import { CandidateRow } from "../components/FYIType/CandidateRow";
-
+import { MailSendingPopup } from "../components/popupType/MailSendingPopup";
 import {
     getExamQuestions,
     uploadExamQuestions,
@@ -33,7 +33,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const [cutoff, setCutoff] = useState(40);
 
     const isPending = exam?.status === "PENDING";
-
+    const [sendingMail, setSendingMail] = useState(false);
     useEffect(() => {
 
         if (isPending || !exam?.id) return;
@@ -192,15 +192,11 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         return null;
 
     };
-
-
     const handleConfirmAndPublish = async () => {
 
         if (!selectedGroupId) {
-
             showPopup("Please select a group first.", "warning");
             return;
-
         }
 
         const confirmed = await confirmPopup(
@@ -211,10 +207,13 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
         try {
 
+            showPopup("Sending exam invitation emails... Please wait.", "info", 0);
+
             await assignGroupToExam(exam.id, selectedGroupId);
+
             await publishExam(exam.id);
 
-            showPopup("Group assigned and Exam published successfully!", "success");
+            showPopup("Group assigned and exam published successfully!", "success", 2000);
 
             onQuestionsUploaded();
             onClose();
@@ -225,9 +224,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             console.error(err);
 
         }
-
     };
-
 
     const handleExamCreation = (e) => {
 
@@ -402,193 +399,195 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
     };
 
-return (
-    <div className="modal-backdrop" onClick={onClose}>
-        <div className="modal-window" onClick={(e) => e.stopPropagation()}>
+    return (
+        <div className="modal-backdrop" onClick={onClose}>
+            <div className="modal-window" onClick={(e) => e.stopPropagation()}>
+                {sendingMail && (
+                    <MailSendingPopup message="Sending Exam Invitations..." />
+                )}
+                <button className="modal-close" onClick={onClose}>✕</button>
 
-            <button className="modal-close" onClick={onClose}>✕</button>
+                <h2>Exam details</h2>
 
-            <h2>Exam details</h2>
+                {exam && (
+                    <div className="modal-exam-header">
+                        <h3>{exam.title}</h3>
+                        <p>Status: {exam.status}</p>
+                        <p className="exam-meta">Starts: {new Date(exam.startTime).toLocaleString()}</p>
+                        <p className="exam-meta">Ends: {new Date(exam.endTime).toLocaleString()}</p>
+                        <p className="exam-meta">Total Marks: {exam.totalMarks}</p>
+                        <p className="exam-meta">
+                            Cutoff Marks: {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
+                        </p>
+                    </div>
+                )}
 
-            {exam && (
-                <div className="modal-exam-header">
-                    <h3>{exam.title}</h3>
-                    <p>Status: {exam.status}</p>
-                    <p className="exam-meta">Starts: {new Date(exam.startTime).toLocaleString()}</p>
-                    <p className="exam-meta">Ends: {new Date(exam.endTime).toLocaleString()}</p>
-                    <p className="exam-meta">Total Marks: {exam.totalMarks}</p>
-                    <p className="exam-meta">
-                        Cutoff Marks: {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
-                    </p>
-                </div>
-            )}
+                <div className="modal-body">
 
-            <div className="modal-body">
+                    {isPending ? (
+                        <div className="upload-section">
 
-                {isPending ? (
-                    <div className="upload-section">
+                            <h3>Upload Questions (CSV)</h3>
 
-                        <h3>Upload Questions (CSV)</h3>
+                            <input
+                                type="file"
+                                accept=".csv"
+                                onChange={handleExamCreation}
+                            />
 
-                        <input
-                            type="file"
-                            accept=".csv"
-                            onChange={handleExamCreation}
-                        />
+                            {CSVObj && CSVObj.length > 0 && (
+                                <div className="exam-questions-container">
 
-                        {CSVObj && CSVObj.length > 0 && (
+                                    {CSVObj.map((q, index) => (
+                                        <ExamQuestionDraft
+                                            key={index}
+                                            question={q}
+                                            index={index}
+                                            onChange={handleQuestionUpdate}
+                                        />
+                                    ))}
+
+                                </div>
+                            )}
+
+                        </div>
+                    ) : (
+                        <div className="view-section">
+
+                            <h3>Exam Questions</h3>
+
                             <div className="exam-questions-container">
 
-                                {CSVObj.map((q, index) => (
-                                    <ExamQuestionDraft
+                                {backendQuestions.map((q, index) => (
+                                    <ExamQuestion
                                         key={index}
                                         question={q}
                                         index={index}
-                                        onChange={handleQuestionUpdate}
                                     />
                                 ))}
 
                             </div>
-                        )}
 
-                    </div>
-                ) : (
-                    <div className="view-section">
+                            {exam?.status === "SAVED" && (
+                                <div className="group-assignment-section">
 
-                        <h3>Exam Questions</h3>
+                                    <h4>Select Candidate Group</h4>
 
-                        <div className="exam-questions-container">
+                                    <div className="group-input-group">
 
-                            {backendQuestions.map((q, index) => (
-                                <ExamQuestion
-                                    key={index}
-                                    question={q}
-                                    index={index}
-                                />
-                            ))}
+                                        <select
+                                            value={selectedGroupId}
+                                            onChange={(e) => setSelectedGroupId(e.target.value)}
+                                            className="group-dropdown"
+                                        >
+                                            <option value="">-- Select Group to Assign --</option>
 
-                        </div>
+                                            {availableGroups.map((grp) => (
+                                                <option key={grp.id} value={grp.id}>
+                                                    {grp.name}
+                                                </option>
+                                            ))}
 
-                        {exam?.status === "SAVED" && (
-                            <div className="group-assignment-section">
+                                        </select>
 
-                                <h4>Select Candidate Group</h4>
-
-                                <div className="group-input-group">
-
-                                    <select
-                                        value={selectedGroupId}
-                                        onChange={(e) => setSelectedGroupId(e.target.value)}
-                                        className="group-dropdown"
-                                    >
-                                        <option value="">-- Select Group to Assign --</option>
-
-                                        {availableGroups.map((grp) => (
-                                            <option key={grp.id} value={grp.id}>
-                                                {grp.name}
-                                            </option>
-                                        ))}
-
-                                    </select>
+                                    </div>
 
                                 </div>
+                            )}
 
-                            </div>
-                        )}
+                            {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
 
-                        {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
+                                <div className="candidate-list-container">
 
-                            <div className="candidate-list-container">
+                                    <h5>
+                                        {exam?.status === "PUBLISHED"
+                                            ? "Assigned Candidates"
+                                            : "Draft Candidate List"} ({candidates.length})
+                                    </h5>
 
-                                <h5>
-                                    {exam?.status === "PUBLISHED"
-                                        ? "Assigned Candidates"
-                                        : "Draft Candidate List"} ({candidates.length})
-                                </h5>
+                                    <div className="candidate-scroll">
 
-                                <div className="candidate-scroll">
+                                        {candidates.length > 0 ? (
+                                            candidates.map((c) => (
+                                                <CandidateRow
+                                                    key={c.id}
+                                                    candidate={c}
+                                                />
+                                            ))
+                                        ) : (
+                                            <p className="no-candidates-msg">
+                                                No candidates found.
+                                            </p>
+                                        )}
 
-                                    {candidates.length > 0 ? (
-                                        candidates.map((c) => (
-                                            <CandidateRow
-                                                key={c.id}
-                                                candidate={c}
-                                            />
-                                        ))
-                                    ) : (
-                                        <p className="no-candidates-msg">
-                                            No candidates found.
+                                    </div>
+
+                                    {exam?.status === "SAVED" && (
+                                        <p className="draft-notice">
+                                            Review carefully. This list will be finalized on Publish.
                                         </p>
                                     )}
 
                                 </div>
 
-                                {exam?.status === "SAVED" && (
-                                    <p className="draft-notice">
-                                        Review carefully. This list will be finalized on Publish.
-                                    </p>
-                                )}
+                            )}
+
+                        </div>
+                    )}
+
+                </div>
+
+                <div className="modal-footer">
+
+                    <button
+                        onClick={handleDeleteExam}
+                        className="DeleteExamButton"
+                    >
+                        Delete Exam
+                    </button>
+
+                    {isPending && CSVObj && CSVObj.length > 0 && (
+                        <div className="save-actions-container">
+
+                            <div className="cutoff-input-wrapper">
+
+                                <label>Pass Cutoff (%): </label>
+
+                                <input
+                                    type="number"
+                                    value={cutoff}
+                                    onChange={(e) => setCutoff(e.target.value)}
+                                    min="0"
+                                    max="100"
+                                    className="cutoff-input"
+                                />
 
                             </div>
 
-                        )}
-
-                    </div>
-                )}
-
-            </div>
-
-            <div className="modal-footer">
-
-                <button
-                    onClick={handleDeleteExam}
-                    className="DeleteExamButton"
-                >
-                    Delete Exam
-                </button>
-
-                {isPending && CSVObj && CSVObj.length > 0 && (
-                    <div className="save-actions-container">
-
-                        <div className="cutoff-input-wrapper">
-
-                            <label>Pass Cutoff (%): </label>
-
-                            <input
-                                type="number"
-                                value={cutoff}
-                                onChange={(e) => setCutoff(e.target.value)}
-                                min="0"
-                                max="100"
-                                className="cutoff-input"
-                            />
-
                         </div>
+                    )}
 
-                    </div>
-                )}
+                    {isPending && CSVObj && CSVObj.length > 0 && (
+                        <button
+                            onClick={handleSave}
+                            className="QuestionsSaveButton"
+                        >
+                            Save Questions to Exam
+                        </button>
+                    )}
 
-                {isPending && CSVObj && CSVObj.length > 0 && (
-                    <button
-                        onClick={handleSave}
-                        className="QuestionsSaveButton"
-                    >
-                        Save Questions to Exam
-                    </button>
-                )}
+                    {exam?.status === "SAVED" && selectedGroupId !== "" && (
+                        <button
+                            onClick={handleConfirmAndPublish}
+                            className="PublishExamButton"
+                        >
+                            Confirm & Publish Exam
+                        </button>
+                    )}
 
-                {exam?.status === "SAVED" && selectedGroupId !== "" && (
-                    <button
-                        onClick={handleConfirmAndPublish}
-                        className="PublishExamButton"
-                    >
-                        Confirm & Publish Exam
-                    </button>
-                )}
+                </div>
 
             </div>
-
         </div>
-    </div>
-);
+    );
 }
