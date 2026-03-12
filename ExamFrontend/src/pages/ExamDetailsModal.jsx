@@ -420,18 +420,51 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
                 <h2>Exam details</h2>
 
-                {exam && (
-                    <div className="modal-exam-header">
-                        <h3>{exam.title}</h3>
-                        <p>Status: {exam.status}</p>
-                        <p className="exam-meta">Starts: {new Date(exam.startTime).toLocaleString()}</p>
-                        <p className="exam-meta">Ends: {new Date(exam.endTime).toLocaleString()}</p>
-                        <p className="exam-meta">Total Marks: {exam.totalMarks}</p>
-                        <p className="exam-meta">
-                            Cutoff Marks: {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
-                        </p>
-                    </div>
-                )}
+                {exam &&
+                    (
+                        <div className="modal-exam-header">
+
+                            <div className="exam-title-row">
+                                <h2 className="exam-title">{exam.title}</h2>
+                                <p className={`exam-status-text ${exam.status.toLowerCase()}`}>
+                                    Status: {exam.status}
+                                </p>
+                            </div>
+
+                            <div className="exam-info-grid">
+
+                                <div className="exam-info-card">
+                                    <span className="label">Start Time</span>
+                                    <span className="value">
+                                        {new Date(exam.startTime).toLocaleString()}
+                                    </span>
+                                </div>
+
+                                <div className="exam-info-card">
+                                    <span className="label">End Time</span>
+                                    <span className="value">
+                                        {new Date(exam.endTime).toLocaleString()}
+                                    </span>
+                                </div>
+
+                                <div className="exam-info-card">
+                                    <span className="label">Total Marks</span>
+                                    <span className="value">{exam.totalMarks}</span>
+                                </div>
+
+                                <div className="exam-info-card">
+                                    <span className="label">Cutoff Marks</span>
+                                    <span className="value">
+                                        {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    )
+                }
+
 
                 <div className="modal-body">
 
