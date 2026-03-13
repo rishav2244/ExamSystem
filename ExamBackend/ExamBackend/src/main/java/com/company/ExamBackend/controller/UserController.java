@@ -70,17 +70,31 @@ public class UserController {
 
     @Operation(
             summary = "Authenticate user",
-            description = "Returns user details and a JWT in the Authorization header."
+            description = "Returns user details and both Access/Refresh tokens in the body."
     )
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDTO> userLogin(@RequestBody LoginRequestDTO loginRequestDTO) {
-        UserResponseDTO responseDTO = userService.loginAttempt(loginRequestDTO);
+    public ResponseEntity<LoginResponseDTO> userLogin(@RequestBody LoginRequestDTO loginRequestDTO) {
+        return ResponseEntity.ok(userService.loginAttempt(loginRequestDTO));
+    }
 
-        String token = userService.getToken(loginRequestDTO.getEmail());
-        return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + token)
-                .header("Access-Control-Expose-Headers", "Authorization")
-                .body(responseDTO);
+    @Operation(
+            summary = "Logout user",
+            description = "Revokes the refresh token so it can no longer be used."
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@AuthenticationPrincipal UserDetails userDetails) {
+        userService.logout(userDetails.getUsername());
+        return ResponseEntity.ok("Logged out successfully.");
+    }
+
+    @Operation(
+            summary = "Refresh Token",
+            description = "Provides a new Access Token using a valid Refresh Token."
+    )
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponseDTO> refresh(@RequestBody RefreshTokenRequestDTO request) {
+        return ResponseEntity.ok(userService.refreshAccessToken(request.getRefreshToken()));
     }
 
     @Operation(

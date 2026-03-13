@@ -1,5 +1,7 @@
 package com.company.ExamBackend.mapper;
 
+import com.company.ExamBackend.dto.LoginResponseDTO;
+import com.company.ExamBackend.dto.TokenResponseDTO;
 import com.company.ExamBackend.dto.UserHeavyDTO;
 import com.company.ExamBackend.dto.UserResponseDTO;
 import com.company.ExamBackend.model.PendingRegistration;
@@ -35,5 +37,12 @@ public class UserMapper
         user.setPassword(pending.getPassword());
         user.setRole("CANDIDATE");
         return user;
+    }
+
+    public LoginResponseDTO toLoginResponse(Users user, TokenResponseDTO tokens) {
+        return LoginResponseDTO.builder()
+                .user(toUserResponse(user))
+                .tokens(tokens)
+                .build();
     }
 }

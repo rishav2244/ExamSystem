@@ -64,10 +64,7 @@ export const CandidateHeader = () => {
                             Change Password
                         </button>
 
-                        <button
-                            className="logout-btn"
-                            onClick={logout}
-                        >
+                        <button className="logout-btn" onClick={logout}>
                             Logout
                         </button>
 

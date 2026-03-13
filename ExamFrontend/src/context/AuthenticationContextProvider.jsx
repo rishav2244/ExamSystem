@@ -1,5 +1,6 @@
 import { AuthenticationContext } from "./AuthenticationContext"
 import { useEffect, useState } from "react"
+import { logout as logoutApi} from "../api/api";
 
 export const AuthenticationContextProvider = ({ children }) => {
     const [name, setName] = useState(null);
@@ -12,39 +13,46 @@ export const AuthenticationContextProvider = ({ children }) => {
         const storedAuth = sessionStorage.getItem("auth");
         if (storedAuth) {
             const parsed = JSON.parse(storedAuth);
-            setName(parsed.name);
-            setEmail(parsed.email);
-            setRole(parsed.role);
-            setIsLoggedIn(true);
+            const userData = parsed.user || parsed;
+
+            setName(userData.name);
+            setEmail(userData.email);
+            setRole(userData.role);
             setToken(parsed.token);
+            setIsLoggedIn(true);
         }
     }, []);
 
-    const login = (userData) => {
-        setToken(userData.token);
-        setName(userData.name);
-        setEmail(userData.email);
-        setRole(userData.role);
+    const login = (data) => {
+        const formattedToken = `${data.tokens.type} ${data.tokens.accessToken}`;
+
+        setToken(formattedToken);
+        setName(data.user.name);
+        setEmail(data.user.email);
+        setRole(data.user.role);
         setIsLoggedIn(true);
-        sessionStorage.setItem(
-            "auth",
-            JSON.stringify({ name: userData.name, email: userData.email, role: userData.role, token: userData.token })
-        );
     };
 
-    const logout = () => {
-        setToken(null);
-        setName(null);
-        setEmail(null);
-        setRole(null);
-        setIsLoggedIn(false);
-        sessionStorage.removeItem("auth");
-    }
+    const logout = async () => {
+        try {
+            await logoutApi();
+        } catch (err) {
+            console.error("Server-side logout failed", err);
+        } finally {
+            setToken(null);
+            setName(null);
+            setEmail(null);
+            setRole(null);
+            setIsLoggedIn(false);
+            sessionStorage.removeItem("auth");
+            window.location.href = "/login";
+        }
+    };
 
     return (
         <AuthenticationContext.Provider
             value={{ login, logout, isLoggedIn, name, role, email, token }}>
             {children}
         </AuthenticationContext.Provider>
-    )
-}
+    );
+};

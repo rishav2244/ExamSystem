@@ -8,13 +8,31 @@ export const loginAttempt = async (email, password) => {
     const loginReqJSON = { email, password };
     try {
         const resp = await axios.post(`${API_URL}/user/login`, loginReqJSON);
-        const token = resp.headers['authorization'];
 
-        return { ...resp.data, token };
+        const { user, tokens } = resp.data;
+        const formattedToken = `${tokens.type} ${tokens.accessToken}`;
+
+        sessionStorage.setItem("auth", JSON.stringify({
+            user: user,
+            token: formattedToken,
+            refreshToken: tokens.refreshToken
+        }));
+
+        return resp.data;
     } catch (err) {
         throw err;
     }
 }
+
+export const logout = async () => {
+    try {
+        await axios.post(`${API_URL}/user/logout`);
+    } finally {
+        sessionStorage.removeItem("auth");
+        window.location.href = "/login";
+    }
+};
+
 export const registerCandidate = async (name, email, password) => {
     const payload = {
         name,
@@ -351,6 +369,28 @@ export const getSecureImageUrl = async (fullUrl) => {
     }
 };
 
+const refreshToken = async () => {
+    const auth = JSON.parse(sessionStorage.getItem("auth"));
+    if (!auth || !auth.refreshToken) throw new Error("No refresh token available");
+
+    const resp = await refreshInstance.post(`/user/refresh`, {
+        refreshToken: auth.refreshToken
+    });
+
+    const updatedAuth = {
+        ...auth,
+        token: `${resp.data.tokens.type} ${resp.data.tokens.accessToken}`,
+        refreshToken: resp.data.tokens.refreshToken
+    };
+    sessionStorage.setItem("auth", JSON.stringify(updatedAuth));
+
+    return updatedAuth.token;
+};
+
+const refreshInstance = axios.create({
+    baseURL: API_URL
+});
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));
@@ -360,6 +400,31 @@ axios.interceptors.request.use(
         return config;
     },
     (error) => {
+        return Promise.reject(error);
+    }
+);
+
+axios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 &&
+            !originalRequest._retry &&
+            !originalRequest.url.includes('/user/refresh')) {
+
+            originalRequest._retry = true;
+
+            try {
+                const newToken = await refreshToken();
+                originalRequest.headers.Authorization = newToken;
+                return axios(originalRequest);
+            } catch (refreshError) {
+                sessionStorage.removeItem("auth");
+                window.location.href = "/login?expired=true";
+                return Promise.reject(refreshError);
+            }
+        }
         return Promise.reject(error);
     }
 );
