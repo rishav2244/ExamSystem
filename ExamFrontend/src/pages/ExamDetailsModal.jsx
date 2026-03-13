@@ -416,7 +416,6 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 {sendingMail && <MailSendingModal />}
 
                 <button className="modal-close" onClick={onClose}>✕</button>
-                <button className="modal-close" onClick={onClose}>✕</button>
 
                 <h2>Exam details</h2>
 
