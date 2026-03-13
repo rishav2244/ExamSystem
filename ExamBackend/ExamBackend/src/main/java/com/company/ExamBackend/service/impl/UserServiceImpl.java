@@ -332,6 +332,9 @@ public class UserServiceImpl implements UserService {
         String access = jwtUtils.generateAccessToken(user.getEmail());
         String refresh = jwtUtils.generateRefreshToken(user.getEmail());
 
+        user.setTokenLastRefreshed(Instant.now());
+        userRepository.save(user);
+
         RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
                 .orElse(new RefreshToken());
 
