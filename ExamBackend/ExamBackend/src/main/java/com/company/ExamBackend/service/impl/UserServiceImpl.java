@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
         Users user = findUserByEmail(loginRequestDTO.getEmail());
         verifyCurrentPassword(loginRequestDTO.getPassword(), user.getPassword());
 
-        TokenResponseDTO tokens = createTokens(user);
+        TokenResponseDTO tokens = createTokens(user, true);
 
         return userMapper.toLoginResponse(user, tokens);
     }
@@ -324,22 +324,23 @@ public class UserServiceImpl implements UserService {
             throw new TokenExpiredException("Refresh token expired. Please login again.");
         }
 
-        TokenResponseDTO tokens = createTokens(rt.getUser());
+        TokenResponseDTO tokens = createTokens(rt.getUser(), false);
         return userMapper.toLoginResponse(rt.getUser(), tokens);
     }
 
-    private TokenResponseDTO createTokens(Users user) {
+    private TokenResponseDTO createTokens(Users user, boolean resetExpiry) {
         String access = jwtUtils.generateAccessToken(user.getEmail());
         String refresh = jwtUtils.generateRefreshToken(user.getEmail());
 
         RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
                 .orElse(new RefreshToken());
 
-        refreshToken.setUser(user);
+        if (refreshToken.getId() == null || resetExpiry) {
+            refreshToken.setUser(user);
+            refreshToken.setExpiryDate(Instant.now().plusMillis(jwtUtils.getRefreshExpiration()));
+        }
+
         refreshToken.setToken(refresh);
-
-        refreshToken.setExpiryDate(Instant.now().plusMillis(jwtUtils.getRefreshExpiration()));
-
         refreshTokenRepository.save(refreshToken);
 
         return new TokenResponseDTO(access, refresh, "Bearer");
