@@ -1,10 +1,10 @@
 // import { resendInvitation } from "../../api/api";
 // import { useState } from "react";
- 
+
 // export const CandidateRow = ({ candidate }) => {
 //     const [sending, setSending] = useState(false);
 //     const [status, setStatus] = useState(candidate.status);
- 
+
 //     const handleResend = async () => {
 //         setSending(true);
 //         try {
@@ -17,14 +17,14 @@
 //             setSending(false);
 //         }
 //     };
- 
+
 //     return (
 //         <div className="candidate-item">
 //             <div className="candidate-info">
 //                  <span className="candidate-name">{candidate.name}</span>
 //                 <span className="candidate-email">{candidate.email}</span>
 //             </div>
-            
+
 //             <div className="candidate-status-actions">
 //                 <span className={`status-badge ${status}`}>
 //                     {status}
@@ -42,8 +42,8 @@
 //         </div>
 //     );
 // };
- 
- import { resendInvitation } from "../../api/api";
+
+import { resendInvitation } from "../../api/api";
 import { useState } from "react";
 import { usePopup } from "../popupType/usePopup"; // ✅ ADD THIS
 
@@ -54,25 +54,59 @@ export const CandidateRow = ({ candidate }) => {
 
     const { showPopup } = usePopup(); // ✅ ADD THIS
 
+    // const handleResend = async () => {
+
+    //     setSending(true);
+
+    //     try {
+
+    //         // show sending popup (no OK button)
+    //         showPopup(`Resending invitation to ${candidate.email}...`, "info", 0);
+
+    //         await resendInvitation(candidate.id);
+
+    //         setStatus("INVITED");
+
+    //         // success popup (auto close)
+    //         showPopup("Invitation resent successfully!", "success", 2000);
+
+    //     } catch (err) {
+
+    //         showPopup("Failed to resend invitation.", "error");
+
+    //     } finally {
+
+    //         setSending(false);
+
+    //     }
+    // };
     const handleResend = async () => {
 
         setSending(true);
 
         try {
 
-            // show sending popup (no OK button)
             showPopup(`Resending invitation to ${candidate.email}...`, "info", 0);
 
-            await resendInvitation(candidate.id);
+            const response = await resendInvitation(candidate.id);
 
+            // ✅ IMPORTANT CHECK
+            if (response?.success === false || response?.error) {
+
+                showPopup(response?.message || "Failed to resend invitation.", "error");
+                return;
+            }
+
+            // ✅ SUCCESS ONLY IF ACTUALLY SUCCESS
             setStatus("INVITED");
-
-            // success popup (auto close)
             showPopup("Invitation resent successfully!", "success", 2000);
 
         } catch (err) {
 
-            showPopup("Failed to resend invitation.", "error");
+            showPopup(
+                err.response?.data?.message || "Failed to resend invitation.",
+                "error"
+            );
 
         } finally {
 
@@ -80,7 +114,6 @@ export const CandidateRow = ({ candidate }) => {
 
         }
     };
-
     return (
         <div className="candidate-item">
 
