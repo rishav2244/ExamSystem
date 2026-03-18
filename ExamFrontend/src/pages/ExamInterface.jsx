@@ -99,12 +99,12 @@ export const ExamInterface = () => {
                 onFinalize={handleFinish}
                 submissionId={submissionId}
             />
-
             <ExamHeader
                 title={examData.title}
                 timeLeft={timeLeft}
                 violationCount={violationCount}
                 onFinish={handleFinish}
+                isDanger={timeLeft <= 30}  
             />
 
             <main className="exam-body">

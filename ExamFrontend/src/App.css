@@ -4053,3 +4053,34 @@ button:hover {
   font-weight: 700;
   margin-bottom: 6px;
 }
+
+/* FOR EXAM TIMER */
+.exam-timer {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #111827;
+  transition: all 0.3s ease;
+}
+
+.exam-timer.danger {
+  background: #fee2e2;
+  color: #dc2626;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
