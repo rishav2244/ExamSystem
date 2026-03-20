@@ -1,9 +1,6 @@
 package com.company.ExamBackend.service.impl;
 
-import com.company.ExamBackend.dto.StartExamRequestDTO;
-import com.company.ExamBackend.dto.StartExamResponseDTO;
-import com.company.ExamBackend.dto.SubmissionDetailsDTO;
-import com.company.ExamBackend.dto.SubmissionResponseDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.exception.EligibilityException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.exception.SubmissionNotFoundException;
@@ -85,6 +82,11 @@ public class SubmissionServiceImpl implements SubmissionService {
         submissionRepository.save(submission);
     }
 
+    @Override
+    public SubmissionsOverviewDTO getSubmissionsOverview(String email) {
+        return buildSubmissionsOverviewDTO(email);
+    }
+
     // ======================================================================================
     // Helper Methods
     // ======================================================================================
@@ -127,5 +129,67 @@ public class SubmissionServiceImpl implements SubmissionService {
             candidate.setStatus(status);
             examCandidateRepo.save(candidate);
         }
+    }
+
+    private ExamExtremaDTO buildExamExtremaDTO(Object[] extremes){
+        String title = extremes[0] != null ?  (String) extremes[0] : "Invalid";
+        Double score = extremes[1] != null ? (Double) extremes[1] : 0.0;
+        return new ExamExtremaDTO(title,score);
+    }
+
+    private List<ExamExtremaDTO> buildExamExtremaDTOList(List<Object[]> extremes){
+        if (extremes == null || extremes.isEmpty()) {
+            return List.of();
+        }
+        return extremes.
+                stream().
+                map(this::buildExamExtremaDTO).
+                toList();
+    }
+
+    private SubmissionsOverviewDTO buildSubmissionsOverviewDTO(String email) {
+        SubmissionsOverviewDTO submissionsOverviewDTO = new SubmissionsOverviewDTO();
+
+        Long totalPassed = submissionRepository.findPassedCount(email);
+        Long totalAppeared = submissionRepository.findAppearedCount(email);
+        Long totalFailed = Math.max(0, totalAppeared - totalPassed);
+
+        submissionsOverviewDTO.
+                setAverageScore(
+                        submissionRepository.
+                                findAverageScore(email)
+                );
+        submissionsOverviewDTO.
+                setTotalExams(
+                        examRepository.
+                                publishedCount(email)
+                );
+        submissionsOverviewDTO.
+                setHighestRecords(
+                        buildExamExtremaDTOList(
+                                submissionRepository.
+                                        findHighestResults(email)
+                        )
+                );
+        submissionsOverviewDTO.
+                setLowestRecords(
+                        buildExamExtremaDTOList(
+                                submissionRepository.
+                                        findLowestResults(email)
+                        )
+                );
+        submissionsOverviewDTO.
+                setCandidatesAppeared(
+                        totalAppeared
+                );
+        submissionsOverviewDTO.
+                setTotalPassed(
+                        totalPassed
+                );
+        submissionsOverviewDTO.
+                setTotalFailed(
+                        totalFailed
+                );
+        return submissionsOverviewDTO;
     }
 }

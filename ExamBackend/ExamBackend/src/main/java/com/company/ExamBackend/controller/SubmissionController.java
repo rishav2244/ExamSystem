@@ -2,6 +2,7 @@ package com.company.ExamBackend.controller;
 
 import com.company.ExamBackend.dto.SubmissionDetailsDTO;
 import com.company.ExamBackend.dto.SubmissionResponseDTO;
+import com.company.ExamBackend.dto.SubmissionsOverviewDTO;
 import com.company.ExamBackend.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,6 +50,18 @@ public class SubmissionController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         var details = submissionService.getSubmissionDetails(submissionId, userDetails.getUsername());
+        return ResponseEntity.ok(details);
+    }
+
+    @Operation(
+            summary = "All submissions overview.",
+            description = "Gets overall details of all submissions"
+    )
+    @GetMapping("/overview")
+    public ResponseEntity<SubmissionsOverviewDTO> getSubmissionsOverview(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        var details = submissionService.getSubmissionsOverview(userDetails.getUsername());
         return ResponseEntity.ok(details);
     }
 }
