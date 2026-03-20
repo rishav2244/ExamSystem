@@ -1,8 +1,8 @@
 export const ExamQuestion = ({ question, index }) => {
 
-    const options = Object.keys(question) //Should be fetch me all keys of the question object.
-        .filter((key) => !isNaN(key)) //Should return all numeric "looking" keys, so we get 1 2 3 4 basically indices.
-        .sort((a, b) => Number(a) - Number(b)); //Literally sort by index.
+    const options = Object.keys(question)
+        .filter((key) => !isNaN(key))
+        .sort((a, b) => Number(a) - Number(b)); 
 
     return (
         <div className="exam-question">

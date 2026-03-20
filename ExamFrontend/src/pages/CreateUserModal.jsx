@@ -982,13 +982,6 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                     </div>
                 </div>
             </div>
-
-            {/* <UserActionPopup
-                show={popup.show}
-                message={popup.message}
-                type={popup.type}
-                onClose={closePopup}
-            /> */}
             <UserActionPopup
                 show={popup.show}
                 message={popup.message}

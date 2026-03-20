@@ -99,12 +99,12 @@ export const ExamInterface = () => {
                 onFinalize={handleFinish}
                 submissionId={submissionId}
             />
-
             <ExamHeader
                 title={examData.title}
                 timeLeft={timeLeft}
                 violationCount={violationCount}
                 onFinish={handleFinish}
+                isDanger={timeLeft <= 30}
             />
 
             <main className="exam-body">
@@ -123,9 +123,22 @@ export const ExamInterface = () => {
                         onSelect={handleOptionSelect}
                     />
                     <div className="navigation-controls">
-                        <button disabled={currentIdx === 0} onClick={() => setCurrentIdx(p => p - 1)}>Previous</button>
+                        {/* <button disabled={currentIdx === 0} onClick={() => setCurrentIdx(p => p - 1)}>Previous</button> */}
+                        <button
+                            className="nav-btn prev-btn"
+                            disabled={currentIdx === 0}
+                            onClick={() => setCurrentIdx(p => p - 1)}
+                        >
+                            Previous
+                        </button>
                         {currentIdx < examData.questions.length - 1 && (
-                            <button className="next-btn" onClick={() => setCurrentIdx(p => p + 1)}>Next</button>
+                            // <button className="next-btn" onClick={() => setCurrentIdx(p => p + 1)}>Next</button>
+                            <button
+                                className="nav-btn next-btn"
+                                onClick={() => setCurrentIdx(p => p + 1)}
+                            >
+                                Next
+                            </button>
                         )}
                     </div>
                 </section>

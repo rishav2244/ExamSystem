@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { getSubmissionsByExam } from '../api/api';
 import { useNavigate } from "react-router-dom";
 
+import Papa from "papaparse";
 
 export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const [submissions, setSubmissions] = useState([]);
@@ -58,7 +59,26 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
         if (sortConfig.key !== key) return "↕️";
         return sortConfig.direction === 'asc' ? "↑" : "↓";
     };
+    const handleDownloadCSV = () => {
+        const formattedData = submissions.map(sub => ({
+            Name: sub.candidateName,
+            Email: sub.candidateEmail,
+            Score: sub.score,
+            Result: sub.passed ? "PASS" : "FAIL"
+        }));
 
+        const csv = Papa.unparse(formattedData);
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${exam.title}_results.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
     return (
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-window wide-modal" onClick={e => e.stopPropagation()}>
@@ -73,7 +93,9 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-
+                    <button className="csv-btn" onClick={handleDownloadCSV}>
+                        Download CSV
+                    </button>
                     <button
                         className="stats-btn"
                         onClick={() =>
