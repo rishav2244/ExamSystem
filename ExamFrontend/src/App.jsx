@@ -15,6 +15,7 @@ import { ExamInterface } from "./pages/ExamInterface";
 import { Submissions } from "./pages/Submissions";
 import { SubmissionReview } from "./pages/SubmissionReview";
 import { SnapshotGallery } from "./pages/SnapshotGallery";
+import { SubmissionsOverallStatistics } from "./pages/SubmissionsOverallStatistics";
 
 import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
 import { Register } from "./pages/Register";
@@ -51,6 +52,8 @@ function App() {
                 <Route path="groups" element={<GroupList />} />
 
                 <Route path="submissions" element={<Submissions />} />
+
+                <Route path="submissions/overall" element={<SubmissionsOverallStatistics />} />
 
                 <Route path="submissions/:submissionId" element={<SubmissionReview />} />
 

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getExams } from '../api/api';
 import { SubmissionDetailsModal } from './SubmissionDetailsModal';
 
 export const Submissions = () => {
     const [exams, setExams] = useState([]);
     const [selectedExam, setSelectedExam] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         getExams().then(setExams).catch(console.error);
@@ -13,6 +15,12 @@ export const Submissions = () => {
     return (
         <div className="SubmissionsPage">
             <h2>Exam Submissions</h2>
+            <button
+                className="btn-view-overall-stats"
+                onClick={() => navigate('overall')}
+            >
+                View overall statistics
+            </button>
             <table className="admin-table">
                 <thead>
                     <tr>
@@ -37,9 +45,9 @@ export const Submissions = () => {
             </table>
 
             {selectedExam && (
-                <SubmissionDetailsModal 
-                    exam={selectedExam} 
-                    onClose={() => setSelectedExam(null)} 
+                <SubmissionDetailsModal
+                    exam={selectedExam}
+                    onClose={() => setSelectedExam(null)}
                 />
             )}
         </div>

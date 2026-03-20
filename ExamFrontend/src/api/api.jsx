@@ -307,6 +307,16 @@ export const reportViolation = async (submissionId) => {
     await axios.patch(`${API_URL}/candidateUser/violation/${submissionId}`);
 };
 
+export const getSubmissionsOverview = async () => {
+    try {
+        const resp = await axios.get(`${API_URL}/submissions/overview`);
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching overview:", err);
+        throw err;
+    }
+};
+
 export const getSubmissionsByExam = async (examId) => {
     try {
         const resp = await axios.get(`${API_URL}/submissions/exam/${examId}`);
