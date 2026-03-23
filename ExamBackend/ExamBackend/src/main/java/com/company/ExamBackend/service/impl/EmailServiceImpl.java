@@ -54,7 +54,6 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    @Transactional
     public ResultMailResponseDTO sendResults(List<CandidateResultObj> candidateResults){
 
         ResultMailResponseDTO resultMailResponseDTO = new ResultMailResponseDTO();
