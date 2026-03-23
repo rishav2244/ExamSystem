@@ -69,4 +69,16 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
             "JOIN s.exam e " +
             "WHERE s.exam.createdBy.email = :adminEmail")
     Long findAppearedCount(String adminEmail);
+
+    @Query("SELECT s.exam.title, " +
+            "s.candidateName, " +
+            "s.candidateEmail, " +
+            "s.score, " +
+            "s.passed " +
+            "FROM Submission s " +
+            "JOIN s.exam e " +
+            "WHERE s.exam.createdBy.email = :adminEmail " +
+            "AND s.exam.id = :examId " +
+            "AND s.status = 'COMPLETED'")
+    List<Object[]> findResultsToSend(String adminEmail, String examId);
 }

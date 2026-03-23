@@ -1,12 +1,20 @@
 package com.company.ExamBackend.service.impl;
 
+import com.company.ExamBackend.dto.CandidateResultObj;
+import com.company.ExamBackend.dto.EmailFailure;
+import com.company.ExamBackend.dto.ResultMailResponseDTO;
 import com.company.ExamBackend.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
@@ -43,5 +51,41 @@ public class EmailServiceImpl implements EmailService {
                 ". This code is valid for " + expiryInMinutes +
                 " minutes.");
         mailSender.send(message);
+    }
+
+    @Override
+    @Transactional
+    public ResultMailResponseDTO sendResults(List<CandidateResultObj> candidateResults){
+
+        ResultMailResponseDTO resultMailResponseDTO = new ResultMailResponseDTO();
+        long emailFailureCount = 0L;
+
+        for(CandidateResultObj candidateResult: candidateResults){
+
+            resultMailResponseDTO.setAttempted(resultMailResponseDTO.getAttempted()+1);
+
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(candidateResult.getEmail());
+                message.setSubject("Your performance in " + candidateResult.getExamTitle());
+                if (candidateResult.isPassed()) {
+                    message.setText("Congratulations! You have passed the exam with a score of " + candidateResult.getScore() + " !");
+                } else {
+                    message.setText("We regret to inform you that you have not passed the exam. Your score was " + candidateResult.getScore() + ".");
+                }
+                mailSender.send(message);
+            }
+            catch (Exception e) {
+                log.error(e.getMessage());
+
+                emailFailureCount++;
+
+                EmailFailure emailFailure = new EmailFailure(candidateResult.getEmail(), e.getMessage());
+
+                resultMailResponseDTO.getEmailInfo().add(emailFailure);
+                resultMailResponseDTO.setFailed(emailFailureCount);
+            }
+        }
+        return resultMailResponseDTO;
     }
 }

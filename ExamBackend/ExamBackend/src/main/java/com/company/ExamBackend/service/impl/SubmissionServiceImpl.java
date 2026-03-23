@@ -7,6 +7,7 @@ import com.company.ExamBackend.exception.SubmissionNotFoundException;
 import com.company.ExamBackend.mapper.SubmissionMapper;
 import com.company.ExamBackend.model.*;
 import com.company.ExamBackend.repository.*;
+import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +28,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final QuestionRepository questionRepository;
 
     private final SubmissionMapper submissionMapper;
+
+    EmailService  emailService;
 
     //Check eligibility has two purposes.
     //First purpose is to not let candidate just log off and a come back to an unsubmitted exam, then continue it.
@@ -85,6 +89,17 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public SubmissionsOverviewDTO getSubmissionsOverview(String email) {
         return buildSubmissionsOverviewDTO(email);
+    }
+
+    @Override
+    public ResultMailResponseDTO sendResults(String examId, String adminEmail) {
+        List<CandidateResultObj> candidateResultObjs = new ArrayList<>();
+        List<Object[]> fetchedResults =
+                submissionRepository.findResultsToSend(adminEmail, examId);
+        for (Object[] result : fetchedResults) {
+            candidateResultObjs.add(buildCandidateResultObj(result));
+        }
+        return emailService.sendResults(candidateResultObjs);
     }
 
     // ======================================================================================
@@ -191,5 +206,15 @@ public class SubmissionServiceImpl implements SubmissionService {
                         totalFailed
                 );
         return submissionsOverviewDTO;
+    }
+
+    private CandidateResultObj buildCandidateResultObj(Object[] object) {
+        return CandidateResultObj.builder()
+                .examTitle((String) object[0])
+                .name((String) object[1])
+                .email((String) object[2])
+                .score((Double) object[3])
+                .passed((boolean)  object[4])
+                .build();
     }
 }

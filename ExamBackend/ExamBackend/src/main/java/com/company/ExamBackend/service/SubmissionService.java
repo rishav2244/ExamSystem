@@ -11,4 +11,5 @@ public interface SubmissionService {
     List<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail);
     SubmissionDetailsDTO getSubmissionDetails(String submissionId, String adminEmail);
     SubmissionsOverviewDTO getSubmissionsOverview(String email);
+    ResultMailResponseDTO sendResults(String examId, String adminEmail);
 }
