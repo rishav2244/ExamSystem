@@ -8,11 +8,6 @@ import {
     ResponsiveContainer,
     Tooltip,
     Legend,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid
 } from 'recharts';
 
 export const SubmissionsOverallStatistics = () => {
@@ -43,8 +38,6 @@ export const SubmissionsOverallStatistics = () => {
 
     return (
         <div className="overall-stats-container">
-
-            {/* Header */}
             <div className="stats-header">
                 <button
                     className="btn-stats-back"
@@ -60,8 +53,6 @@ export const SubmissionsOverallStatistics = () => {
                     </p>
                 </div>
             </div>
-
-            {/* Summary Cards */}
             <div className="stats-summary-grid">
                 <div className="stats-card-mini">
                     <span>Total Exams</span>
@@ -80,8 +71,6 @@ export const SubmissionsOverallStatistics = () => {
                     </strong>
                 </div>
             </div>
-
-            {/* Charts */}
             <div className="stats-charts-section">
 
                 <div className="chart-card">
@@ -108,73 +97,57 @@ export const SubmissionsOverallStatistics = () => {
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="table-card">
-                    <div className="table-card-header">
+                <div className="leaderboard-card">
+                    <div className="leaderboard-header">
                         <h3>Top 5 Exams</h3>
-                        <span className="table-subtitle">Based on highest scores</span>
+                        <span>Based on Score</span>
                     </div>
 
-                    <div className="stats-table">
-                        <div className="stats-table-header">
-                            <span>Rank</span>
-                            <span>Exam</span>
-                            <span>Top Score</span>
-                        </div>
-
+                    <div className="leaderboard-list">
                         {stats.highestRecords.slice(0, 5).map((rec, index) => (
-                            <div key={index} className="stats-table-row">
-                                <span className="rank">#{index + 1}</span>
+                            <div key={index} className="leaderboard-item">
 
-                                <span className="exam-title">
-                                    {rec.title}
-                                </span>
+                                <div className="leaderboard-left">
+                                    <span className="leaderboard-rank">#{index + 1}</span>
+                                    <span className="leaderboard-title">{rec.title}</span>
+                                </div>
 
-                                <span className="score">
+                                <div className="leaderboard-score">
                                     {rec.score}
-                                </span>
+                                </div>
+
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
-
-            {/* Extremes */}
             <div className="extrema-tables-section">
-
                 <div className="extrema-column">
-                    <h4>Top Performing Exams</h4>
+                    <h4>Top Performing Exam</h4>
 
                     <div className="extrema-list">
-                        {stats.highestRecords.map((rec, i) => (
-                            <div
-                                key={i}
-                                className="extrema-item high"
-                            >
-                                <span>{rec.title}</span>
-                                <strong>{rec.score}</strong>
+                        {stats.highestRecords[0] && (
+                            <div className="extrema-item high">
+                                <span>{stats.highestRecords[0].title}</span>
+                                <strong>{stats.highestRecords[0].score}</strong>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
-
                 <div className="extrema-column">
-                    <h4>Exams Needing Review</h4>
+                    <h4>Exam Needing Review</h4>
 
                     <div className="extrema-list">
-                        {stats.lowestRecords.map((rec, i) => (
-                            <div
-                                key={i}
-                                className="extrema-item low"
-                            >
-                                <span>{rec.title}</span>
-                                <strong>{rec.score}</strong>
+                        {stats.lowestRecords[0] && (
+                            <div className="extrema-item low">
+                                <span>{stats.lowestRecords[0].title}</span>
+                                <strong>{stats.lowestRecords[0].score}</strong>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
 
             </div>
-
         </div>
     );
 };
