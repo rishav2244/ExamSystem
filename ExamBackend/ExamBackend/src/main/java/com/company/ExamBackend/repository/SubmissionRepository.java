@@ -32,25 +32,21 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
     @Query("DELETE FROM Submission s WHERE s.exam.id = :examId")
     void deleteByExamId(String examId);
 
-    @Query("SELECT e.title, s.score " +
+    @Query("SELECT e.title, MIN(s.score) " +
             "FROM Submission s " +
             "JOIN s.exam e " +
-            "WHERE s.score = " +
-            "(SELECT MIN(s2.score) " +
-            "FROM Submission s2 " +
-            "WHERE s2.exam.createdBy.email = :adminEmail) " +
-            "AND s.exam.createdBy.email = :adminEmail")
-    List <Object[]> findLowestResults(String adminEmail);
+            "WHERE e.createdBy.email = :adminEmail " +
+            "GROUP BY e.title " +
+            "ORDER BY MIN(s.score) ASC")
+    List <Object[]> findLowestResults(String adminEmail, int topLimit);
 
-    @Query("SELECT e.title, s.score " +
+    @Query("SELECT e.title, MAX(s.score) " +
             "FROM Submission s " +
             "JOIN s.exam e " +
-            "WHERE s.score = " +
-            "(SELECT MAX(s2.score) " +
-            "FROM Submission s2 " +
-            "WHERE s2.exam.createdBy.email = :adminEmail) " +
-            "AND s.exam.createdBy.email = :adminEmail")
-    List <Object[]> findHighestResults(String adminEmail);
+            "WHERE e.createdBy.email = :adminEmail " +
+            "GROUP BY e.title " +
+            "ORDER BY MAX(s.score) DESC")
+    List <Object[]> findHighestResults(String adminEmail, int topLimit);
 
     @Query("SELECT COALESCE(AVG(s.score),0.0) " +
             "FROM Submission s " +

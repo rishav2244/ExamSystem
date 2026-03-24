@@ -183,14 +183,14 @@ public class SubmissionServiceImpl implements SubmissionService {
                 setHighestRecords(
                         buildExamExtremaDTOList(
                                 submissionRepository.
-                                        findHighestResults(email)
+                                        findHighestResults(email, 5)
                         )
                 );
         submissionsOverviewDTO.
                 setLowestRecords(
                         buildExamExtremaDTOList(
                                 submissionRepository.
-                                        findLowestResults(email)
+                                        findLowestResults(email, 5)
                         )
                 );
         submissionsOverviewDTO.
