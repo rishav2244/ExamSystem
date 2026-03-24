@@ -39,6 +39,7 @@ public class SubmissionMapper {
                 .status(submission.getStatus())
                 .passed(submission.isPassed())
                 .violations(submission.getViolations())
+                .mailed(submission.isMailed())
                 .build();
     }
 

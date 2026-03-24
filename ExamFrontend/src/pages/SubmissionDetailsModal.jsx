@@ -177,6 +177,7 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                         Result {getSortIcon('passed')}
                                     </th>
                                     <th>Status</th>
+                                    <th>Mailed</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -202,6 +203,11 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                         <td>
                                             <span className={`status-badge ${sub.status}`}>
                                                 {sub.status}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`mailed-badge ${sub.mailed ? 'sent' : 'pending'}`}>
+                                                {sub.mailed ? "Mailed" : "Not Mailed"}
                                             </span>
                                         </td>
                                     </tr>
