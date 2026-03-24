@@ -100,7 +100,7 @@ export const SubmissionsOverallStatistics = () => {
                 <div className="leaderboard-card">
                     <div className="leaderboard-header">
                         <h3>Top 5 Exams</h3>
-                        <span>Based on Score</span>
+                        <span>Based on Highest Score</span>
                     </div>
 
                     <div className="leaderboard-list">
