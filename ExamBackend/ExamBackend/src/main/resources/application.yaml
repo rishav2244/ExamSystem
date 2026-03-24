@@ -30,6 +30,8 @@ app:
   jwt:
     secret: ${JWT_SECRET}
     expiration: ${JWT_EXPIRATION}
+    access-expiration: ${JWT_ACCESS_EXPIRATION:900000}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
   security:
     default-admin-name: ${DEFAULT_ADMIN_NAME}
     default-admin-email: ${DEFAULT_ADMIN_EMAIL}
@@ -45,6 +47,7 @@ app:
   schedulers:
     otp-cleanup-rate: ${OTP_CLEANUP_RATE_IN_MS:60000}
     orphan-exam-cleanup-rate: ${ORPHAN_EXAMS_CLEANUP_RATE_IN_MS:60000}
+    token-cleanup-rate: ${TOKEN_CLEANUP_RATE_IN_MS:3600000}
 
 logging:
   level:

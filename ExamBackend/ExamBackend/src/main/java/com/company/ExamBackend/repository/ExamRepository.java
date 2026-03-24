@@ -21,4 +21,10 @@ public interface ExamRepository extends JpaRepository<Exam, String> {
     @Transactional
     @Query("UPDATE Exam e SET e.status = :status WHERE e.id = :examId")
     int updateExamStatus(String examId, String status);
+
+    @Query("SELECT COUNT(e) " +
+            "FROM Exam e " +
+            "WHERE e.status = 'PUBLISHED' " +
+            "AND e.createdBy.email = :adminEmail")
+    Long publishedCount(String adminEmail);
 }

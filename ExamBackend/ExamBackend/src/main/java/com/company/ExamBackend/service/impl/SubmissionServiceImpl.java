@@ -1,15 +1,13 @@
 package com.company.ExamBackend.service.impl;
 
-import com.company.ExamBackend.dto.StartExamRequestDTO;
-import com.company.ExamBackend.dto.StartExamResponseDTO;
-import com.company.ExamBackend.dto.SubmissionDetailsDTO;
-import com.company.ExamBackend.dto.SubmissionResponseDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.exception.EligibilityException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.exception.SubmissionNotFoundException;
 import com.company.ExamBackend.mapper.SubmissionMapper;
 import com.company.ExamBackend.model.*;
 import com.company.ExamBackend.repository.*;
+import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +28,8 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final QuestionRepository questionRepository;
 
     private final SubmissionMapper submissionMapper;
+
+    EmailService  emailService;
 
     //Check eligibility has two purposes.
     //First purpose is to not let candidate just log off and a come back to an unsubmitted exam, then continue it.
@@ -85,6 +86,38 @@ public class SubmissionServiceImpl implements SubmissionService {
         submissionRepository.save(submission);
     }
 
+    @Override
+    public SubmissionsOverviewDTO getSubmissionsOverview(String email) {
+        return buildSubmissionsOverviewDTO(email);
+    }
+
+    @Override
+    @Transactional
+    public ResultMailResponseDTO sendResults(String examId, String adminEmail) {
+        List<CandidateResultObj> candidateResultObjs = new ArrayList<>();
+        List<Object[]> fetchedResults =
+                submissionRepository.findResultsToSend(adminEmail, examId);
+        for (Object[] result : fetchedResults) {
+            candidateResultObjs.add(buildCandidateResultObj(result, examId));
+        }
+        ResultMailResponseDTO resultMailResponseDTO = emailService.sendResults(candidateResultObjs);
+
+        List<String> failedEmails = resultMailResponseDTO.getEmailInfo().stream()
+                .map(EmailFailure::getEmail)
+                .toList();
+
+        List<String> successfulEmails = candidateResultObjs.stream()
+                .map(CandidateResultObj::getEmail)
+                .filter(email -> !failedEmails.contains(email))
+                .toList();
+
+        if (!successfulEmails.isEmpty()) {
+            submissionRepository.markMultipleAsMailed(examId, successfulEmails);
+        }
+
+        return resultMailResponseDTO;
+    }
+
     // ======================================================================================
     // Helper Methods
     // ======================================================================================
@@ -127,5 +160,78 @@ public class SubmissionServiceImpl implements SubmissionService {
             candidate.setStatus(status);
             examCandidateRepo.save(candidate);
         }
+    }
+
+    private ExamExtremaDTO buildExamExtremaDTO(Object[] extremes){
+        String title = extremes[0] != null ?  (String) extremes[0] : "Invalid";
+        Double score = extremes[1] != null ? (Double) extremes[1] : 0.0;
+        return new ExamExtremaDTO(title,score);
+    }
+
+    private List<ExamExtremaDTO> buildExamExtremaDTOList(List<Object[]> extremes){
+        if (extremes == null || extremes.isEmpty()) {
+            return List.of();
+        }
+        return extremes.
+                stream().
+                map(this::buildExamExtremaDTO).
+                toList();
+    }
+
+    private SubmissionsOverviewDTO buildSubmissionsOverviewDTO(String email) {
+        SubmissionsOverviewDTO submissionsOverviewDTO = new SubmissionsOverviewDTO();
+
+        Long totalPassed = submissionRepository.findPassedCount(email);
+        Long totalAppeared = submissionRepository.findAppearedCount(email);
+        Long totalFailed = Math.max(0, totalAppeared - totalPassed);
+
+        submissionsOverviewDTO.
+                setAverageScore(
+                        submissionRepository.
+                                findAverageScore(email)
+                );
+        submissionsOverviewDTO.
+                setTotalExams(
+                        examRepository.
+                                publishedCount(email)
+                );
+        submissionsOverviewDTO.
+                setHighestRecords(
+                        buildExamExtremaDTOList(
+                                submissionRepository.
+                                        findHighestResults(email, 5)
+                        )
+                );
+        submissionsOverviewDTO.
+                setLowestRecords(
+                        buildExamExtremaDTOList(
+                                submissionRepository.
+                                        findLowestResults(email, 5)
+                        )
+                );
+        submissionsOverviewDTO.
+                setCandidatesAppeared(
+                        totalAppeared
+                );
+        submissionsOverviewDTO.
+                setTotalPassed(
+                        totalPassed
+                );
+        submissionsOverviewDTO.
+                setTotalFailed(
+                        totalFailed
+                );
+        return submissionsOverviewDTO;
+    }
+
+    private CandidateResultObj buildCandidateResultObj(Object[] object, String examId) {
+        return CandidateResultObj.builder()
+                .examTitle((String) object[0])
+                .name((String) object[1])
+                .email((String) object[2])
+                .score((Double) object[3])
+                .passed((boolean)  object[4])
+                .examId(examId)
+                .build();
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -29,11 +30,20 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     @Transactional
     public void saveOrUpdateAnswer(AnswerRequestDTO dto) {
-        answerRepository.findBySubmissionIdAndQuestionId(dto.getSubmissionId(), dto.getQuestionId())
-                .ifPresentOrElse(
-                        existing -> updateExistingAnswer(existing, dto.getOptionId()),
-                        () -> createNewAnswer(dto)
-                );
+        // Check if an answer already exists for this question
+        Optional<Answer> existingAnswer = answerRepository
+                .findBySubmissionIdAndQuestionId(dto.getSubmissionId(), dto.getQuestionId());
+
+        if (dto.getOptionId() == null || dto.getOptionId().isBlank()) {
+            // Candidate de-selects answer(null option) so we delete
+            existingAnswer.ifPresent(answerRepository::delete);
+        } else {
+            // Candidate clicks option or changes it.
+            existingAnswer.ifPresentOrElse(
+                    existing -> updateExistingAnswer(existing, dto.getOptionId()),
+                    () -> createNewAnswer(dto)
+            );
+        }
     }
 
     @Override

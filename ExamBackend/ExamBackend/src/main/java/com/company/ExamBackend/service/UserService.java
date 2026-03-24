@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface UserService
 {
-    UserResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO);
+    LoginResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO);
+    void logout(String email);
     RegistrationResponseDTO candidateRegisterAttempt(CandidateRegisterRequestDTO candidateRegisterRequestDTO);
     UserResponseDTO verifyRegistration(VerifyOtpRequestDTO dto);
     ResendResponseDTO resendOtp(String email);
@@ -14,6 +15,6 @@ public interface UserService
     List<UserHeavyDTO> getCandidates();
     List<UserHeavyDTO> getUsers();
     UserHeavyDTO getUserById(String id);
-    String getToken(String email);
+    LoginResponseDTO refreshAccessToken(String refreshTokenRequest);
     void resetPassword(String currentUserEmail, PasswordResetDTO passwordResetDTO);
 }

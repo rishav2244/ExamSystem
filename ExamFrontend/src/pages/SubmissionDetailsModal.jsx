@@ -2,6 +2,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { getSubmissionsByExam } from '../api/api';
 import { useNavigate } from "react-router-dom";
 
+import Papa from "papaparse";
+
+import { sendResults } from '../api/api';
 
 export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const [submissions, setSubmissions] = useState([]);
@@ -10,7 +13,9 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'submittedAt', direction: 'desc' });
 
     const navigate = useNavigate();
-
+    const [sendingResults, setSendingResults] = useState(false);
+    const [resultSummary, setResultSummary] = useState(null);
+    const [sendError, setSendError] = useState(null);
 
     useEffect(() => {
         getSubmissionsByExam(exam.id)
@@ -58,7 +63,40 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
         if (sortConfig.key !== key) return "↕️";
         return sortConfig.direction === 'asc' ? "↑" : "↓";
     };
+    const handleDownloadCSV = () => {
+        const formattedData = submissions.map(sub => ({
+            Name: sub.candidateName,
+            Email: sub.candidateEmail,
+            Score: sub.score,
+            Result: sub.passed ? "PASS" : "FAIL"
+        }));
 
+        const csv = Papa.unparse(formattedData);
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${exam.title}_results.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    const handleSendResults = async () => {
+        try {
+            setSendingResults(true);
+            setSendError(null);
+
+            const response = await sendResults(exam.id);
+
+            setResultSummary(response);
+        } catch (err) {
+            setSendError("Failed to send results");
+        } finally {
+            setSendingResults(false);
+        }
+    };
     return (
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-window wide-modal" onClick={e => e.stopPropagation()}>
@@ -73,7 +111,9 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-
+                    <button className="csv-btn" onClick={handleDownloadCSV}>
+                        Download CSV
+                    </button>
                     <button
                         className="stats-btn"
                         onClick={() =>
@@ -87,8 +127,33 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                     >
                         View Statistics
                     </button>
+                    <button
+                        className="send-results-btn"
+                        onClick={handleSendResults}
+                        disabled={sendingResults}
+                    >
+                        {sendingResults ? "Sending..." : "Send Results"}
+                    </button>
                 </div>
-
+                {resultSummary && (
+                    <div className="result-mail-summary">
+                        <p><strong>Total Attempted:</strong> {resultSummary.attempted}</p>
+                        <p><strong>Failed:</strong> {resultSummary.failed ?? 0}</p>
+                        {(resultSummary.emailInfo?.length ?? 0) > 0 && (
+                            <div className="failure-box">
+                                <p><strong>Failed Emails:</strong></p>
+                                <ul>
+                                    {resultSummary.emailInfo.map((fail, idx) => (
+                                        <li key={idx}>
+                                            {fail.email} — {fail.message}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                )}
+                {sendError && <p className="error-text">{sendError}</p>}
                 {loading ? <p>Loading...</p> : (
                     <div className="table-container">
                         <table className="admin-table">

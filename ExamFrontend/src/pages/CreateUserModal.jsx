@@ -1,23 +1,719 @@
-import { useState } from 'react';
-import Papa from 'papaparse';
-import { bulkRegistrationAttempt } from '../api/api';
+// // // import { useState } from 'react';
+// // // import Papa from 'papaparse';
+// // // import { bulkRegistrationAttempt } from '../api/api';
+
+// // // export const CreateUserModal = ({ onClose, onUserCreated }) => {
+// // //     const [formData, setFormData] = useState({
+// // //         name: '',
+// // //         email: '',
+// // //         password: '',
+// // //         role: 'CANDIDATE'
+// // //     });
+
+// // //     const [isUploading, setIsUploading] = useState(false);
+// // //     const [uploadResults, setUploadResults] = useState(null);
+
+// // //     const handleChange = (e) => {
+// // //         setFormData({ ...formData, [e.target.name]: e.target.value });
+// // //     };
+
+// // //     const handleCsvUpload = (e) => {
+// // //         const file = e.target.files[0];
+// // //         if (!file) return;
+
+// // //         setIsUploading(true);
+// // //         setUploadResults(null);
+
+// // //         Papa.parse(file, {
+// // //             header: true,
+// // //             skipEmptyLines: true,
+// // //             complete: async (results) => {
+// // //                 const formattedUsers = results.data.map(row => ({
+// // //                     name: row.Name || row.name || "",
+// // //                     email: row.Email || row.email || "",
+// // //                     role: (row.Role || row.role || "CANDIDATE").toUpperCase(),
+// // //                     password: row.Password || row.password || null
+// // //                 }));
+
+// // //                 try {
+// // //                     const summary = await bulkRegistrationAttempt(formattedUsers);
+// // //                     setUploadResults(summary);
+
+// // //                     if (summary.errorCount === 0) {
+// // //                         alert("All users uploaded successfully!");
+// // //                         onUserCreated();
+// // //                         onClose();
+// // //                     } else {
+
+// // //                         onUserCreated();
+// // //                     }
+// // //                 } catch (err) {
+// // //                     const errMsg = err.response?.data?.message || "Bulk upload failed.";
+// // //                     alert(`Error: ${errMsg}`);
+// // //                 } finally {
+// // //                     setIsUploading(false);
+// // //                     e.target.value = null;
+// // //                 }
+// // //             }
+// // //         });
+// // //     };
+
+// // //     const handleSubmit = async (e) => {
+// // //         e.preventDefault();
+// // //         const userPayload = {
+// // //             users: [{
+// // //                 name: formData.name.trim(),
+// // //                 email: formData.email.trim(),
+// // //                 role: formData.role.toUpperCase(),
+// // //                 password: formData.role === 'ADMIN' ? formData.password : null
+// // //             }]
+// // //         };
+
+// // //         try {
+// // //             const summary = await bulkRegistrationAttempt(userPayload.users);
+
+// // //             if (summary.errorCount > 0) {
+// // //                 const errorReason = summary.details[0]?.reason || "Validation Error";
+// // //                 alert(`Registration Error: ${errorReason}`);
+// // //             } else {
+// // //                 alert("User created successfully!");
+// // //                 onUserCreated();
+// // //                 onClose();
+// // //             }
+// // //         } catch (err) {
+// // //             console.error("Full Error Object:", err);
+// // //             const serverMessage = err.response?.data?.message;
+// // //             const validationErrors = err.response?.data?.errors;
+// // //             alert(`Error: ${serverMessage || "Check console for validation details"}`);
+// // //         }
+// // //     };
+
+// // //     return (
+// // //         <div className="modal-backdrop" onClick={onClose}>
+// // //             <div className="modal-window user-create-window" onClick={(e) => e.stopPropagation()}>
+// // //                 <button className="modal-close" onClick={onClose}>✕</button>
+
+// // //                 <div className="user-create-header">
+// // //                     <h2>Register New User</h2>
+// // //                 </div>
+
+// // //                 <div className="FormDiv">
+// // //                     <div className="bulk-registration-section">
+// // //                         <p className="bulk-title">Bulk Registration</p>
+// // //                         <label className="csv-upload-label">
+// // //                             {isUploading ? "Processing..." : "Upload CSV File"}
+// // //                             <input type="file" accept=".csv" onChange={handleCsvUpload} hidden disabled={isUploading} />
+// // //                         </label>
+
+
+// // //                         {uploadResults && uploadResults.errorCount > 0 && (
+// // //                             <div className="error-log-container">
+// // //                                 <p className="error-summary">
+// // //                                     Processed {uploadResults.totalProcessed}:
+// // //                                     <span className="success-text"> {uploadResults.successCount} Success</span>,
+// // //                                     <span className="failure-text"> {uploadResults.errorCount} Failed</span>
+// // //                                 </p>
+// // //                                 <div className="error-list">
+// // //                                     {uploadResults.details.map((err, index) => (
+// // //                                         <div key={index} className="error-item">
+// // //                                             <strong>{err.email}:</strong> {err.reason}
+// // //                                         </div>
+// // //                                     ))}
+// // //                                 </div>
+// // //                             </div>
+// // //                         )}
+// // //                     </div>
+
+// // //                     {!uploadResults && (
+// // //                         <>
+// // //                             <div className="modal-divider">
+// // //                                 <span>OR ADD MANUALLY</span>
+// // //                             </div>
+
+// // //                             <form onSubmit={handleSubmit}>
+// // //                                 <div className="form-group">
+// // //                                     <label>Full Name</label>
+// // //                                     <input type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="Enter full name" />
+// // //                                 </div>
+// // //                                 <div className="form-group">
+// // //                                     <label>Email Address</label>
+// // //                                     <input type="email" name="email" required value={formData.email} onChange={handleChange} placeholder="Email" />
+// // //                                 </div>
+// // //                                 <div className="form-group">
+// // //                                     <label>Role</label>
+// // //                                     <select name="role" className="role-select-input" value={formData.role} onChange={handleChange}>
+// // //                                         <option value="CANDIDATE">Candidate</option>
+// // //                                         <option value="ADMIN">Admin</option>
+// // //                                     </select>
+// // //                                 </div>
+// // //                                 {formData.role === 'ADMIN' && (
+// // //                                     <div className="form-group">
+// // //                                         <label>Initial Password</label>
+// // //                                         <input type="password" name="password" required value={formData.password} onChange={handleChange} placeholder="••••••••" />
+// // //                                     </div>
+// // //                                 )}
+// // //                                 <div className="modal-footer">
+// // //                                     <button type="button" className="CloseButtonSecondary" onClick={onClose}>Cancel</button>
+// // //                                     <button type="submit" className="form-submit">Create User</button>
+// // //                                 </div>
+// // //                             </form>
+// // //                         </>
+// // //                     )}
+
+// // //                     {uploadResults && (
+// // //                         <div className="modal-footer">
+// // //                             <button className="form-submit" onClick={onClose}>Finish</button>
+// // //                         </div>
+// // //                     )}
+// // //                 </div>
+// // //             </div>
+// // //         </div>
+// // //     );
+// // // };
+// // import { useState } from "react";
+// // import Papa from "papaparse";
+// // import { bulkRegistrationAttempt } from "../api/api";
+// // import { useUserActionPopup } from "../components/popupType/UserActionPopup";
+
+// // export const CreateUserModal = ({ onClose, onUserCreated }) => {
+
+// //     const { showUserPopup, UserPopupModal } = useUserActionPopup();
+
+// //     const [formData, setFormData] = useState({
+// //         name: "",
+// //         email: "",
+// //         password: "",
+// //         role: "CANDIDATE"
+// //     });
+
+// //     const [isUploading, setIsUploading] = useState(false);
+// //     const [uploadResults, setUploadResults] = useState(null);
+
+// //     const handleChange = (e) => {
+// //         setFormData({ ...formData, [e.target.name]: e.target.value });
+// //     };
+
+// //     const handleCsvUpload = (e) => {
+// //         const file = e.target.files[0];
+// //         if (!file) return;
+
+// //         setIsUploading(true);
+// //         setUploadResults(null);
+
+// //         Papa.parse(file, {
+// //             header: true,
+// //             skipEmptyLines: true,
+// //             complete: async (results) => {
+// //                 const formattedUsers = results.data.map((row) => ({
+// //                     name: row.Name || row.name || "",
+// //                     email: row.Email || row.email || "",
+// //                     role: (row.Role || row.role || "CANDIDATE").toUpperCase(),
+// //                     password: row.Password || row.password || null
+// //                 }));
+
+// //                 try {
+// //                     const summary = await bulkRegistrationAttempt(formattedUsers);
+// //                     setUploadResults(summary);
+
+// //                     if (summary.errorCount === 0) {
+// //                         showUserPopup("All users uploaded successfully!", "success");
+// //                         onUserCreated();
+// //                         onClose();
+// //                     } else {
+// //                         onUserCreated();
+// //                     }
+// //                 } catch (err) {
+// //                     const errMsg =
+// //                         err.response?.data?.message || "Bulk upload failed.";
+// //                     showUserPopup(`Error: ${errMsg}`, "error");
+// //                 } finally {
+// //                     setIsUploading(false);
+// //                     e.target.value = null;
+// //                 }
+// //             }
+// //         });
+// //     };
+
+// //     const handleSubmit = async (e) => {
+// //         e.preventDefault();
+
+// //         const userPayload = {
+// //             users: [
+// //                 {
+// //                     name: formData.name.trim(),
+// //                     email: formData.email.trim(),
+// //                     role: formData.role.toUpperCase(),
+// //                     password:
+// //                         formData.role === "ADMIN" ? formData.password : null
+// //                 }
+// //             ]
+// //         };
+
+// //         try {
+// //             const summary = await bulkRegistrationAttempt(userPayload.users);
+
+// //             if (summary.errorCount > 0) {
+// //                 const errorReason =
+// //                     summary.details[0]?.reason || "Validation Error";
+// //                 showUserPopup(`Registration Error: ${errorReason}`, "error");
+// //             } else {
+// //                 showUserPopup("User created successfully!", "success");
+// //                 onUserCreated();
+// //                 onClose();
+// //             }
+// //         } catch (err) {
+// //             const serverMessage = err.response?.data?.message;
+
+// //             showUserPopup(
+// //                 serverMessage || "Check console for validation details",
+// //                 "error"
+// //             );
+// //         }
+// //     };
+
+// //     return (
+// //         <>
+// //             <div className="modal-backdrop" onClick={onClose}>
+// //                 <div
+// //                     className="modal-window user-create-window"
+// //                     onClick={(e) => e.stopPropagation()}
+// //                 >
+// //                     <button className="modal-close" onClick={onClose}>
+// //                         ✕
+// //                     </button>
+
+// //                     <div className="user-create-header">
+// //                         <h2>Register New User</h2>
+// //                     </div>
+
+// //                     <div className="FormDiv">
+// //                         <div className="bulk-registration-section">
+// //                             <p className="bulk-title">Bulk Registration</p>
+
+// //                             <label className="csv-upload-label">
+// //                                 {isUploading
+// //                                     ? "Processing..."
+// //                                     : "Upload CSV File"}
+
+// //                                 <input
+// //                                     type="file"
+// //                                     accept=".csv"
+// //                                     onChange={handleCsvUpload}
+// //                                     hidden
+// //                                     disabled={isUploading}
+// //                                 />
+// //                             </label>
+
+// //                             {uploadResults &&
+// //                                 uploadResults.errorCount > 0 && (
+// //                                     <div className="error-log-container">
+// //                                         <p className="error-summary">
+// //                                             Processed{" "}
+// //                                             {uploadResults.totalProcessed}:
+// //                                             <span className="success-text">
+// //                                                 {" "}
+// //                                                 {uploadResults.successCount} Success
+// //                                             </span>
+// //                                             ,
+// //                                             <span className="failure-text">
+// //                                                 {" "}
+// //                                                 {uploadResults.errorCount} Failed
+// //                                             </span>
+// //                                         </p>
+
+// //                                         <div className="error-list">
+// //                                             {uploadResults.details.map(
+// //                                                 (err, index) => (
+// //                                                     <div
+// //                                                         key={index}
+// //                                                         className="error-item"
+// //                                                     >
+// //                                                         <strong>
+// //                                                             {err.email}:
+// //                                                         </strong>{" "}
+// //                                                         {err.reason}
+// //                                                     </div>
+// //                                                 )
+// //                                             )}
+// //                                         </div>
+// //                                     </div>
+// //                                 )}
+// //                         </div>
+
+// //                         {!uploadResults && (
+// //                             <>
+// //                                 <div className="modal-divider">
+// //                                     <span>OR ADD MANUALLY</span>
+// //                                 </div>
+
+// //                                 <form onSubmit={handleSubmit}>
+// //                                     <div className="form-group">
+// //                                         <label>Full Name</label>
+
+// //                                         <input
+// //                                             type="text"
+// //                                             name="name"
+// //                                             required
+// //                                             value={formData.name}
+// //                                             onChange={handleChange}
+// //                                             placeholder="Enter full name"
+// //                                         />
+// //                                     </div>
+
+// //                                     <div className="form-group">
+// //                                         <label>Email Address</label>
+
+// //                                         <input
+// //                                             type="email"
+// //                                             name="email"
+// //                                             required
+// //                                             value={formData.email}
+// //                                             onChange={handleChange}
+// //                                             placeholder="Email"
+// //                                         />
+// //                                     </div>
+
+// //                                     <div className="form-group">
+// //                                         <label>Role</label>
+
+// //                                         <select
+// //                                             name="role"
+// //                                             className="role-select-input"
+// //                                             value={formData.role}
+// //                                             onChange={handleChange}
+// //                                         >
+// //                                             <option value="CANDIDATE">
+// //                                                 Candidate
+// //                                             </option>
+// //                                             <option value="ADMIN">
+// //                                                 Admin
+// //                                             </option>
+// //                                         </select>
+// //                                     </div>
+
+// //                                     {formData.role === "ADMIN" && (
+// //                                         <div className="form-group">
+// //                                             <label>Initial Password</label>
+
+// //                                             <input
+// //                                                 type="password"
+// //                                                 name="password"
+// //                                                 required
+// //                                                 value={formData.password}
+// //                                                 onChange={handleChange}
+// //                                                 placeholder="••••••••"
+// //                                             />
+// //                                         </div>
+// //                                     )}
+
+// //                                     <div className="modal-footer">
+// //                                         <button
+// //                                             type="button"
+// //                                             className="CloseButtonSecondary"
+// //                                             onClick={onClose}
+// //                                         >
+// //                                             Cancel
+// //                                         </button>
+
+// //                                         <button
+// //                                             type="submit"
+// //                                             className="form-submit"
+// //                                         >
+// //                                             Create User
+// //                                         </button>
+// //                                     </div>
+// //                                 </form>
+// //                             </>
+// //                         )}
+
+// //                         {uploadResults && (
+// //                             <div className="modal-footer">
+// //                                 <button
+// //                                     className="form-submit"
+// //                                     onClick={onClose}
+// //                                 >
+// //                                     Finish
+// //                                 </button>
+// //                             </div>
+// //                         )}
+// //                     </div>
+// //                 </div>
+// //             </div>
+
+// //             <UserPopupModal />
+// //         </>
+// //     );
+// // };
+// import { useState } from "react";
+// import Papa from "papaparse";
+// import { bulkRegistrationAttempt } from "../api/api";
+// import { useUserActionPopup } from "../components/popupType/UserActionPopup";
+
+// export const CreateUserModal = ({ onClose, onUserCreated }) => {
+
+//     const { showUserPopup, UserPopupModal } = useUserActionPopup();
+
+//     const [formData, setFormData] = useState({
+//         name: "",
+//         email: "",
+//         password: "",
+//         role: "CANDIDATE"
+//     });
+
+//     const [isUploading, setIsUploading] = useState(false);
+//     const [uploadResults, setUploadResults] = useState(null);
+
+//     const handleChange = (e) => {
+//         setFormData({ ...formData, [e.target.name]: e.target.value });
+//     };
+
+//     const handleCsvUpload = (e) => {
+//         const file = e.target.files[0];
+//         if (!file) return;
+
+//         setIsUploading(true);
+//         setUploadResults(null);
+
+//         Papa.parse(file, {
+//             header: true,
+//             skipEmptyLines: true,
+//             complete: async (results) => {
+
+//                 const formattedUsers = results.data.map(row => ({
+//                     name: row.Name || row.name || "",
+//                     email: row.Email || row.email || "",
+//                     role: (row.Role || row.role || "CANDIDATE").toUpperCase(),
+//                     password: row.Password || row.password || null
+//                 }));
+
+//                 try {
+
+//                     const summary = await bulkRegistrationAttempt(formattedUsers);
+
+//                     setUploadResults(summary);
+
+//                     if (summary.errorCount === 0) {
+
+//                         showUserPopup("All users uploaded successfully!", "success");
+
+//                         onUserCreated();
+
+//                         setTimeout(() => {
+//                             onClose();
+//                         }, 800);
+
+//                     } else {
+
+//                         onUserCreated();
+
+//                     }
+
+//                 } catch (err) {
+
+//                     const errMsg = err.response?.data?.message || "Bulk upload failed.";
+
+//                     showUserPopup(`Error: ${errMsg}`, "error");
+
+//                 } finally {
+
+//                     setIsUploading(false);
+//                     e.target.value = null;
+
+//                 }
+//             }
+//         });
+//     };
+
+//     const handleSubmit = async (e) => {
+
+//         e.preventDefault();
+
+//         const userPayload = {
+//             users: [{
+//                 name: formData.name.trim(),
+//                 email: formData.email.trim(),
+//                 role: formData.role.toUpperCase(),
+//                 password: formData.role === "ADMIN" ? formData.password : null
+//             }]
+//         };
+
+//         try {
+
+//             const summary = await bulkRegistrationAttempt(userPayload.users);
+
+//             if (summary.errorCount > 0) {
+
+//                 const errorReason = summary.details[0]?.reason || "Validation Error";
+
+//                 showUserPopup(`Registration Error: ${errorReason}`, "error");
+
+//             } else {
+
+//                 showUserPopup("User created successfully!", "success");
+
+//                 onUserCreated();
+
+//                 setTimeout(() => {
+//                     onClose();
+//                 }, 800);
+
+//             }
+
+//         } catch (err) {
+
+//             const serverMessage = err.response?.data?.message;
+
+//             showUserPopup(serverMessage || "Check console for validation details", "error");
+
+//         }
+//     };
+
+//     return (
+//         <>
+//             <div className="modal-backdrop" onClick={onClose}>
+//                 <div className="modal-window user-create-window" onClick={(e) => e.stopPropagation()}>
+
+//                     <button className="modal-close" onClick={onClose}>✕</button>
+
+//                     <div className="user-create-header">
+//                         <h2>Register New User</h2>
+//                     </div>
+
+//                     <div className="FormDiv">
+
+//                         <div className="bulk-registration-section">
+
+//                             <p className="bulk-title">Bulk Registration</p>
+
+//                             <label className="csv-upload-label">
+
+//                                 {isUploading ? "Processing..." : "Upload CSV File"}
+
+//                                 <input
+//                                     type="file"
+//                                     accept=".csv"
+//                                     onChange={handleCsvUpload}
+//                                     hidden
+//                                     disabled={isUploading}
+//                                 />
+
+//                             </label>
+
+//                         </div>
+
+//                         {!uploadResults && (
+
+//                             <>
+//                                 <div className="modal-divider">
+//                                     <span>OR ADD MANUALLY</span>
+//                                 </div>
+
+//                                 <form onSubmit={handleSubmit}>
+
+//                                     <div className="form-group">
+//                                         <label>Full Name</label>
+//                                         <input type="text" name="name" required value={formData.name} onChange={handleChange}/>
+//                                     </div>
+
+//                                     <div className="form-group">
+//                                         <label>Email Address</label>
+//                                         <input type="email" name="email" required value={formData.email} onChange={handleChange}/>
+//                                     </div>
+
+//                                     <div className="form-group">
+//                                         <label>Role</label>
+
+//                                         <select name="role" value={formData.role} onChange={handleChange}>
+//                                             <option value="CANDIDATE">Candidate</option>
+//                                             <option value="ADMIN">Admin</option>
+//                                         </select>
+
+//                                     </div>
+
+//                                     {formData.role === "ADMIN" && (
+
+//                                         <div className="form-group">
+//                                             <label>Initial Password</label>
+//                                             <input type="password" name="password" required value={formData.password} onChange={handleChange}/>
+//                                         </div>
+
+//                                     )}
+
+//                                     <div className="modal-footer">
+
+//                                         <button type="button" className="CloseButtonSecondary" onClick={onClose}>
+//                                             Cancel
+//                                         </button>
+
+//                                         <button type="submit" className="form-submit">
+//                                             Create User
+//                                         </button>
+
+//                                     </div>
+
+//                                 </form>
+//                             </>
+
+//                         )}
+
+//                     </div>
+
+//                 </div>
+//             </div>
+
+//             <UserPopupModal />
+
+//         </>
+//     );
+// };
+import { useState } from "react";
+import Papa from "papaparse";
+import { bulkRegistrationAttempt } from "../api/api";
+import { UserActionPopup } from "../components/popupType/UserActionPopup";
 
 export const CreateUserModal = ({ onClose, onUserCreated }) => {
+
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        role: 'CANDIDATE'
+        name: "",
+        email: "",
+        password: "",
+        role: "CANDIDATE"
     });
 
     const [isUploading, setIsUploading] = useState(false);
     const [uploadResults, setUploadResults] = useState(null);
 
+    const [popup, setPopup] = useState({
+        show: false,
+        message: "",
+        type: "info"
+    });
+
+    const showPopup = (message, type = "info") => {
+        setPopup({
+            show: true,
+            message,
+            type
+        });
+    };
+
+    const closePopup = () => {
+        setPopup({
+            show: false,
+            message: "",
+            type: "info"
+        });
+    };
+
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
     };
 
     const handleCsvUpload = (e) => {
+
         const file = e.target.files[0];
         if (!file) return;
 
@@ -25,10 +721,13 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
         setUploadResults(null);
 
         Papa.parse(file, {
+
             header: true,
             skipEmptyLines: true,
+
             complete: async (results) => {
-                const formattedUsers = results.data.map(row => ({
+
+                const formattedUsers = results.data.map((row) => ({
                     name: row.Name || row.name || "",
                     email: row.Email || row.email || "",
                     role: (row.Role || row.role || "CANDIDATE").toUpperCase(),
@@ -36,137 +735,262 @@ export const CreateUserModal = ({ onClose, onUserCreated }) => {
                 }));
 
                 try {
+
                     const summary = await bulkRegistrationAttempt(formattedUsers);
+
                     setUploadResults(summary);
 
                     if (summary.errorCount === 0) {
-                        alert("All users uploaded successfully!");
+
+                        showPopup("All users uploaded successfully!", "success");
+
                         onUserCreated();
-                        onClose();
+
                     } else {
 
                         onUserCreated();
+
                     }
+
                 } catch (err) {
-                    const errMsg = err.response?.data?.message || "Bulk upload failed.";
-                    alert(`Error: ${errMsg}`);
+
+                    const errMsg =
+                        err.response?.data?.message || "Bulk upload failed.";
+
+                    showPopup(`Error: ${errMsg}`, "error");
+
                 } finally {
+
                     setIsUploading(false);
                     e.target.value = null;
+
                 }
             }
         });
     };
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
+
         const userPayload = {
-            users: [{
-                name: formData.name.trim(),
-                email: formData.email.trim(),
-                role: formData.role.toUpperCase(),
-                password: formData.role === 'ADMIN' ? formData.password : null
-            }]
+            users: [
+                {
+                    name: formData.name.trim(),
+                    email: formData.email.trim(),
+                    role: formData.role.toUpperCase(),
+                    password:
+                        formData.role === "ADMIN"
+                            ? formData.password
+                            : null
+                }
+            ]
         };
 
         try {
+
             const summary = await bulkRegistrationAttempt(userPayload.users);
 
             if (summary.errorCount > 0) {
-                const errorReason = summary.details[0]?.reason || "Validation Error";
-                alert(`Registration Error: ${errorReason}`);
+
+                const errorReason =
+                    summary.details[0]?.reason || "Validation Error";
+
+                showPopup(
+                    `Registration Error: ${errorReason}`,
+                    "error"
+                );
+
             } else {
-                alert("User created successfully!");
+
+                showPopup(
+                    "User created successfully!",
+                    "success"
+                );
+
                 onUserCreated();
-                onClose();
+
             }
+
         } catch (err) {
-            console.error("Full Error Object:", err);
+
             const serverMessage = err.response?.data?.message;
-            const validationErrors = err.response?.data?.errors;
-            alert(`Error: ${serverMessage || "Check console for validation details"}`);
+
+            showPopup(
+                serverMessage ||
+                "Check console for validation details",
+                "error"
+            );
         }
     };
 
     return (
-        <div className="modal-backdrop" onClick={onClose}>
-            <div className="modal-window user-create-window" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>✕</button>
+        <>
+            <div
+                className="modal-backdrop"
+                onClick={onClose}
+            >
+                <div
+                    className="modal-window user-create-window"
+                    onClick={(e) => e.stopPropagation()}
+                >
 
-                <div className="user-create-header">
-                    <h2>Register New User</h2>
-                </div>
+                    <button
+                        className="modal-close"
+                        onClick={onClose}
+                    >
+                        ✕
+                    </button>
 
-                <div className="FormDiv">
-                    <div className="bulk-registration-section">
-                        <p className="bulk-title">Bulk Registration</p>
-                        <label className="csv-upload-label">
-                            {isUploading ? "Processing..." : "Upload CSV File"}
-                            <input type="file" accept=".csv" onChange={handleCsvUpload} hidden disabled={isUploading} />
-                        </label>
-
-
-                        {uploadResults && uploadResults.errorCount > 0 && (
-                            <div className="error-log-container">
-                                <p className="error-summary">
-                                    Processed {uploadResults.totalProcessed}:
-                                    <span className="success-text"> {uploadResults.successCount} Success</span>,
-                                    <span className="failure-text"> {uploadResults.errorCount} Failed</span>
-                                </p>
-                                <div className="error-list">
-                                    {uploadResults.details.map((err, index) => (
-                                        <div key={index} className="error-item">
-                                            <strong>{err.email}:</strong> {err.reason}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                    <div className="user-create-header">
+                        <h2>Register New User</h2>
                     </div>
 
-                    {!uploadResults && (
-                        <>
-                            <div className="modal-divider">
-                                <span>OR ADD MANUALLY</span>
-                            </div>
+                    <div className="FormDiv">
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="form-group">
-                                    <label>Full Name</label>
-                                    <input type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="Enter full name" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Email Address</label>
-                                    <input type="email" name="email" required value={formData.email} onChange={handleChange} placeholder="Email" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Role</label>
-                                    <select name="role" className="role-select-input" value={formData.role} onChange={handleChange}>
-                                        <option value="CANDIDATE">Candidate</option>
-                                        <option value="ADMIN">Admin</option>
-                                    </select>
-                                </div>
-                                {formData.role === 'ADMIN' && (
-                                    <div className="form-group">
-                                        <label>Initial Password</label>
-                                        <input type="password" name="password" required value={formData.password} onChange={handleChange} placeholder="••••••••" />
-                                    </div>
-                                )}
-                                <div className="modal-footer">
-                                    <button type="button" className="CloseButtonSecondary" onClick={onClose}>Cancel</button>
-                                    <button type="submit" className="form-submit">Create User</button>
-                                </div>
-                            </form>
-                        </>
-                    )}
+                        <div className="bulk-registration-section">
 
-                    {uploadResults && (
-                        <div className="modal-footer">
-                            <button className="form-submit" onClick={onClose}>Finish</button>
+                            <p className="bulk-title">
+                                Bulk Registration
+                            </p>
+
+                            <label className="csv-upload-label">
+
+                                {isUploading
+                                    ? "Processing..."
+                                    : "Upload CSV File"}
+
+                                <input
+                                    type="file"
+                                    accept=".csv"
+                                    onChange={handleCsvUpload}
+                                    hidden
+                                    disabled={isUploading}
+                                />
+
+                            </label>
+
                         </div>
-                    )}
+
+                        {!uploadResults && (
+                            <>
+                                <div className="modal-divider">
+                                    <span>OR ADD MANUALLY</span>
+                                </div>
+
+                                <form onSubmit={handleSubmit}>
+
+                                    <div className="form-group">
+                                        <label>Full Name</label>
+
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            required
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            placeholder="Enter full name"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Email Address</label>
+
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            required
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            placeholder="Email"
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Role</label>
+
+                                        <select
+                                            name="role"
+                                            className="role-select-input"
+                                            value={formData.role}
+                                            onChange={handleChange}
+                                        >
+                                            <option value="CANDIDATE">
+                                                Candidate
+                                            </option>
+                                            <option value="ADMIN">
+                                                Admin
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    {formData.role === "ADMIN" && (
+                                        <div className="form-group">
+
+                                            <label>
+                                                Initial Password
+                                            </label>
+
+                                            <input
+                                                type="password"
+                                                name="password"
+                                                required
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                placeholder="••••••••"
+                                            />
+
+                                        </div>
+                                    )}
+
+                                    <div className="modal-footer">
+
+                                        <button
+                                            type="button"
+                                            className="CloseButtonSecondary"
+                                            onClick={onClose}
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            className="form-submit"
+                                        >
+                                            Create User
+                                        </button>
+
+                                    </div>
+
+                                </form>
+                            </>
+                        )}
+
+                        {uploadResults && (
+                            <div className="modal-footer">
+
+                                <button
+                                    className="form-submit"
+                                    onClick={onClose}
+                                >
+                                    Finish
+                                </button>
+
+                            </div>
+                        )}
+
+                    </div>
                 </div>
             </div>
-        </div>
+            <UserActionPopup
+                show={popup.show}
+                message={popup.message}
+                type={popup.type}
+                onClose={() => {
+                    closePopup();
+                    onClose();
+                }}
+            />
+        </>
     );
 };

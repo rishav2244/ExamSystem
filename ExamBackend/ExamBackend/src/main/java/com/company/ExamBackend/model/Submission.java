@@ -50,6 +50,9 @@ public class Submission
     private String status;
 
     @Column(nullable = false)
+    private boolean mailed = false;
+
+    @Column(nullable = false)
     private String location;
 
     @Column(nullable = false)

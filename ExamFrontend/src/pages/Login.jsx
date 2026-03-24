@@ -17,10 +17,10 @@ export const Login = () => {
         e.preventDefault();
 
         try {
-            const userData = await loginAttempt(email, password);
-            login(userData);
+            const data = await loginAttempt(email, password);
+            login(data);
 
-            if (userData.role === "ADMIN") {
+            if (data.user && data.user.role === "ADMIN") {
                 navigate("/admin");
             } else {
                 navigate("/user");

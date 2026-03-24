@@ -5,8 +5,10 @@ import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.exception.*;
 import com.company.ExamBackend.mapper.UserMapper;
 import com.company.ExamBackend.model.PendingRegistration;
+import com.company.ExamBackend.model.RefreshToken;
 import com.company.ExamBackend.model.Users;
 import com.company.ExamBackend.repository.PendingRegistrationRepository;
+import com.company.ExamBackend.repository.RefreshTokenRepository;
 import com.company.ExamBackend.repository.UserRepository;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.UserService;
@@ -26,6 +28,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PendingRegistrationRepository pendingRegistrationRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     private final UserMapper userMapper;
     private final EmailService emailService;
@@ -77,6 +80,14 @@ public class UserServiceImpl implements UserService {
                 resendDelay / 1000, // Resend button delay for FE
                 maxAttempts
         );
+    }
+
+    @Transactional
+    @Override
+    public void logout(String email) {
+        Users user = findUserByEmail(email);
+        refreshTokenRepository.deleteByUser(user);
+        log.info("User {} has been logged out and refresh token revoked.", email);
     }
 
     @Transactional(noRollbackFor = {PasswordMismatchException.class, InvalidActionException.class})
@@ -149,11 +160,15 @@ public class UserServiceImpl implements UserService {
         return new ResendResponseDTO(true, "A new OTP has been sent.", resendDelay / 1000);
     }
 
+    @Transactional
     @Override
-    public UserResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO) {
+    public LoginResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO) {
         Users user = findUserByEmail(loginRequestDTO.getEmail());
         verifyCurrentPassword(loginRequestDTO.getPassword(), user.getPassword());
-        return userMapper.toUserResponse(user);
+
+        TokenResponseDTO tokens = createTokens(user, true);
+
+        return userMapper.toLoginResponse(user, tokens);
     }
 
     @Transactional
@@ -166,9 +181,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(passwordResetDTO.getNewPassword()));
         userRepository.save(user);
     }
-
-    @Override
-    public String getToken(String email) { return jwtUtils.generateToken(email); }
 
     @Override
     public List<UserHeavyDTO> getCandidates() {
@@ -299,6 +311,42 @@ public class UserServiceImpl implements UserService {
             );
         }
         log.info("OTP match confirmed for {}", pending.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public LoginResponseDTO refreshAccessToken(String refreshTokenRequest) {
+        RefreshToken rt = refreshTokenRepository.findByToken(refreshTokenRequest)
+                .orElseThrow(() -> new InvalidTokenException("Invalid Refresh Token"));
+
+        if (rt.getExpiryDate().isBefore(Instant.now())) {
+            refreshTokenRepository.delete(rt);
+            throw new TokenExpiredException("Refresh token expired. Please login again.");
+        }
+
+        TokenResponseDTO tokens = createTokens(rt.getUser(), false);
+        return userMapper.toLoginResponse(rt.getUser(), tokens);
+    }
+
+    private TokenResponseDTO createTokens(Users user, boolean resetExpiry) {
+        String access = jwtUtils.generateAccessToken(user.getEmail());
+        String refresh = jwtUtils.generateRefreshToken(user.getEmail());
+
+        user.setTokenLastRefreshed(Instant.now());
+        userRepository.save(user);
+
+        RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
+                .orElse(new RefreshToken());
+
+        if (refreshToken.getId() == null || resetExpiry) {
+            refreshToken.setUser(user);
+            refreshToken.setExpiryDate(Instant.now().plusMillis(jwtUtils.getRefreshExpiration()));
+        }
+
+        refreshToken.setToken(refresh);
+        refreshTokenRepository.save(refreshToken);
+
+        return new TokenResponseDTO(access, refresh, "Bearer");
     }
 
     // ======================================================================================

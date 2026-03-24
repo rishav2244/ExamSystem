@@ -3,6 +3,8 @@ package com.company.ExamBackend.config;
 import com.company.ExamBackend.exception.InvalidTokenException;
 import com.company.ExamBackend.exception.TokenExpiredException;
 import com.company.ExamBackend.service.CustomUserDetailsService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,27 +38,36 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
+        final String authHeader = request.getHeader("Authorization");
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            try {
-                String email = jwtUtils.validateAndGetEmail(token);
-
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            } catch (io.jsonwebtoken.ExpiredJwtException e) {
-                resolver.resolveException(request, response, null, new TokenExpiredException("Token expired."));
-                return;
-            } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
-                resolver.resolveException(request, response, null, new InvalidTokenException("Invalid token."));
-                return;
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
-        filterChain.doFilter(request, response);
+
+        try {
+            String token = authHeader.substring(7);
+            String email = jwtUtils.validateAndGetEmail(token);
+
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                authenticateUser(email, request);
+            }
+
+            filterChain.doFilter(request, response);
+
+        } catch (ExpiredJwtException e) {
+            // Specific signal for Frontend to call /refresh
+            resolver.resolveException(request, response, null, new TokenExpiredException("Access token expired"));
+        } catch (JwtException | IllegalArgumentException e) {
+            // Signal for Frontend to clear local storage and redirect to login
+            resolver.resolveException(request, response, null, new InvalidTokenException("Token is invalid or tampered with"));
+        }
+    }
+
+    private void authenticateUser(String email, HttpServletRequest request) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }

@@ -1,42 +1,51 @@
-import { useState, useEffect, useContext } from 'react';
-import { getCandidatesOnly, createGroup } from '../api/api';
+import { useState, useContext } from 'react';
+import { createGroup } from '../api/api';
 import { AuthenticationContext } from '../context/AuthenticationContext';
+import { ManualMemberSelector } from '../components/FYIType/ManualMemberSelector';
+import { CSVMemberUploader } from '../components/uploadType/CSVMemberUploader';
+import { StatusPopup } from '../components/popupType/StatusPopup';
 
 export const CreateGroupModal = ({ onClose, onGroupCreated }) => {
     const { email: creatorMail } = useContext(AuthenticationContext);
     const [groupName, setGroupName] = useState('');
-    const [candidates, setCandidates] = useState([]);
-    const [selectedUserIds, setSelectedUserIds] = useState([]);
+    const [activeTab, setActiveTab] = useState('manual');
+    const [selectedEmails, setSelectedEmails] = useState([]);
+    const [popup, setPopup] = useState({ show: false, message: '', type: '', data: null });
 
-    useEffect(() => {
-        getCandidatesOnly().then(setCandidates).catch(console.error);
-    }, []);
-
-    const toggleUser = (userId) => {
-        setSelectedUserIds(prev =>
-            prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
-        );
+    const showReport = (message, type = 'info', data = null) => {
+        setPopup({ show: true, message, type, data });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (selectedUserIds.length === 0) return alert("Select at least one member");
-
-        const selectedEmails = candidates
-            .filter(user => selectedUserIds.includes(user.id))
-            .map(user => user.email);
+        if (!groupName.trim()) return showReport("Please enter a group name.", 'error');
+        if (selectedEmails.length === 0) return showReport("No valid members selected.", 'error');
 
         try {
-            await createGroup({
+            console.log("Submitting Group Request for:", groupName);
+            const response = await createGroup({
                 groupName,
                 creatorMail,
                 groupMembers: selectedEmails
             });
-            onGroupCreated();
-            onClose();
+
+            console.log("Full Backend Response:", response);
+            console.log("Failed Users Array:", response.failedUsers);
+
+            if (response.failedUsers && response.failedUsers.length > 0) {
+                showReport(
+                    `Group created with ${response.totalAdded} members. Some users were skipped.`,
+                    'warning',
+                    response.failedUsers
+                );
+                onGroupCreated();
+            } else {
+                onGroupCreated();
+                onClose();
+            }
         } catch (err) {
-            console.error("Creation Error:", err);
-            alert("Failed to create group.");
+            console.error("API Error Object:", err);
+            showReport("Failed to create group. Check if the group name is unique.", 'error');
         }
     };
 
@@ -44,42 +53,71 @@ export const CreateGroupModal = ({ onClose, onGroupCreated }) => {
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-window" onClick={e => e.stopPropagation()}>
                 <button className="modal-close" onClick={onClose}>✕</button>
-                <h2>New Group</h2>
+                <h2 className="grp-modal-title">Create New Group</h2>
+
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Group Name</label>
+                    <div className="grp-form-group">
+                        <label className="grp-field-label">Group Name</label>
                         <input
                             type="text"
+                            className="grp-text-input"
                             required
                             value={groupName}
                             onChange={e => setGroupName(e.target.value)}
-                            placeholder="e.g. Morning Shift"
+                            placeholder="e.g. Senior Developers 2026"
                         />
                     </div>
 
-                    <label>Select Candidates</label>
-                    <div className="selection-list-container">
-                        {candidates.map(user => (
-                            <div key={user.id} className="selection-item" onClick={() => toggleUser(user.id)}>
-                                <input
-                                    type="checkbox"
-                                    className="selection-checkbox"
-                                    checked={selectedUserIds.includes(user.id)}
-                                    readOnly
-                                />
-                                <div className="selection-info">
-                                    <span className="selection-name">{user.name}</span>
-                                    <span className="selection-email">{user.email}</span>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="grp-tab-container">
+                        <button
+                            type="button"
+                            className={`grp-tab-btn ${activeTab === 'manual' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('manual')}
+                        >
+                            Select Manually
+                        </button>
+                        <button
+                            type="button"
+                            className={`grp-tab-btn ${activeTab === 'csv' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('csv')}
+                        >
+                            Upload CSV
+                        </button>
                     </div>
 
-                    <div className="modal-footer">
-                        <button type="button" className="CloseButtonSecondary" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="form-submit">Save Group</button>
+                    <div className="grp-tab-content">
+                        {activeTab === 'manual' ? (
+                            <ManualMemberSelector onSelectionChange={setSelectedEmails} />
+                        ) : (
+                            <CSVMemberUploader 
+                                onEmailsParsed={setSelectedEmails}
+                                onError={(msg) => showReport(msg, 'error')}
+                            />
+                        )}
+                    </div>
+
+                    <div className="grp-modal-footer">
+                        <span className="grp-member-count">
+                            Members identified: <strong>{selectedEmails.length}</strong>
+                        </span>
+                        <div className="grp-footer-btns">
+                            <button type="button" className="grp-secondary-btn" onClick={onClose}>Cancel</button>
+                            <button type="submit" className="grp-primary-submit">Save Group</button>
+                        </div>
                     </div>
                 </form>
+
+                {popup.show && (
+                    <StatusPopup
+                        message={popup.message}
+                        type={popup.type}
+                        data={popup.data}
+                        onClose={() => {
+                            setPopup({ ...popup, show: false });
+                            if (popup.type === 'warning') onClose();
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

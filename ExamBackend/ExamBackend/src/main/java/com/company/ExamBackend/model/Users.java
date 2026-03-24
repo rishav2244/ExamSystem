@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
 @Getter
 @Setter
@@ -26,4 +28,7 @@ public class Users
 
     @Column(nullable = false)
     private String role;
+
+    @Column
+    private Instant tokenLastRefreshed;
 }

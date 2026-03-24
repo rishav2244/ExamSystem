@@ -1,6 +1,5 @@
 package com.company.ExamBackend.repository;
 
-import com.company.ExamBackend.model.Snapshot;
 import com.company.ExamBackend.model.Submission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -32,4 +31,65 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
     @Transactional
     @Query("DELETE FROM Submission s WHERE s.exam.id = :examId")
     void deleteByExamId(String examId);
+
+    @Query("SELECT e.title, MIN(s.score) " +
+            "FROM Submission s " +
+            "JOIN s.exam e " +
+            "WHERE e.createdBy.email = :adminEmail " +
+            "GROUP BY e.title " +
+            "ORDER BY MIN(s.score) ASC")
+    List <Object[]> findLowestResults(String adminEmail, int topLimit);
+
+    @Query("SELECT e.title, MAX(s.score) " +
+            "FROM Submission s " +
+            "JOIN s.exam e " +
+            "WHERE e.createdBy.email = :adminEmail " +
+            "GROUP BY e.title " +
+            "ORDER BY MAX(s.score) DESC")
+    List <Object[]> findHighestResults(String adminEmail, int topLimit);
+
+    @Query("SELECT COALESCE(AVG(s.score),0.0) " +
+            "FROM Submission s " +
+            "JOIN s.exam e " +
+            "WHERE s.exam.createdBy.email = :adminEmail")
+    Double findAverageScore(String adminEmail);
+
+    @Query("SELECT COALESCE(COUNT(s),0) " +
+            "FROM Submission s " +
+            "WHERE s.passed is true " +
+            "AND s.exam.createdBy.email = :adminEmail")
+    Long findPassedCount(String adminEmail);
+
+    @Query("SELECT COALESCE(COUNT(s),0) " +
+            "FROM Submission s " +
+            "JOIN s.exam e " +
+            "WHERE s.exam.createdBy.email = :adminEmail")
+    Long findAppearedCount(String adminEmail);
+
+    @Query("SELECT s.exam.title, " +
+            "s.candidateName, " +
+            "s.candidateEmail, " +
+            "s.score, " +
+            "s.passed " +
+            "FROM Submission s " +
+            "JOIN s.exam e " +
+            "WHERE s.exam.createdBy.email = :adminEmail " +
+            "AND s.exam.id = :examId " +
+            "AND s.status = 'COMPLETED' " +
+            "AND s.mailed = false")
+    List<Object[]> findResultsToSend(String adminEmail, String examId);
+
+//    @Modifying
+//    @Transactional
+//    @Query("UPDATE Submission s " +
+//            "SET s.mailed = true " +
+//            "WHERE s.exam.id = :examId " +
+//            "AND s.candidateEmail = :email")
+//    void markAsMailed(String examId, String email);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Submission s SET s.mailed = true " +
+            "WHERE s.exam.id = :examId AND s.candidateEmail IN :emails")
+    void markMultipleAsMailed(String examId, List<String> emails);
 }
