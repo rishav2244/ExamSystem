@@ -83,7 +83,7 @@ export const SubmissionsOverallStatistics = () => {
                                 dataKey="value"
                                 nameKey="name"
                                 outerRadius={90}
-                                label
+                                // label
                             >
                                 {pieData.map((entry, index) => (
                                     <Cell
