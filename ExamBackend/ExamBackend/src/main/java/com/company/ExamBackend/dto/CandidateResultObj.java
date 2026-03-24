@@ -13,4 +13,5 @@ public class CandidateResultObj {
     private String email;
     private Double score;
     private boolean passed;
+    private String examId;
 }

@@ -92,14 +92,30 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
+    @Transactional
     public ResultMailResponseDTO sendResults(String examId, String adminEmail) {
         List<CandidateResultObj> candidateResultObjs = new ArrayList<>();
         List<Object[]> fetchedResults =
                 submissionRepository.findResultsToSend(adminEmail, examId);
         for (Object[] result : fetchedResults) {
-            candidateResultObjs.add(buildCandidateResultObj(result));
+            candidateResultObjs.add(buildCandidateResultObj(result, examId));
         }
-        return emailService.sendResults(candidateResultObjs);
+        ResultMailResponseDTO resultMailResponseDTO = emailService.sendResults(candidateResultObjs);
+
+        List<String> failedEmails = resultMailResponseDTO.getEmailInfo().stream()
+                .map(EmailFailure::getEmail)
+                .toList();
+
+        List<String> successfulEmails = candidateResultObjs.stream()
+                .map(CandidateResultObj::getEmail)
+                .filter(email -> !failedEmails.contains(email))
+                .toList();
+
+        if (!successfulEmails.isEmpty()) {
+            submissionRepository.markMultipleAsMailed(examId, successfulEmails);
+        }
+
+        return resultMailResponseDTO;
     }
 
     // ======================================================================================
@@ -208,13 +224,14 @@ public class SubmissionServiceImpl implements SubmissionService {
         return submissionsOverviewDTO;
     }
 
-    private CandidateResultObj buildCandidateResultObj(Object[] object) {
+    private CandidateResultObj buildCandidateResultObj(Object[] object, String examId) {
         return CandidateResultObj.builder()
                 .examTitle((String) object[0])
                 .name((String) object[1])
                 .email((String) object[2])
                 .score((Double) object[3])
                 .passed((boolean)  object[4])
+                .examId(examId)
                 .build();
     }
 }

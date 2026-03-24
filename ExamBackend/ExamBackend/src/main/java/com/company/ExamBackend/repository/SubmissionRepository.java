@@ -75,6 +75,21 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
             "JOIN s.exam e " +
             "WHERE s.exam.createdBy.email = :adminEmail " +
             "AND s.exam.id = :examId " +
-            "AND s.status = 'COMPLETED'")
+            "AND s.status = 'COMPLETED' " +
+            "AND s.mailed = false")
     List<Object[]> findResultsToSend(String adminEmail, String examId);
+
+//    @Modifying
+//    @Transactional
+//    @Query("UPDATE Submission s " +
+//            "SET s.mailed = true " +
+//            "WHERE s.exam.id = :examId " +
+//            "AND s.candidateEmail = :email")
+//    void markAsMailed(String examId, String email);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Submission s SET s.mailed = true " +
+            "WHERE s.exam.id = :examId AND s.candidateEmail IN :emails")
+    void markMultipleAsMailed(String examId, List<String> emails);
 }
