@@ -413,7 +413,15 @@ axios.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
+export const sendResults = async (examId) => {
+    try {
+        const resp = await axios.post(`${API_URL}/submissions/send-results/${examId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Error sending results:", err);
+        throw err;
+    }
+};
 axios.interceptors.response.use(
     (response) => response,
     async (error) => {
