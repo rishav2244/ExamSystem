@@ -1088,7 +1088,7 @@ button {
 .modal-actions {
   margin-bottom: 1rem;
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
 }
 
 .table-search-input {
@@ -1097,6 +1097,17 @@ button {
   border-radius: 4px;
   width: 300px;
   font-size: 0.9rem;
+}
+
+.submissions-details-search-div{
+  display: flex;
+  align-items: start;
+}
+
+.submissions-details-buttons-div{
+  display: flex;
+  gap: 10px;
+  align-items: end;
 }
 
 .sortable {
