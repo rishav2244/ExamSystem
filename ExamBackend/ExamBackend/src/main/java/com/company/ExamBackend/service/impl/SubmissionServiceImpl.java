@@ -47,13 +47,13 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     @Override
     @Transactional
-    public StartExamResponseDTO startExam(StartExamRequestDTO dto) {
+    public StartExamResponseDTO startExam(StartExamRequestDTO dto, String email) {
         Exam exam = findExamById(dto.getExamId());
 
-        performEligibilityChecks(exam, dto.getCandidateEmail());
+        performEligibilityChecks(exam, email);
 
         Submission submission = createSubmissionEntity(dto, exam);
-        updateCandidateStatus(dto.getExamId(), dto.getCandidateEmail(), "ATTEMPTED");
+        updateCandidateStatus(dto.getExamId(), email, "ATTEMPTED");
 
         String savedId = submissionRepository.save(submission).getId();
         return new StartExamResponseDTO(savedId, exam.getDuration());

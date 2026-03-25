@@ -34,8 +34,10 @@ public class CandidateController {
             summary = "Dashboard details of a candidate.",
             description = "Gets dashboard details of a candidate, mostly available exams in this case."
     )
-    public ResponseEntity<List<CandidateDashboardDTO>> getDashboard(@PathVariable String email) {
-        return ResponseEntity.ok(examCandidateService.getCandidateDashboard(email));
+    public ResponseEntity<List<CandidateDashboardDTO>> getDashboard(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable(required = false) String email) {
+        return ResponseEntity.ok(examCandidateService.getCandidateDashboard(userDetails.getUsername()));
     }
 
     @Operation(
@@ -55,7 +57,10 @@ public class CandidateController {
                     "do a lot of usual sneaky stuff."
     )
     @GetMapping("/eligibility/{examId}/{email}")
-    public ResponseEntity<?> checkEligibility(@PathVariable String examId, @PathVariable String email) {
+    public ResponseEntity<?> checkEligibility(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable String examId,
+            @PathVariable(required = false) String email) {
         try {
             submissionService.checkEligibility(examId, email);
             return ResponseEntity.ok("Eligible to start.");
@@ -71,9 +76,11 @@ public class CandidateController {
                     " Other database operations are performed, but those are not relevant to your work."
     )
     @PostMapping("/start")
-    public ResponseEntity<?> startExam(@RequestBody StartExamRequestDTO dto) {
+    public ResponseEntity<?> startExam(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody StartExamRequestDTO dto) {
         try {
-            return ResponseEntity.ok(submissionService.startExam(dto));
+            return ResponseEntity.ok(submissionService.startExam(dto,userDetails.getUsername()));
         } catch (RuntimeException e) {
             if ("ALREADY_STARTED_OR_COMPLETED".equals(e.getMessage())) {
                 return ResponseEntity.status(409).body("You already have an active exam session.");

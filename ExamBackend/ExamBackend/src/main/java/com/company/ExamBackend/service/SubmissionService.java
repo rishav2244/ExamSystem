@@ -5,7 +5,7 @@ import com.company.ExamBackend.dto.*;
 import java.util.List;
 
 public interface SubmissionService {
-    StartExamResponseDTO startExam(StartExamRequestDTO dto);
+    StartExamResponseDTO startExam(StartExamRequestDTO dto, String email);
     void reportViolation(String submissionId);
     void checkEligibility(String examId, String email);
     List<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail);
