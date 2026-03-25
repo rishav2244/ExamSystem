@@ -41,9 +41,9 @@ export const SubmissionsOverallStatistics = () => {
             <div className="stats-header">
                 <button
                     className="btn-stats-back"
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate('/admin/submissions/')}
                 >
-                    ← Back
+                    ← Submissions
                 </button>
 
                 <div>

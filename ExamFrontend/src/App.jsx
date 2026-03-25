@@ -43,7 +43,8 @@ function App() {
               <Route path="/admin" element={<AdminLayout />}>
 
 
-                <Route index element={<Admin />} />
+                {/* <Route index element={<Admin />} /> */}
+                <Route index element={<SubmissionsOverallStatistics />} />
 
                 <Route path="exams" element={<Admin />} />
 
