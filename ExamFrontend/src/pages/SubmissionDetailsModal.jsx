@@ -104,36 +104,40 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                 <h2>Results: {exam.title}</h2>
 
                 <div className="modal-actions">
-                    <input
-                        type="text"
-                        placeholder="Search by name or email..."
-                        className="table-search-input"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <button className="csv-btn" onClick={handleDownloadCSV}>
-                        Download CSV
-                    </button>
-                    <button
-                        className="stats-btn"
-                        onClick={() =>
-                            navigate(`/admin/exam-statistics/${exam.id}`, {
-                                state: {
-                                    exam,
-                                    submissions
-                                }
-                            })
-                        }
-                    >
-                        View Statistics
-                    </button>
-                    <button
-                        className="send-results-btn"
-                        onClick={handleSendResults}
-                        disabled={sendingResults}
-                    >
-                        {sendingResults ? "Sending..." : "Send Results"}
-                    </button>
+                    <div className='submissions-details-search-div'>
+                        <input
+                            type="text"
+                            placeholder="Search by name or email..."
+                            className="table-search-input"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className='submissions-details-buttons-div'>
+                        <button className="csv-btn" onClick={handleDownloadCSV}>
+                            Download CSV
+                        </button>
+                        <button
+                            className="stats-btn"
+                            onClick={() =>
+                                navigate(`/admin/exam-statistics/${exam.id}`, {
+                                    state: {
+                                        exam,
+                                        submissions
+                                    }
+                                })
+                            }
+                        >
+                            View Statistics
+                        </button>
+                        <button
+                            className="send-results-btn"
+                            onClick={handleSendResults}
+                            disabled={sendingResults}
+                        >
+                            {sendingResults ? "Sending..." : "Send Results"}
+                        </button>
+                    </div>
                 </div>
                 {resultSummary && (
                     <div className="result-mail-summary">

@@ -10,6 +10,7 @@ import com.company.ExamBackend.repository.OptionRepository;
 import com.company.ExamBackend.repository.QuestionRepository;
 import com.company.ExamBackend.repository.SubmissionRepository;
 import com.company.ExamBackend.service.AnswerService;
+import com.company.ExamBackend.service.EmailService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,8 @@ public class AnswerServiceImpl implements AnswerService {
     private final SubmissionRepository submissionRepository;
     private final QuestionRepository questionRepository;
     private final OptionRepository optionRepository;
+
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -66,6 +69,8 @@ public class AnswerServiceImpl implements AnswerService {
         boolean passed = checkPassStatus(earnedScore, totalPossibleMarks, cutoffPercentage);
 
         applyFinalSubmissionDetails(submission, earnedScore, minutesTaken, passed);
+
+        emailService.sendExamCompletionConfirmation(submission.getCandidateEmail(),submission.getExam().getTitle());
     }
 
     // ======================================================================================

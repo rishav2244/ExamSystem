@@ -222,8 +222,17 @@ public class UserServiceImpl implements UserService {
     }
 
     private String validateAndNormalizeEmail(String email) {
-        if (email == null || email.isBlank()) throw new InvalidActionException("Email field is blank");
-        return email.toLowerCase().trim();
+        if (email == null || email.isBlank()) {
+            throw new InvalidActionException("Email field is blank");
+        }
+
+        String cleanEmail = email.toLowerCase().trim();
+
+        if (isInvalidEmailFormat(cleanEmail)) {
+            throw new InvalidActionException("Invalid email format");
+        }
+
+        return cleanEmail;
     }
 
     private void checkCollisions(String email, List<String> existingInDb, java.util.Set<String> processed) {
@@ -414,5 +423,11 @@ public class UserServiceImpl implements UserService {
     // 6-digit OTP
     private String generateNumericOtp() {
         return String.valueOf(new java.util.Random().nextInt(900000) + 100000);
+    }
+
+    private boolean isInvalidEmailFormat(String email) {
+        // Standard basic regex
+        String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        return email == null || !email.matches(regex);
     }
 }
