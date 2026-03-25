@@ -3841,9 +3841,10 @@ button:hover {
   background: #e5e7eb;
   cursor: pointer;
 }
+
 .confirm-cancel:hover {
   background: #b91c1c;
-  color:white;
+  color: white;
 }
 
 .popup-btn {
@@ -4480,4 +4481,49 @@ button:hover {
 .error-text {
   color: #dc2626;
   margin-top: 8px;
+}
+
+.admin-header__nav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+/* Icon button */
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f5f7fb;
+  color: #2f6fed;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.nav-item:hover {
+  background: #e6edff;
+  transform: translateY(-2px) scale(1.05);
+}
+.nav-item.active {
+  background: #2f6fed;
+  color: white;
+}
+.tooltip {
+  position: absolute;
+  bottom: -24px;
+  background: #1f2937;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+.nav-item:hover .tooltip {
+  opacity: 1;
 }
