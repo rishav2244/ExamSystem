@@ -72,7 +72,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         Submission submission = submissionRepository.findByIdAndAdminEmail(submissionId, adminEmail)
                 .orElseThrow(() -> new SubmissionNotFoundException("SUBMISSION_NOT_FOUND_OR_ACCESS_DENIED"));
 
-        var questions = questionRepository.findAllByExamIdWithOptions(submission.getExam().getId());
+        var questions = questionRepository.findAllByExamIdWithOptions(submission.getExam().getId(), adminEmail);
         var answers = answerRepository.findBySubmissionIdWithDetails(submissionId);
 
         return submissionMapper.toDetailsDTO(submission, questions, answers);

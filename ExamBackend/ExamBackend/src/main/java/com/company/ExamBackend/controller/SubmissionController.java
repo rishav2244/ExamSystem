@@ -7,12 +7,14 @@ import com.company.ExamBackend.dto.SubmissionsOverviewDTO;
 import com.company.ExamBackend.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -75,4 +77,20 @@ public class SubmissionController {
                 submissionService.sendResults(examId,userDetails.getUsername());
         return ResponseEntity.ok(resultMailResponseDTO);
     }
+
+//    @Operation(
+//            summary = "Submissions CSV download",
+//            description = "Sends CSV containing details of candidatate submissions"
+//    )
+//    public void downloadSubmissionsCsv(HttpServletResponse response) throws IOException {
+//        // 1. Fetch your data
+//        List<SubmissionDTO> submissions = submissionService.findAllByExamId(...);
+//
+//        // 2. Set headers
+//        response.setContentType("text/csv");
+//        response.setHeader("Content-Disposition", "attachment; filename=\"submissions.csv\"");
+//
+//        // 3. Write to response stream
+//        submissionService.writeSubmissionsToCsv(response.getWriter(), submissions);
+//    }
 }

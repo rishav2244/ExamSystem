@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,10 +32,11 @@ public class QuestionController {
     )
     @PostMapping("/{examId}/questions")
     public ResponseEntity<Void> uploadQuestions(
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable String examId,
             @Valid @RequestBody ExamSetupDTO examSetupDTO) {
 
-        questionService.saveQuestions(examId, examSetupDTO);
+        questionService.saveQuestions(examId, examSetupDTO, userDetails.getUsername());
         return ResponseEntity.ok().build();
     }
 
@@ -43,9 +46,10 @@ public class QuestionController {
     )
     @GetMapping("/{examId}/questions")
     public ResponseEntity<List<QuestionResponseDTO>> getExamQuestions(
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable String examId) {
 
-        List<QuestionResponseDTO> questions = questionService.getQuestionsForExam(examId);
+        List<QuestionResponseDTO> questions = questionService.getQuestionsForExam(examId, userDetails.getUsername());
         return ResponseEntity.ok(questions);
     }
 }

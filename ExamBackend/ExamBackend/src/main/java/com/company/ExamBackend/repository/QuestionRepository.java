@@ -14,8 +14,14 @@ import java.util.List;
 public interface QuestionRepository extends JpaRepository<Question, String> {
     List<Question> findByParentExamId(String examId);
 
-    @Query("SELECT q FROM Question q LEFT JOIN FETCH q.options WHERE q.parentExam.id = :examId ORDER BY q.id Asc")
-    List<Question> findAllByExamIdWithOptions(@Param("examId") String examId);
+    @Query("SELECT q " +
+            "FROM Question q " +
+            "LEFT JOIN FETCH " +
+            "q.options WHERE " +
+            "q.parentExam.id = :examId " +
+            "AND parentExam.createdBy.email = :adminEmail " +
+            "ORDER BY q.id Asc")
+    List<Question> findAllByExamIdWithOptions(@Param("examId") String examId, String adminEmail);
 
     @Modifying
     @Transactional
