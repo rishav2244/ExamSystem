@@ -3825,13 +3825,13 @@ button:hover {
   padding: 8px 18px;
   border: none;
   border-radius: 6px;
-  background: #dc2626;
+  background: #16A34A;
   color: white;
   cursor: pointer;
 }
 
 .confirm-ok:hover {
-  background: #b91c1c;
+  background: #15803D;
 }
 
 .confirm-cancel {
@@ -3840,6 +3840,10 @@ button:hover {
   border-radius: 6px;
   background: #e5e7eb;
   cursor: pointer;
+}
+.confirm-cancel:hover {
+  background: #b91c1c;
+  color:white;
 }
 
 .popup-btn {
@@ -4089,7 +4093,7 @@ button:hover {
   padding: 8px 14px;
   border: none;
   border-radius: 6px;
-  background: #16a34a;
+  background: #2563EB;
   color: white;
   font-weight: 600;
   cursor: pointer;
@@ -4098,7 +4102,7 @@ button:hover {
 }
 
 .csv-btn:hover {
-  background: #15803d;
+  background: #1D4ED8;
   transform: translateY(-1px);
 }
 
@@ -4442,7 +4446,7 @@ button:hover {
 
 /*FOR RESULT SENDING*/
 .send-results-btn {
-  background: #dc2626;
+  background: #1E3A8A;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -4452,7 +4456,7 @@ button:hover {
 }
 
 .send-results-btn:hover {
-  background: #dc3545;
+  background: #1E40AF;
 }
 
 .send-results-btn:disabled {

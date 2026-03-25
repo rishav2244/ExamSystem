@@ -41,9 +41,9 @@ export const SubmissionsOverallStatistics = () => {
             <div className="stats-header">
                 <button
                     className="btn-stats-back"
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate('/admin/submissions/')}
                 >
-                    ← Back
+                    ← Submissions
                 </button>
 
                 <div>
@@ -83,7 +83,7 @@ export const SubmissionsOverallStatistics = () => {
                                 dataKey="value"
                                 nameKey="name"
                                 outerRadius={90}
-                                label
+                                // label
                             >
                                 {pieData.map((entry, index) => (
                                     <Cell
