@@ -84,13 +84,21 @@ public class UserGroupServiceImpl  implements UserGroupService {
     // ======================================================================================
 
     private List<Users> auditAndCategorizeMembers(List<String> rawEmails, List<GroupEmailFailureDTO> failures) {
-        // Java 17: Create a unique set of lowercased emails
-        var uniqueEmails = rawEmails.stream()
-                .filter(Objects::nonNull)
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
+        Set<String> potentiallyValid = new HashSet<>();
 
-        List<Users> existingUsers = userRepository.findAllByEmailIn(uniqueEmails.stream().toList());
+        for (String email : rawEmails) {
+            if (email == null) continue;
+
+            String cleanEmail = email.trim().toLowerCase();
+
+            if (isInvalidEmailFormat(cleanEmail)) {
+                failures.add(createFailure(email, "Invalid email format"));
+            } else {
+                potentiallyValid.add(cleanEmail);
+            }
+        }
+
+        List<Users> existingUsers = userRepository.findAllByEmailIn(new ArrayList<>(potentiallyValid));
 
         var foundEmails = existingUsers.stream()
                 .map(user -> user.getEmail().toLowerCase())
@@ -105,7 +113,7 @@ public class UserGroupServiceImpl  implements UserGroupService {
             }
         }
 
-        uniqueEmails.stream()
+        potentiallyValid.stream()
                 .filter(email -> !foundEmails.contains(email))
                 .map(email -> createFailure(email, "User not found"))
                 .forEach(failures::add);
@@ -147,5 +155,10 @@ public class UserGroupServiceImpl  implements UserGroupService {
     private UserGroup findGroupById(String id) {
         return userGroupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException("Group not found with ID: " + id));
+    }
+
+    private boolean isInvalidEmailFormat(String email) {
+        String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        return email == null || !email.matches(regex);
     }
 }
