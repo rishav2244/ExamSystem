@@ -92,4 +92,12 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
     @Query("UPDATE Submission s SET s.mailed = true " +
             "WHERE s.exam.id = :examId AND s.candidateEmail IN :emails")
     void markMultipleAsMailed(String examId, List<String> emails);
+
+    @Query("SELECT s.score, s.passed, s.timeTaken, s.createdAt, " +
+            "s.exam.totalScore " +
+            "FROM Submission s " +
+            "WHERE s.candidateEmail = :candidateEmail " +
+            "AND s.status = 'COMPLETED'" +
+            "AND s.mailed = true")
+    List<Object[]> getCandidateResults(String candidateEmail);
 }

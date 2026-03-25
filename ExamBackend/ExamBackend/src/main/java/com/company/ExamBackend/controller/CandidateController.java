@@ -1,9 +1,6 @@
 package com.company.ExamBackend.controller;
 
-import com.company.ExamBackend.dto.AnswerRequestDTO;
-import com.company.ExamBackend.dto.CandidateDashboardDTO;
-import com.company.ExamBackend.dto.CandidateExamDTO;
-import com.company.ExamBackend.dto.StartExamRequestDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.service.AnswerService;
 import com.company.ExamBackend.service.ExamCandidateService;
 import com.company.ExamBackend.service.ExamService;
@@ -12,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -113,5 +112,17 @@ public class CandidateController {
     public ResponseEntity<Void> addViolation(@PathVariable String submissionId) {
         submissionService.reportViolation(submissionId);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "Fetches candidate results",
+            description = "Fetches results for exams for which candidate has appeared and results have been mailed."
+    )
+    @GetMapping("/results")
+    public ResponseEntity<CandidateSubmissionsOverviewDTO> getResults(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        CandidateSubmissionsOverviewDTO candidateSubmissionsOverview = submissionService.fetchCandidateResults(userDetails.getUsername());
+        return ResponseEntity.ok(candidateSubmissionsOverview);
     }
 }

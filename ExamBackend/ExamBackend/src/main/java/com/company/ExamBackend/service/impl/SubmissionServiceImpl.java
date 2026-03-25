@@ -118,6 +118,19 @@ public class SubmissionServiceImpl implements SubmissionService {
         return resultMailResponseDTO;
     }
 
+    @Override
+    public CandidateSubmissionsOverviewDTO fetchCandidateResults(String candidateEmail){
+        List<Object[]> fetchedResults = submissionRepository.getCandidateResults(candidateEmail);
+        CandidateSubmissionsOverviewDTO  candidateSubmissionsOverviewDTO = new CandidateSubmissionsOverviewDTO();
+        for (Object[] result : fetchedResults) {
+            candidateSubmissionsOverviewDTO.
+                    getCandidateSubmissionDetailDTO().
+                    add(submissionMapper.
+                            toCandidateSubmissionDetailDTO(result));
+        }
+        return candidateSubmissionsOverviewDTO;
+    }
+
     // ======================================================================================
     // Helper Methods
     // ======================================================================================
