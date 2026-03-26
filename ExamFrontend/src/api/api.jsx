@@ -422,6 +422,15 @@ export const sendResults = async (examId) => {
         throw err;
     }
 };
+export const getCandidateResults = async () => {
+    try {
+        const resp = await axios.get(`${API_URL}/candidateUser/results`);
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching results:", err);
+        throw err;
+    }
+};
 axios.interceptors.response.use(
     (response) => response,
     async (error) => {

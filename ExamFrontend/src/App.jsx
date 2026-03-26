@@ -20,6 +20,7 @@ import { SubmissionsOverallStatistics } from "./pages/SubmissionsOverallStatisti
 import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
 import { Register } from "./pages/Register";
 
+import { CandidateResults } from "./pages/CandidateResults";
 function App() {
   return (
     <AuthenticationContextProvider>
@@ -65,7 +66,7 @@ function App() {
               </Route>
             </Route>
           </Route>
-
+          <Route path="/candidate/results" element={<CandidateResults />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
