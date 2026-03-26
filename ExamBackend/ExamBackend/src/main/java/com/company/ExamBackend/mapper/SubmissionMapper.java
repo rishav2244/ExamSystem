@@ -95,6 +95,7 @@ public class SubmissionMapper {
         dto.setTimeTaken(objects[2] != null ? ((Number) objects[2]).intValue() : 0);
         dto.setDate((Instant) objects[3]);
         dto.setTotalScore(objects[4] != null ? ((Number) objects[4]).doubleValue() : 0.0);
+        dto.setTitle((String) objects[5]);
         return dto;
     }
 }

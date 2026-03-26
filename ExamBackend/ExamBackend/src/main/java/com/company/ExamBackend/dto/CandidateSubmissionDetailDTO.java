@@ -13,6 +13,13 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CandidateSubmissionDetailDTO{
+
+    @Schema(
+            description = "Candidate exam title",
+            example = "GK1"
+    )
+    private String title;
+
     @Schema(
             description = "Candidate score",
             example = "6.0"

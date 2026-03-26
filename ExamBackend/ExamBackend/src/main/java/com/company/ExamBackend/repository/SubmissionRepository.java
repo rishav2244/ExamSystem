@@ -94,7 +94,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
     void markMultipleAsMailed(String examId, List<String> emails);
 
     @Query("SELECT s.score, s.passed, s.timeTaken, s.createdAt, " +
-            "s.exam.totalScore " +
+            "s.exam.totalScore, s.exam.title " +
             "FROM Submission s " +
             "WHERE s.candidateEmail = :candidateEmail " +
             "AND s.status = 'COMPLETED'" +
