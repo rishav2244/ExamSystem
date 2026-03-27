@@ -4547,14 +4547,17 @@ button:hover {
   text-decoration: none;
   transition: all 0.2s ease;
 }
+
 .nav-item:hover {
   background: #e6edff;
   transform: translateY(-2px) scale(1.05);
 }
+
 .nav-item.active {
   background: #2f6fed;
   color: white;
 }
+
 .tooltip {
   position: absolute;
   bottom: -24px;
@@ -4568,22 +4571,87 @@ button:hover {
   transition: 0.2s;
   white-space: nowrap;
 }
+
 .nav-item:hover .tooltip {
   opacity: 1;
 }
 
 .PaginationControls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 30px auto;
+  width: fit-content;
+}
+
+.PaginationControls button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.PaginationControls button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
 }
 
 .PaginationControls button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  background-color: #93c5fd;
+  color: #e5e7eb;
+  cursor: not-allowed;
 }
+
+.PaginationControls span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 30px auto;
+  width: fit-content;
+}
+
+.pagination-wrapper button {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-wrapper button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.pagination-wrapper button:disabled {
+  background-color: #93c5fd;
+  color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.pagination-wrapper span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
 /*FOR RESULT */
 .results-page {
   width: 100%;
@@ -4593,12 +4661,14 @@ button:hover {
   padding: 20px 30px;
   box-sizing: border-box;
 }
+
 .top-bar {
   display: flex;
   align-items: center;
   gap: 20px;
   margin-bottom: 20px;
 }
+
 .back-btn {
   display: flex;
   align-items: center;
@@ -4616,21 +4686,25 @@ button:hover {
 .back-btn span {
   font-size: 16px;
 }
+
 .back-btn:hover {
   background: #eef2ff;
   border-color: #6366f1;
   color: #6366f1;
 }
+
 .page-title h2 {
   margin: 0;
   font-size: 22px;
   font-weight: 600;
 }
+
 .page-title p {
   margin: 2px 0 0;
   font-size: 13px;
   color: #777;
 }
+
 .table-card {
   width: 100%;
   background: #fff;
@@ -4638,6 +4712,7 @@ button:hover {
   padding: 10px 0;
   box-shadow: none;
 }
+
 .results-table {
   width: 100%;
   border-collapse: collapse;
