@@ -18,6 +18,10 @@ import com.company.ExamBackend.service.SnapshotService;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,20 +63,18 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
-    public List<ExamResponseDTO> getExams(String adminEmail) {
-        // Java 17 .toList() creates an unmodifiable list and is more concise
-        return examRepository.findByCreatedBy_Email(adminEmail)
-                .stream()
-                .map(examMapper::toDTO)
-                .toList();
+    public Page<ExamResponseDTO> getExams(String adminEmail, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("endTime").descending());
+        return examRepository.findByCreatedBy_Email(adminEmail, pageable)
+                .map(examMapper::toDTO);
     }
 
     @Override
-    public List<ExamResponseDTO> getExamsByStatus(String status, String adminEmail) {
-        return examRepository.findByStatusAndCreatedBy_Email(status, adminEmail)
-                .stream()
-                .map(examMapper::toDTO)
-                .toList();
+    public Page<ExamResponseDTO> getExamsByStatus(String status, String adminEmail, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("endTime").descending());
+
+        return examRepository.findByStatusAndCreatedBy_Email(status, adminEmail, pageable)
+                .map(examMapper::toDTO);
     }
 
     @Transactional

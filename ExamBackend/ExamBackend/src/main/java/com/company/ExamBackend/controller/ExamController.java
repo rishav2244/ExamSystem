@@ -9,6 +9,7 @@ import com.company.ExamBackend.service.ExamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,15 +47,19 @@ public class ExamController {
             description = "Used by admin to fetch all exams."
     )
     @GetMapping("/getExams")
-    public ResponseEntity<List<ExamResponseDTO>> getExams(
+    public ResponseEntity<Page<ExamResponseDTO>> getExams(
             @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         String adminEmail = userDetails.getUsername();
+
         if (status != null && !status.isEmpty()) {
-            return ResponseEntity.ok(examService.getExamsByStatus(status, adminEmail));
+            return ResponseEntity.ok(examService.getExamsByStatus(status, adminEmail, page, size));
         }
-        return ResponseEntity.ok(examService.getExams(adminEmail));
+
+        return ResponseEntity.ok(examService.getExams(adminEmail, page, size));
     }
 
     //Publishes exam.

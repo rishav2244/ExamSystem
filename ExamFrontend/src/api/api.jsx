@@ -118,11 +118,29 @@ export const createExam = async (title, duration, startTime, endTime, status, cr
     }
 }
 
-export const getExams = async () => {
+export const getExams = async (page = 0, size = 10, status = null) => {
     try {
-        const resp = await axios.get(`${API_URL}/exams/getExams`);
+        // Build params object explicitly
+        const queryParams = new URLSearchParams();
+        queryParams.append("page", page);
+        queryParams.append("size", size);
+
+        if (status && status.trim() !== "") {
+            queryParams.append("status", status);
+        }
+
+        // Log this to your console to verify the URL
+        const fullUrl = `${API_URL}/exams/getExams?${queryParams.toString()}`;
+        console.log("Fetching from:", fullUrl);
+
+        const resp = await axios.get(`${API_URL}/exams/getExams`, {
+            params: queryParams
+        });
+
         return resp.data;
     } catch (err) {
+        console.error("Status Code:", err.response?.status);
+        console.error("Backend Error Data:", err.response?.data);
         throw err;
     }
 }
