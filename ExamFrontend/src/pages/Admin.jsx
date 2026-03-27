@@ -9,25 +9,23 @@ export const Admin = () => {
     const [listExams, setListExams] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [pageSize] = useState(10); // Can be used for rows per page dropdown later.
+    const [pageSize] = useState(5); 
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [SelectedExam, setSelectedExam] = useState(null);
 
     const fetchExams = useCallback(async (page) => {
         try {
-            // We leave the 3rd argument (status) out so it remains null
             const data = await getExams(page, pageSize);
             setListExams(data.content);
             setTotalPages(data.totalPages);
             setCurrentPage(data.number);
         } catch (err) {
-            // The error log here will now show more detail if it fails again
         }
     }, [pageSize]);
 
     useEffect(() => {
-        fetchExams(0); // Fetches first page on mount
+        fetchExams(0); 
     }, [fetchExams]);
 
     const handlePageChange = (newPage) => {
@@ -82,8 +80,6 @@ export const Admin = () => {
                         )}
                     </tbody>
                 </table>
-
-                {/* 4. Pagination Controls */}
                 <div className="PaginationControls">
                     <button
                         disabled={currentPage === 0}

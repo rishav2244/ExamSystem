@@ -7,7 +7,7 @@ export const Submissions = () => {
     const [exams, setExams] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [pageSize] = useState(10);
+    const [pageSize] = useState(5);
 
     const [selectedExam, setSelectedExam] = useState(null);
     const navigate = useNavigate();
