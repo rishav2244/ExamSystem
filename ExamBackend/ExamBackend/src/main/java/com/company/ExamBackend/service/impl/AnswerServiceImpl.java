@@ -74,9 +74,10 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     // ======================================================================================
-    // Modularized Helpers
+    // Helper methods
     // ======================================================================================
 
+    @Deprecated
     private double calculateEarnedScore(List<Answer> answers) {
         return answers.stream()
                 .filter(a -> a.getSelectedOption() != null && a.getSelectedOption().isCorrect())
@@ -84,6 +85,7 @@ public class AnswerServiceImpl implements AnswerService {
                 .sum();
     }
 
+    @Deprecated
     private boolean checkPassStatus(double earned, int total, double cutoffPercentage) {
         if (total == 0) return false;
 
