@@ -31,13 +31,14 @@ public interface AnswerRepository extends JpaRepository<Answer, String> {
     List<Answer> findBySubmissionIdWithDetails(@Param("submissionId") String submissionId);
 
     @Query("SELECT COALESCE(SUM(a.question.marks * 1.0), 0.0), " +
-            "(CASE WHEN (((a.submission.exam.cutoff * 1.0) * 100.0 / (a.submission.exam.totalScore * 1.0)) <= COALESCE(SUM(a.question.marks * 1.0), 0.0)) THEN true " +
-            " ELSE false END) AS passed " +
+            "(CASE WHEN (COALESCE(SUM(a.question.marks * 1.0), 0.0) >= " +
+            "(a.submission.exam.totalScore * a.submission.exam.cutoff / 100.0)) " +
+            "THEN true ELSE false END) " +
             "FROM Answer a " +
             "WHERE a.submission.id = :submissionId " +
             "AND a.submission.candidateEmail = :candidateEmail " +
             "AND a.selectedOption.isCorrect = true " +
-            "GROUP BY a.submission.exam.cutoff, a.submission.exam.totalScore, a.submission.createdAt")
+            "GROUP BY a.submission.exam.cutoff, a.submission.exam.totalScore")
     List<Object[]> calculateResult(@Param("submissionId") String submissionId, @Param("candidateEmail") String candidateEmail);
 
     @Modifying

@@ -1,6 +1,9 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.Submission;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +24,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
     @Query("SELECT s FROM Submission s WHERE s.id = :submissionId AND s.exam.createdBy.email = :adminEmail")
     Optional<Submission> findByIdAndAdminEmail(String submissionId, String adminEmail);
 
-    List<Submission> findByStatus(String status);
+    Slice<Submission> findByStatus(String status, Pageable pageable); //SLice because
 
     boolean existsByExamIdAndCandidateEmail(String examId, String candidateEmail);
 
