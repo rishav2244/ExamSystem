@@ -28,7 +28,7 @@ public class ExamCleanupScheduler {
             Instant deadline = sub.getCreatedAt().plusSeconds(sub.getExam().getDuration() * 60L);
             if (now.isAfter(deadline)) {
                 try {
-                    answerService.finalizeSubmission(sub.getId());
+                    answerService.finalizeSubmission(sub.getId(), sub.getCandidateEmail());
                 } catch (Exception e) {
                 }
             }

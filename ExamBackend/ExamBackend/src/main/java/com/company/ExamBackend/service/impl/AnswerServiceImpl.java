@@ -51,24 +51,24 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     @Transactional
-    public void finalizeSubmission(String submissionId) {
-        Submission submission = submissionRepository.findById(submissionId)
-                .orElseThrow(() -> new SubmissionNotFoundException("Submission not found"));
+    public void finalizeSubmission(String submissionId, String candidateEmail) {
+        Submission submission = submissionRepository.findByIdAndCandidateEmail(submissionId,  candidateEmail);
 
-        if ("COMPLETED".equals(submission.getStatus())) return;
+        if(submission == null){
+            throw new SubmissionNotFoundException("Possible BOLA attempt.");
+        }
 
-        List<Answer> candidateAnswers = answerRepository.findBySubmissionIdWithDetails(submissionId);
+        if ("COMPLETED".equals(submission.getStatus())) return; //Prevents evaluating over existing attempt
 
-        Exam exam = submission.getExam();
-        int totalPossibleMarks = exam.getTotalScore();
-        double cutoffPercentage = exam.getCutoff();
+        List<Object[]> evaluatedResult = answerRepository.calculateResult(submissionId, candidateEmail);
 
-        double earnedScore = calculateEarnedScore(candidateAnswers);
         int minutesTaken = calculateTimeTaken(submission.getCreatedAt());
 
-        boolean passed = checkPassStatus(earnedScore, totalPossibleMarks, cutoffPercentage);
-
-        applyFinalSubmissionDetails(submission, earnedScore, minutesTaken, passed);
+        applyFinalSubmissionDetails(
+                submission, //Existing submission entry
+                (double) evaluatedResult.get(0)[0], //Score of candidate
+                minutesTaken, //time taken in minutes
+                (boolean) evaluatedResult.get(0)[1]); // Passed or not
 
         emailService.sendExamCompletionConfirmation(submission.getCandidateEmail(),submission.getExam().getTitle());
     }

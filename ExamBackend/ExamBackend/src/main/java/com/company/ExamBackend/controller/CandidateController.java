@@ -105,8 +105,10 @@ public class CandidateController {
             description = "Ends the exam by finalizing our submission. Evaluation is done immediately after that."
     )
     @PostMapping("/submit/{submissionId}")
-    public ResponseEntity<Void> finalize(@PathVariable String submissionId) {
-        answerService.finalizeSubmission(submissionId);
+    public ResponseEntity<Void> finalize(
+            @PathVariable String submissionId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        answerService.finalizeSubmission(submissionId, userDetails.getUsername());
         return ResponseEntity.ok().build();
     }
 

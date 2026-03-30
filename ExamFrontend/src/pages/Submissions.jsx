@@ -32,7 +32,7 @@ export const Submissions = () => {
         if (newPage >= 0 && newPage < totalPages) {
             fetchExams(newPage);
         }
-    };
+    }; 
 
     return (
         <div className="SubmissionsPage">

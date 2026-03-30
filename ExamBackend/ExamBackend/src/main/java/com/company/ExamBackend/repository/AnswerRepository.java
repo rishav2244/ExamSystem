@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -28,6 +29,16 @@ public interface AnswerRepository extends JpaRepository<Answer, String> {
             "LEFT JOIN FETCH a.selectedOption o " +
             "WHERE a.submission.id = :submissionId")
     List<Answer> findBySubmissionIdWithDetails(@Param("submissionId") String submissionId);
+
+    @Query("SELECT COALESCE(SUM(a.question.marks * 1.0), 0.0), " +
+            "(CASE WHEN (((a.submission.exam.cutoff * 1.0) * 100.0 / (a.submission.exam.totalScore * 1.0)) <= COALESCE(SUM(a.question.marks * 1.0), 0.0)) THEN true " +
+            " ELSE false END) AS passed " +
+            "FROM Answer a " +
+            "WHERE a.submission.id = :submissionId " +
+            "AND a.submission.candidateEmail = :candidateEmail " +
+            "AND a.selectedOption.isCorrect = true " +
+            "GROUP BY a.submission.exam.cutoff, a.submission.exam.totalScore, a.submission.createdAt")
+    List<Object[]> calculateResult(@Param("submissionId") String submissionId, @Param("candidateEmail") String candidateEmail);
 
     @Modifying
     @Transactional
