@@ -15,6 +15,8 @@ import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -183,13 +185,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserHeavyDTO> getCandidates() {
-        return userRepository.findAllByRole("CANDIDATE").stream().map(userMapper::toUserHeavy).toList();
+    public Page<UserHeavyDTO> getCandidates(Pageable pageable) {
+        return userRepository.findAllByRole("CANDIDATE", pageable).map(userMapper::toUserHeavy);
     }
 
     @Override
-    public List<UserHeavyDTO> getUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserHeavy).toList();
+    public Page<UserHeavyDTO> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toUserHeavy);
     }
 
     @Override

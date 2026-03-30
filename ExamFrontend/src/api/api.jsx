@@ -219,9 +219,11 @@ export const deleteExam = async (examId) => {
     }
 };
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (page = 0, size = 5) => {
     try {
-        const resp = await axios.get(`${API_URL}/user/users`);
+        const resp = await axios.get(`${API_URL}/user/users`, {
+            params: { page, size }
+        });
         return resp.data;
     } catch (err) {
         console.error("Error fetching users:", err);
@@ -248,9 +250,16 @@ export const getGroupMembers = async (groupId) => {
     return resp.data;
 };
 
-export const getCandidatesOnly = async () => {
-    const resp = await axios.get(`${API_URL}/user/candidates`);
-    return resp.data;
+export const getCandidatesOnly = async (page = 0, size = 5) => {
+    try {
+        const resp = await axios.get(`${API_URL}/user/candidates`, {
+            params: { page, size }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching candidates:", err);
+        throw err;
+    }
 };
 
 export const assignGroupToExam = async (examId, groupId) => {
