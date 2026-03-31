@@ -4714,10 +4714,9 @@ button:hover {
 
 .UserPagination .page-input:focus {
   border-color: #2563eb;
-  ring: 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* Remove arrows/spinners from number input for cleaner look */
 .UserPagination .page-input::-webkit-outer-spin-button,
 .UserPagination .page-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -4725,69 +4724,70 @@ button:hover {
 }
 
 .SelectorPagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
 }
 
 .SelectorPagination button {
-    padding: 2px 8px;
-    background: #e5e7eb;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 2px 8px;
+  background: #e5e7eb;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .SelectorPagination button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .selector-header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background-color: #f3f4f6;
-    border-bottom: 1px solid #e5e7eb;
-    border-radius: 4px 4px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 4px 4px 0 0;
 }
 
 .selection-counter {
-    font-size: 13px;
-    color: #4b5563;
+  font-size: 13px;
+  color: #4b5563;
 }
 
 .clear-selection-btn {
-    background: none;
-    border: none;
-    color: #dc2626; /* Red for destructive action */
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: underline;
+  background: none;
+  border: none;
+  color: #dc2626;
+  /* Red for destructive action */
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .clear-selection-btn:hover {
-    color: #991b1b;
+  color: #991b1b;
 }
 
 .no-candidates-msg {
-    padding: 20px;
-    text-align: center;
-    color: #9ca3af;
-    font-style: italic;
+  padding: 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .page-indicator {
-    font-size: 13px;
-    color: #6b7280;
-    min-width: 50px;
-    text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  min-width: 50px;
+  text-align: center;
 }
 
 /*FOR RESULT */
