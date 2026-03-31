@@ -14,8 +14,8 @@ public interface ExamService {
     Page<ExamResponseDTO> getExams(String adminEmail, int page, int size);
     Page<ExamResponseDTO> getExamsByStatus(String status, String adminEmail, int page, int size);
     void deleteExam(String id, String adminEmail);
-    void updateExam(String examId, String status);
+    void updateExam(String examId, String status, String adminEmail);
     void resendInvitation(String candidateId);
-    List<CandidateResponseDTO> assignGroupToExam(String examId, String groupId);
+    List<CandidateResponseDTO> assignGroupToExam(String examId, String groupId, String adminEmail);
     CandidateExamDTO getExamForCandidate(String examId);
 }

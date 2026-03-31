@@ -38,7 +38,7 @@ public class Exam
     @Column(nullable = false)
     private int totalScore;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private Users createdBy;
 }

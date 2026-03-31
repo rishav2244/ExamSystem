@@ -102,7 +102,7 @@ public class ExamServiceImpl implements ExamService {
 
     @Transactional
     @Override
-    public void updateExam(String examId, String status) {
+    public void updateExam(String examId, String status, String adminEmail) {
         log.info("Starting updateExam for ID: {} with status: {}", examId, status);
 
         //Update the status in the DB
@@ -110,13 +110,13 @@ public class ExamServiceImpl implements ExamService {
 
         //Handle side effects (like invitations)
         if ("PUBLISHED".equalsIgnoreCase(status)) {
-            sendInvitationsToUninvitedCandidates(examId);
+            sendInvitationsToUninvitedCandidates(examId,adminEmail);
         }
     }
 
     @Override
     @Transactional
-    public List<CandidateResponseDTO> assignGroupToExam(String groupId, String examId) {
+    public List<CandidateResponseDTO> assignGroupToExam(String groupId, String examId, String adminEmail) {
         // Stops early when exam is not found.
         Exam exam = findExamById(examId);
 
@@ -125,7 +125,7 @@ public class ExamServiceImpl implements ExamService {
 
         // Get list of existing emails among candidates FOR specific exam ID.
         // Assures that check is for email repetition in exam, allowing multiple exams per candidate.
-        List<String> existingEmails = examCandidateRepo.findByExamId(examId)
+        List<String> existingEmails = examCandidateRepo.findByExamIdAndAdminEmail(examId,adminEmail)
                 .stream()
                 .map(ExamCandidate::getEmail)
                 .toList();
@@ -225,8 +225,8 @@ public class ExamServiceImpl implements ExamService {
         }
     }
 
-    private void sendInvitationsToUninvitedCandidates(String examId) {
-        List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
+    private void sendInvitationsToUninvitedCandidates(String examId, String adminEmail) {
+        List<ExamCandidate> candidates = examCandidateRepo.findByExamIdAndAdminEmail(examId,adminEmail);
 
         List<ExamCandidate> toUpdate = candidates.stream()
                 .filter(c -> "UNINVITED".equals(c.getStatus()))

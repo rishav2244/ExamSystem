@@ -11,7 +11,13 @@ import java.util.List;
 
 @Repository
 public interface ExamCandidateRepo extends JpaRepository<ExamCandidate,String> {
-    List<ExamCandidate> findByExamId(String examId);
+    @Query("SELECT ec " +
+            "FROM ExamCandidate ec " +
+            "JOIN FETCH ec.exam e " +
+            "JOIN e.createdBy u " +
+            "WHERE u.email = :adminEmail " +
+            "AND e.id = :examId")
+    List<ExamCandidate> findByExamIdAndAdminEmail(String examId, String adminEmail);
 
     List<ExamCandidate> findByEmail(String email);
 

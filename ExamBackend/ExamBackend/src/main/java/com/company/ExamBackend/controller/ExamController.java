@@ -68,8 +68,10 @@ public class ExamController {
             description = "Used by admin to publish an exam."
     )
     @PostMapping("/publishExam/{examId}")
-    public ResponseEntity<String> publishExam(@PathVariable String examId) {
-        examService.updateExam(examId, "PUBLISHED");
+    public ResponseEntity<String> publishExam(
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        examService.updateExam(examId, "PUBLISHED",  userDetails.getUsername());
         return ResponseEntity.ok("Exam published");
     }
 
@@ -79,8 +81,11 @@ public class ExamController {
             description = "Used by admin to assign candidates of a group to exam."
     )
     @PostMapping("/Candidates/{examId}/{groupId}")
-    public ResponseEntity<List<CandidateResponseDTO>> setCandidate(@PathVariable String examId, @PathVariable String groupId) {
-        return ResponseEntity.ok(examService.assignGroupToExam(groupId, examId));
+    public ResponseEntity<List<CandidateResponseDTO>> setCandidate(
+            @PathVariable String examId,
+            @PathVariable String groupId,
+            @AuthenticationPrincipal  UserDetails userDetails) {
+        return ResponseEntity.ok(examService.assignGroupToExam(groupId, examId, userDetails.getUsername()));
     }
 
     //Deletes exam.

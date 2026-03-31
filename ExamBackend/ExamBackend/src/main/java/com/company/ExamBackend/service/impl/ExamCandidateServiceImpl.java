@@ -26,8 +26,8 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
 
     //Lists all candidates for respective exam.
     @Override
-    public List<CandidateResponseDTO> getCandidates(String examId) {
-        List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
+    public List<CandidateResponseDTO> getCandidates(String examId, String adminEmail) {
+        List<ExamCandidate> candidates = examCandidateRepo.findByExamIdAndAdminEmail(examId,adminEmail);
         return candidateMapper.toDTOList(candidates);
     }
 
