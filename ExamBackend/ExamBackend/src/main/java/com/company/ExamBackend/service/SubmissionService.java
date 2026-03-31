@@ -1,6 +1,7 @@
 package com.company.ExamBackend.service;
 
 import com.company.ExamBackend.dto.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -12,5 +13,5 @@ public interface SubmissionService {
     SubmissionDetailsDTO getSubmissionDetails(String submissionId, String adminEmail);
     SubmissionsOverviewDTO getSubmissionsOverview(String email);
     ResultMailResponseDTO sendResults(String examId, String adminEmail);
-    CandidateSubmissionsOverviewDTO fetchCandidateResults(String candidateEmail);
+    Page<CandidateSubmissionDetailDTO> fetchCandidateResults(String candidateEmail, int page, int size);
 }

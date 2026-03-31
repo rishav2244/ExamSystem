@@ -10,6 +10,9 @@ import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,16 +122,15 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public CandidateSubmissionsOverviewDTO fetchCandidateResults(String candidateEmail){
-        List<Object[]> fetchedResults = submissionRepository.getCandidateResults(candidateEmail);
-        CandidateSubmissionsOverviewDTO  candidateSubmissionsOverviewDTO = new CandidateSubmissionsOverviewDTO();
-        for (Object[] result : fetchedResults) {
-            candidateSubmissionsOverviewDTO.
-                    getCandidateSubmissionDetailDTO().
-                    add(submissionMapper.
-                            toCandidateSubmissionDetailDTO(result));
-        }
-        return candidateSubmissionsOverviewDTO;
+    public Page<CandidateSubmissionDetailDTO> fetchCandidateResults(String candidateEmail, int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        return submissionRepository
+                .getCandidateResults(
+                        candidateEmail,
+                        PageRequest.of(page, size, sort) // Pass the sort object here
+                )
+                .map(submissionMapper::toCandidateSubmissionDetailDTO);
     }
 
     // ======================================================================================

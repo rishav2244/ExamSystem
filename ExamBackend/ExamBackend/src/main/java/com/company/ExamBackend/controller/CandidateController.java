@@ -8,6 +8,7 @@ import com.company.ExamBackend.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -128,10 +129,13 @@ public class CandidateController {
             description = "Fetches results for exams for which candidate has appeared and results have been mailed."
     )
     @GetMapping("/results")
-    public ResponseEntity<CandidateSubmissionsOverviewDTO> getResults(
-            @AuthenticationPrincipal UserDetails userDetails
+    public ResponseEntity<Page<CandidateSubmissionDetailDTO>> getResults(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        CandidateSubmissionsOverviewDTO candidateSubmissionsOverview = submissionService.fetchCandidateResults(userDetails.getUsername());
+        Page<CandidateSubmissionDetailDTO> candidateSubmissionsOverview =
+                submissionService.fetchCandidateResults(userDetails.getUsername(), page, size);
         return ResponseEntity.ok(candidateSubmissionsOverview);
     }
 }

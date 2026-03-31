@@ -428,6 +428,31 @@ const refreshInstance = axios.create({
     baseURL: API_URL
 });
 
+export const sendResults = async (examId) => {
+    try {
+        const resp = await axios.post(`${API_URL}/submissions/send-results/${examId}`);
+        return resp.data;
+    } catch (err) {
+        console.error("Error sending results:", err);
+        throw err;
+    }
+};
+
+export const getCandidateResults = async (page = 0, size = 10) => {
+    try {
+        const resp = await axios.get(`${API_URL}/candidateUser/results`, {
+            params: {
+                page: page,
+                size: size
+            }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching results:", err);
+        throw err;
+    }
+};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));
@@ -440,24 +465,7 @@ axios.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-export const sendResults = async (examId) => {
-    try {
-        const resp = await axios.post(`${API_URL}/submissions/send-results/${examId}`);
-        return resp.data;
-    } catch (err) {
-        console.error("Error sending results:", err);
-        throw err;
-    }
-};
-export const getCandidateResults = async () => {
-    try {
-        const resp = await axios.get(`${API_URL}/candidateUser/results`);
-        return resp.data;
-    } catch (err) {
-        console.error("Error fetching results:", err);
-        throw err;
-    }
-};
+
 axios.interceptors.response.use(
     (response) => response,
     async (error) => {

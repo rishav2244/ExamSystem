@@ -3,8 +3,6 @@ package com.company.ExamBackend.controller;
 import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
-import com.company.ExamBackend.mapper.CandidateMapper;
-import com.company.ExamBackend.model.ExamCandidate;
 import com.company.ExamBackend.service.ExamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

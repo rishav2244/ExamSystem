@@ -113,5 +113,5 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
             "WHERE s.candidateEmail = :candidateEmail " +
             "AND s.status = 'COMPLETED'" +
             "AND s.mailed = true")
-    List<Object[]> getCandidateResults(String candidateEmail);
+    Page<Object[]> getCandidateResults(String candidateEmail, Pageable pageable);
 }
