@@ -3135,13 +3135,13 @@ button:hover {
 }
 
 .logout-btn {
-  background: #ef4444 !important;
+  background: #4055bc !important;
   color: white;
 }
-
+/* 
 .logout-btn:hover {
-  background: #dc2626 !important;
-}
+  background: #4b0fc2 !important;
+} */
 
 .score-pass {
   color: #16a34a;
@@ -4105,7 +4105,7 @@ button:hover {
   padding: 8px 14px;
   border: none;
   border-radius: 6px;
-  background: #2563EB;
+  background: #6d85ba;
   color: white;
   font-weight: 600;
   cursor: pointer;
