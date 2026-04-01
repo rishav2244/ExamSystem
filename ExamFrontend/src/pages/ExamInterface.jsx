@@ -5,6 +5,7 @@ import { QuestionCard } from '../components/cardType/QuestionCard';
 import { ExamHeader } from '../components/headerType/ExamHeader';
 import { ProctoringManager } from '../components/managerType/ProctoringManager';
 import { QuestionNavigation } from '../components/navType/QuestionNavigation';
+import { useNotification } from '../components/popupType/NotificationContext';
 
 export const ExamInterface = () => {
     const location = useLocation();
@@ -12,6 +13,7 @@ export const ExamInterface = () => {
     const { examId, submissionId, duration } = location.state || {};
     const auth = JSON.parse(sessionStorage.getItem("auth"));
     // const studentId = auth?.user?.id;
+    const { showNotification } = useNotification();
 
     const [examData, setExamData] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
@@ -77,9 +79,21 @@ export const ExamInterface = () => {
     };
 
     const handleFinish = async () => {
-        await finalizeExam(submissionId);
-        if (document.fullscreenElement) document.exitFullscreen();
-        navigate('/user');
+        try {
+            await finalizeExam(submissionId);
+
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            }
+
+            // Show the success popup and WAIT for user to click "Back to Dashboard"
+            await showNotification("Your exam has been submitted successfully!");
+
+            navigate('/user');
+        } catch (error) {
+            console.error("Submission failed", error);
+            // Optional: Show error notification here
+        }
     };
 
     if (!examData) return <div className="loading">Loading Exam...</div>;

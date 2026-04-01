@@ -4975,3 +4975,28 @@ button:hover {
   left: 50%;
   transform: translateX(-50%);
 }
+
+.success-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000; /* Higher than proctoring warnings */
+}
+
+.success-modal {
+    border-top: 5px solid #28a745;
+}
+
+.success-icon {
+    font-size: 3rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+.confirm-ok {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
