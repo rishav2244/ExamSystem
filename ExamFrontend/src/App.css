@@ -3138,6 +3138,7 @@ button:hover {
   background: #4055bc !important;
   color: white;
 }
+
 /* 
 .logout-btn:hover {
   background: #4b0fc2 !important;
@@ -4967,4 +4968,10 @@ button:hover {
 
 .view-results-btn:active {
   transform: scale(0.97);
+}
+
+.cutoff-input-wrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
