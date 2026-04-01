@@ -85,14 +85,11 @@ export const ExamInterface = () => {
             if (document.fullscreenElement) {
                 await document.exitFullscreen();
             }
-
-            // Show the success popup and WAIT for user to click "Back to Dashboard"
             await showNotification("Your exam has been submitted successfully!");
 
             navigate('/user');
         } catch (error) {
             console.error("Submission failed", error);
-            // Optional: Show error notification here
         }
     };
 

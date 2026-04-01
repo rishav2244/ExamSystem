@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Outlet } from 'react-router-dom'; // <--- Add this
+import { Outlet } from 'react-router-dom';
 
 const NotificationContext = createContext();
 
-export const NotificationProvider = () => { // Removed {children} from props
+export const NotificationProvider = () => { 
     const [config, setConfig] = useState({ isOpen: false, message: "" });
 
     const showNotification = (message) => {
@@ -19,10 +19,7 @@ export const NotificationProvider = () => { // Removed {children} from props
 
     return (
         <NotificationContext.Provider value={{ showNotification }}>
-            {/* 1. Render child routes here */}
             <Outlet /> 
-
-            {/* 2. Your Popup Overlay */}
             {config.isOpen && (
                 <div className="popup-overlay success-overlay">
                     <div className="popup-modal success-modal">
