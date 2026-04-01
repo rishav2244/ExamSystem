@@ -16,6 +16,7 @@ import { Submissions } from "./pages/Submissions";
 import { SubmissionReview } from "./pages/SubmissionReview";
 import { SnapshotGallery } from "./pages/SnapshotGallery";
 import { SubmissionsOverallStatistics } from "./pages/SubmissionsOverallStatistics";
+import { NotificationProvider } from "./components/popupType/NotificationContext";
 
 import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
 import { Register } from "./pages/Register";
@@ -32,11 +33,14 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/user" element={<Candidate />} />
 
-            <Route path="/candidate/exam-setup" element={<CandidateExamSetup />} />
+            <Route element={<NotificationProvider />}>
+              <Route path="/user" element={<Candidate />} />
 
-            <Route path="/candidate/exam-room" element={<ExamInterface />} />
+              <Route path="/candidate/exam-setup" element={<CandidateExamSetup />} />
+
+              <Route path="/candidate/exam-room" element={<ExamInterface />} />
+            </Route>
 
 
             <Route element={<AdminRoute />}>
