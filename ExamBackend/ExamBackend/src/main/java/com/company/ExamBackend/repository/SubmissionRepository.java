@@ -20,7 +20,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
 
     // Fetches submissions for an exam ONLY if that exam belongs to the admin
     @Query("SELECT s FROM Submission s WHERE s.exam.id = :examId AND s.exam.createdBy.email = :adminEmail")
-    List<Submission> findByExamIdAndAdminEmail(String examId, String adminEmail);
+    Page<Submission> findByExamIdAndAdminEmail(String examId, String adminEmail, Pageable pageable);
 
     // Fetches a single submission details ONLY if it belongs to the admin's exam
     @Query("SELECT s FROM Submission s WHERE s.id = :submissionId AND s.exam.createdBy.email = :adminEmail")

@@ -12,6 +12,7 @@ import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,9 +64,14 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
-    public List<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail) {
-        // Uses your @Query to filter submissions belonging to the admin's exam
-        List<Submission> submissions = submissionRepository.findByExamIdAndAdminEmail(examId, adminEmail);
+    public Page<SubmissionResponseDTO> getSubmissionsByExam(
+            String examId,
+            String adminEmail,
+            int page,
+            int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Submission> submissions = submissionRepository.findByExamIdAndAdminEmail(examId, adminEmail, pageable);
         return submissionMapper.toDTOList(submissions);
     }
 

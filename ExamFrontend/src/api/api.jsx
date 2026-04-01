@@ -344,9 +344,14 @@ export const getSubmissionsOverview = async () => {
     }
 };
 
-export const getSubmissionsByExam = async (examId) => {
+export const getSubmissionsByExam = async (examId, page = 0, size = 10) => {
     try {
-        const resp = await axios.get(`${API_URL}/submissions/exam/${examId}`);
+        const resp = await axios.get(`${API_URL}/submissions/exam/${examId}`, {
+            params: {
+                page: page,
+                size: size
+            }
+        });
         return resp.data;
     } catch (err) {
         console.error("Error fetching submissions:", err);

@@ -5,6 +5,7 @@ import com.company.ExamBackend.model.Answer;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.Question;
 import com.company.ExamBackend.model.Submission;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -43,8 +44,8 @@ public class SubmissionMapper {
                 .build();
     }
 
-    public List<SubmissionResponseDTO> toDTOList(List<Submission> submissions) {
-        return submissions.stream().map(this::toResponseDTO).toList();
+    public Page<SubmissionResponseDTO> toDTOList(Page<Submission> submissions) {
+        return submissions.map(this::toResponseDTO);
     }
 
     public SubmissionDetailsDTO toDetailsDTO(Submission submission, List<Question> questions, List<Answer> answers) {
