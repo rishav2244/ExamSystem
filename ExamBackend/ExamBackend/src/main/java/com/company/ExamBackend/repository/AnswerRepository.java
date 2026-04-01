@@ -30,15 +30,16 @@ public interface AnswerRepository extends JpaRepository<Answer, String> {
             "WHERE a.submission.id = :submissionId")
     List<Answer> findBySubmissionIdWithDetails(@Param("submissionId") String submissionId);
 
-    @Query("SELECT COALESCE(SUM(a.question.marks * 1.0), 0.0), " +
-            "(CASE WHEN (COALESCE(SUM(a.question.marks * 1.0), 0.0) >= " +
-            "(a.submission.exam.totalScore * a.submission.exam.cutoff / 100.0)) " +
-            "THEN true ELSE false END) " +
-            "FROM Answer a " +
-            "WHERE a.submission.id = :submissionId " +
-            "AND a.submission.candidateEmail = :candidateEmail " +
-            "AND a.selectedOption.isCorrect = true " +
-            "GROUP BY a.submission.exam.cutoff, a.submission.exam.totalScore")
+    @Query("SELECT " +
+            "COALESCE(SUM(CASE WHEN o.isCorrect = true THEN q.marks ELSE 0 END), 0.0), " +
+            "(CASE WHEN COALESCE(SUM(CASE WHEN o.isCorrect = true THEN q.marks ELSE 0 END), 0.0) >= " +
+            "(s.exam.totalScore * s.exam.cutoff / 100.0) THEN true ELSE false END) " +
+            "FROM Submission s " +
+            "LEFT JOIN Answer a ON a.submission.id = s.id " +
+            "LEFT JOIN a.question q " +
+            "LEFT JOIN a.selectedOption o " +
+            "WHERE s.id = :submissionId AND s.candidateEmail = :candidateEmail " +
+            "GROUP BY s.id, s.exam.totalScore, s.exam.cutoff")
     List<Object[]> calculateResult(@Param("submissionId") String submissionId, @Param("candidateEmail") String candidateEmail);
 
     @Modifying

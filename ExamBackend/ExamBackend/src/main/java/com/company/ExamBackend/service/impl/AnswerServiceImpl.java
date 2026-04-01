@@ -52,25 +52,29 @@ public class AnswerServiceImpl implements AnswerService {
     @Override
     @Transactional
     public void finalizeSubmission(String submissionId, String candidateEmail) {
-        Submission submission = submissionRepository.findByIdAndCandidateEmail(submissionId,  candidateEmail);
+        Submission submission = submissionRepository.findByIdAndCandidateEmail(submissionId, candidateEmail);
 
-        if(submission == null){
-            throw new SubmissionNotFoundException("Possible BOLA attempt.");
+        if (submission == null) {
+            throw new SubmissionNotFoundException("Submission not found or access denied.");
         }
 
-        if ("COMPLETED".equals(submission.getStatus())) return; //Prevents evaluating over existing attempt
+        if ("COMPLETED".equals(submission.getStatus())) return;
 
+        // This will now return [0.0, false] even if all answers are wrong or missing
         List<Object[]> evaluatedResult = answerRepository.calculateResult(submissionId, candidateEmail);
 
+        if (evaluatedResult.isEmpty()) {
+            // This should theoretically never happen now unless the ID is wrong
+            throw new RuntimeException("Evaluation failed to produce a result.");
+        }
+
+        double score = ((Number) evaluatedResult.get(0)[0]).doubleValue();
+        boolean passed = (boolean) evaluatedResult.get(0)[1];
+
         int minutesTaken = calculateTimeTaken(submission.getCreatedAt());
+        applyFinalSubmissionDetails(submission, score, minutesTaken, passed);
 
-        applyFinalSubmissionDetails(
-                submission, //Existing submission entry
-                (double) evaluatedResult.get(0)[0], //Score of candidate
-                minutesTaken, //time taken in minutes
-                (boolean) evaluatedResult.get(0)[1]); // Passed or not
-
-        emailService.sendExamCompletionConfirmation(submission.getCandidateEmail(),submission.getExam().getTitle());
+        emailService.sendExamCompletionConfirmation(submission.getCandidateEmail(), submission.getExam().getTitle());
     }
 
     // ======================================================================================
