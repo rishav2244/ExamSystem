@@ -116,41 +116,36 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     @Transactional
-    public List<CandidateResponseDTO> assignGroupToExam(String groupId, String examId, String adminEmail) {
-        // Stops early when exam is not found.
+    public String assignGroupToExam(String groupId, String examId, String adminEmail) {
         Exam exam = findExamById(examId);
+        int pageSize = 100;
+        int totalAssigned = 0;
+        Page<Users> usersPage;
 
-        // List all existing members for group ID.
-        List<GroupMember> sourceMembers = groupMemberRepository.findByGroupId(groupId);
+        do {
+            usersPage = examCandidateRepo.findUsersInGroupNotInExam(groupId, examId, PageRequest.of(0, pageSize));
 
-        // Get list of existing emails among candidates FOR specific exam ID.
-        // Assures that check is for email repetition in exam, allowing multiple exams per candidate.
-        List<String> existingEmails = examCandidateRepo.findByExamIdAndAdminEmail(examId,adminEmail)
-                .stream()
-                .map(ExamCandidate::getEmail)
-                .toList();
+            List<ExamCandidate> newCandidates = usersPage.getContent().stream()
+                    .map(user -> {
+                        ExamCandidate ec = new ExamCandidate();
+                        ec.setExam(exam);
+                        ec.setEmail(user.getEmail());
+                        ec.setName(user.getName());
+                        ec.setStatus("UNINVITED");
+                        return ec;
+                    }).toList();
 
-        // We make a list of ExamCandidate that we save.
-        List<ExamCandidate> newCandidates = sourceMembers.stream()
-                .map(GroupMember::getUser) //Maps each user in a group to what we want to work with.
-                .filter(user -> !existingEmails.contains(user.getEmail()))// Doesn't allow users from
-                // the exam whose email already exists in the list for the exam.
-                .map(user -> {
-                    ExamCandidate ec = new ExamCandidate();
-                    ec.setExam(exam);
-                    ec.setEmail(user.getEmail());
-                    ec.setName(user.getName());
-                    ec.setStatus("UNINVITED");
-                    return ec;
-                }).toList();
+            if (!newCandidates.isEmpty()) {
+                examCandidateRepo.saveAll(newCandidates);
+                totalAssigned += newCandidates.size();
+                
+                entityManager.flush();
+                entityManager.clear();
+            }
 
-        //Make sure we aren't trying to save empty lists.
-        if (!newCandidates.isEmpty()) {
-            List<ExamCandidate> saved = examCandidateRepo.saveAll(newCandidates);
-            return candidateMapper.toDTOList(saved);
-        }
+        } while (usersPage.hasContent());
 
-        return List.of();
+        return totalAssigned + " new candidates assigned to the exam.";
     }
 
     @Override

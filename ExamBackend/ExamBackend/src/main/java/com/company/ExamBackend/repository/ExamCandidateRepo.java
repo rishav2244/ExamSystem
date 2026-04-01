@@ -1,6 +1,7 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.ExamCandidate;
+import com.company.ExamBackend.model.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,6 +29,16 @@ public interface ExamCandidateRepo extends JpaRepository<ExamCandidate,String> {
             "WHERE u.email = :adminEmail " +
             "AND e.id = :examId")
     Page<ExamCandidate> findByExamIdAndAdminEmail(String examId, String adminEmail, Pageable pageable);
+
+    @Query("SELECT gm.user " +
+            "FROM GroupMember gm " +
+            "WHERE gm.group.id = :groupId " +
+            "AND gm.user.email NOT IN ( " +
+            "SELECT ec.email " +
+            "FROM ExamCandidate ec " +
+            "WHERE ec.exam.id = :examId" +
+            " )")
+    Page<Users> findUsersInGroupNotInExam(String groupId, String examId, Pageable pageable);
 
     @Query("SELECT ec FROM ExamCandidate ec WHERE ec.exam.id = :examId AND ec.status = 'UNINVITED'")
     Page<ExamCandidate> findUninvitedByExamId(String examId, Pageable pageable);

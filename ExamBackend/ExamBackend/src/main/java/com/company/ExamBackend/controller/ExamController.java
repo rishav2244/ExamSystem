@@ -79,7 +79,7 @@ public class ExamController {
             description = "Used by admin to assign candidates of a group to exam."
     )
     @PostMapping("/Candidates/{examId}/{groupId}")
-    public ResponseEntity<List<CandidateResponseDTO>> setCandidate(
+    public ResponseEntity<String> setCandidate(
             @PathVariable String examId,
             @PathVariable String groupId,
             @AuthenticationPrincipal  UserDetails userDetails) {
