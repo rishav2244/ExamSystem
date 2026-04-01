@@ -24,6 +24,8 @@ public class Option {
     @Column(nullable = false)
     private int optionIndex;
 
+//    Fetch Type is lazy since we usually fetch Option from Question and note vice versa.
+//    When we do fetch specific options, we usually do it to check if specific answer is correct or not.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;

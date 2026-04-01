@@ -7,6 +7,6 @@ import com.company.ExamBackend.dto.QuestionResponseDTO;
 import java.util.List;
 
 public interface QuestionService {
-    void saveQuestions(String examId, ExamSetupDTO examSetupDTO);
-    List<QuestionResponseDTO> getQuestionsForExam(String examId);
+    void saveQuestions(String examId, ExamSetupDTO examSetupDTO, String adminEmail);
+    List<QuestionResponseDTO> getQuestionsForExam(String examId, String adminEmail);
 }

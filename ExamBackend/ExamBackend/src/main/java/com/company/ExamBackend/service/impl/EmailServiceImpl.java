@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,5 +87,17 @@ public class EmailServiceImpl implements EmailService {
             }
         }
         return resultMailResponseDTO;
+    }
+
+    @Async
+    @Override
+    public void sendExamCompletionConfirmation(String to, String examTitle)
+    {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Exam Completion Confirmation");
+        message.setText("Your submission for the exam "+examTitle+" has been successfully received." +
+                " You will be mailed your results and will be able to see the same in your dashboard.");
+        mailSender.send(message);
     }
 }

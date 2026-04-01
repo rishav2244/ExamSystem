@@ -1,0 +1,145 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getCandidateResults } from "../api/api";
+
+export const CandidateResults = () => {
+    const [results, setResults] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [pageSize] = useState(5); // Matches your preference
+    
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchResults(currentPage);
+    }, [currentPage]);
+
+    const fetchResults = async (page) => {
+        try {
+            const data = await getCandidateResults(page, pageSize);
+            setResults(data.content || []);
+            setTotalPages(data.totalPages || 0);
+        } catch (err) {
+            console.error("Failed to fetch results:", err);
+        }
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
+    // Handler for the "Page Jump" input field
+    const handleInputChange = (e) => {
+        const val = e.target.value;
+        if (val === "") return;
+        
+        const pageNum = parseInt(val, 10) - 1; // Convert to 0-indexed
+        if (pageNum >= 0 && pageNum < totalPages) {
+            setCurrentPage(pageNum);
+        }
+    };
+
+    return (
+        <div className="results-page">
+            <div className="top-bar">
+                <button className="back-btn" onClick={() => navigate(-1)}>
+                    Back
+                </button>
+
+                <div className="page-title">
+                    <h2>Results</h2>
+                    <p>Your exam performance overview</p>
+                </div>
+            </div>
+
+            <div className="table-card">
+                <table className="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Exam Title</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {results.length === 0 ? (
+                            <tr>
+                                <td colSpan="7" className="empty">No results available</td>
+                            </tr>
+                        ) : (
+                            results.map((res, index) => {
+                                const percent = ((res.score / res.totalScore) * 100).toFixed(1);
+                                const rowNumber = (currentPage * pageSize) + index + 1;
+
+                                return (
+                                    <tr key={index}>
+                                        <td className="index">{rowNumber}</td>
+                                        <td className="title"><strong>{res.title}</strong></td>
+                                        <td className="date">
+                                            {new Date(res.date).toLocaleDateString()}
+                                            <div className="sub-text">
+                                                {new Date(res.date).toLocaleTimeString()}
+                                            </div>
+                                        </td>
+                                        <td className="score">
+                                            {res.score}
+                                            <span> / {res.totalScore}</span>
+                                        </td>
+                                        <td className={`percent ${percent >= 50 ? "good" : "bad"}`}>
+                                            {percent}%
+                                        </td>
+                                        <td>
+                                            <span className={`status ${res.passed ? "pass" : "fail"}`}>
+                                                {res.passed ? "Pass" : "Fail"}
+                                            </span>
+                                        </td>
+                                        <td className="time">{res.timeTaken} min</td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
+
+                {/* Using your existing UserPagination CSS structure */}
+                {totalPages > 1 && (
+                    <div className="UserPagination">
+                        <button 
+                            disabled={currentPage === 0} 
+                            onClick={() => handlePageChange(currentPage - 1)}
+                        >
+                            Previous
+                        </button>
+                        
+                        <div className="page-jump-container">
+                            <span>Page</span>
+                            <input 
+                                type="number" 
+                                className="page-input"
+                                value={currentPage + 1}
+                                onChange={handleInputChange}
+                                min="1"
+                                max={totalPages}
+                            />
+                            <span>of {totalPages}</span>
+                        </div>
+
+                        <button 
+                            disabled={currentPage >= totalPages - 1} 
+                            onClick={() => handlePageChange(currentPage + 1)}
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};

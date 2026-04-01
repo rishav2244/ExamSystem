@@ -4,6 +4,7 @@ import com.company.ExamBackend.dto.ExamSetupDTO;
 import com.company.ExamBackend.dto.QuestionDTO;
 import com.company.ExamBackend.dto.QuestionResponseDTO;
 import com.company.ExamBackend.exception.ExamNotFoundException;
+import com.company.ExamBackend.exception.InvalidActionException;
 import com.company.ExamBackend.mapper.QuestionMapper;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.Question;
@@ -29,8 +30,14 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     @Transactional
-    public void saveQuestions(String examId, ExamSetupDTO examSetupDTO) {
+    public void saveQuestions(
+            String examId,
+            ExamSetupDTO examSetupDTO,
+            String adminEmail) {
         Exam exam = findExamById(examId);
+        if(!exam.getCreatedBy().getEmail().equals(adminEmail)){
+            throw new InvalidActionException("Email does not match exam creator.");
+        }
         questionRepository.deleteByParentExamId(examId);
 
         int totalScore = examSetupDTO.getQuestions().stream()
@@ -46,9 +53,11 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<QuestionResponseDTO> getQuestionsForExam(String examId) {
+    public List<QuestionResponseDTO> getQuestionsForExam(
+            String examId,
+            String adminEmail) {
         validateExamExists(examId);
-        List<Question> questions = questionRepository.findAllByExamIdWithOptions(examId);
+        List<Question> questions = questionRepository.findAllByExamIdWithOptions(examId, adminEmail);
         return questionMapper.toResponseDtoList(questions);
     }
 

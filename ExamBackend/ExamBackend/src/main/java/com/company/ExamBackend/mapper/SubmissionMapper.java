@@ -5,6 +5,7 @@ import com.company.ExamBackend.model.Answer;
 import com.company.ExamBackend.model.Exam;
 import com.company.ExamBackend.model.Question;
 import com.company.ExamBackend.model.Submission;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -39,11 +40,12 @@ public class SubmissionMapper {
                 .status(submission.getStatus())
                 .passed(submission.isPassed())
                 .violations(submission.getViolations())
+                .mailed(submission.isMailed())
                 .build();
     }
 
-    public List<SubmissionResponseDTO> toDTOList(List<Submission> submissions) {
-        return submissions.stream().map(this::toResponseDTO).toList();
+    public Page<SubmissionResponseDTO> toDTOList(Page<Submission> submissions) {
+        return submissions.map(this::toResponseDTO);
     }
 
     public SubmissionDetailsDTO toDetailsDTO(Submission submission, List<Question> questions, List<Answer> answers) {
@@ -63,7 +65,7 @@ public class SubmissionMapper {
         return dto;
     }
 
-    private QuestionResultDTO toQuestionResultDTO(Question question, Answer answer) {
+    public QuestionResultDTO toQuestionResultDTO(Question question, Answer answer) {
         QuestionResultDTO qr = new QuestionResultDTO();
         qr.setQuestionId(question.getId());
         qr.setQuestionText(question.getText());
@@ -85,5 +87,16 @@ public class SubmissionMapper {
             qr.setCorrect(false);
         }
         return qr;
+    }
+
+    public CandidateSubmissionDetailDTO toCandidateSubmissionDetailDTO(Object[] objects) {
+        CandidateSubmissionDetailDTO dto = new CandidateSubmissionDetailDTO();
+        dto.setScore(objects[0] != null ? ((Number) objects[0]).doubleValue() : 0.0);
+        dto.setPassed((Boolean) objects[1]);
+        dto.setTimeTaken(objects[2] != null ? ((Number) objects[2]).intValue() : 0);
+        dto.setDate((Instant) objects[3]);
+        dto.setTotalScore(objects[4] != null ? ((Number) objects[4]).doubleValue() : 0.0);
+        dto.setTitle((String) objects[5]);
+        return dto;
     }
 }

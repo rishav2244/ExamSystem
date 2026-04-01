@@ -10,6 +10,10 @@ import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,22 +51,27 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     @Override
     @Transactional
-    public StartExamResponseDTO startExam(StartExamRequestDTO dto) {
+    public StartExamResponseDTO startExam(StartExamRequestDTO dto, String email) {
         Exam exam = findExamById(dto.getExamId());
 
-        performEligibilityChecks(exam, dto.getCandidateEmail());
+        performEligibilityChecks(exam, email);
 
         Submission submission = createSubmissionEntity(dto, exam);
-        updateCandidateStatus(dto.getExamId(), dto.getCandidateEmail(), "ATTEMPTED");
+        updateCandidateStatus(dto.getExamId(), email, "ATTEMPTED");
 
         String savedId = submissionRepository.save(submission).getId();
         return new StartExamResponseDTO(savedId, exam.getDuration());
     }
 
     @Override
-    public List<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail) {
-        // Uses your @Query to filter submissions belonging to the admin's exam
-        List<Submission> submissions = submissionRepository.findByExamIdAndAdminEmail(examId, adminEmail);
+    public Page<SubmissionResponseDTO> getSubmissionsByExam(
+            String examId,
+            String adminEmail,
+            int page,
+            int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Submission> submissions = submissionRepository.findByExamIdAndAdminEmail(examId, adminEmail, pageable);
         return submissionMapper.toDTOList(submissions);
     }
 
@@ -72,7 +81,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         Submission submission = submissionRepository.findByIdAndAdminEmail(submissionId, adminEmail)
                 .orElseThrow(() -> new SubmissionNotFoundException("SUBMISSION_NOT_FOUND_OR_ACCESS_DENIED"));
 
-        var questions = questionRepository.findAllByExamIdWithOptions(submission.getExam().getId());
+        var questions = questionRepository.findAllByExamIdWithOptions(submission.getExam().getId(), adminEmail);
         var answers = answerRepository.findBySubmissionIdWithDetails(submissionId);
 
         return submissionMapper.toDetailsDTO(submission, questions, answers);
@@ -116,6 +125,18 @@ public class SubmissionServiceImpl implements SubmissionService {
         }
 
         return resultMailResponseDTO;
+    }
+
+    @Override
+    public Page<CandidateSubmissionDetailDTO> fetchCandidateResults(String candidateEmail, int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        return submissionRepository
+                .getCandidateResults(
+                        candidateEmail,
+                        PageRequest.of(page, size, sort) // Pass the sort object here
+                )
+                .map(submissionMapper::toCandidateSubmissionDetailDTO);
     }
 
     // ======================================================================================

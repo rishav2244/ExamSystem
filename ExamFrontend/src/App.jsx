@@ -20,6 +20,7 @@ import { SubmissionsOverallStatistics } from "./pages/SubmissionsOverallStatisti
 import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
 import { Register } from "./pages/Register";
 
+import { CandidateResults } from "./pages/CandidateResults";
 function App() {
   return (
     <AuthenticationContextProvider>
@@ -43,7 +44,8 @@ function App() {
               <Route path="/admin" element={<AdminLayout />}>
 
 
-                <Route index element={<Admin />} />
+                {/* <Route index element={<Admin />} /> */}
+                <Route index element={<SubmissionsOverallStatistics />} />
 
                 <Route path="exams" element={<Admin />} />
 
@@ -64,7 +66,7 @@ function App() {
               </Route>
             </Route>
           </Route>
-
+          <Route path="/candidate/results" element={<CandidateResults />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

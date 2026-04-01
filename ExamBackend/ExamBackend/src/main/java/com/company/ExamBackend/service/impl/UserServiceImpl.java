@@ -15,6 +15,8 @@ import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -183,13 +185,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserHeavyDTO> getCandidates() {
-        return userRepository.findAllByRole("CANDIDATE").stream().map(userMapper::toUserHeavy).toList();
+    public Page<UserHeavyDTO> getCandidates(Pageable pageable) {
+        return userRepository.findAllByRole("CANDIDATE", pageable).map(userMapper::toUserHeavy);
     }
 
     @Override
-    public List<UserHeavyDTO> getUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserHeavy).toList();
+    public Page<UserHeavyDTO> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toUserHeavy);
     }
 
     @Override
@@ -222,8 +224,17 @@ public class UserServiceImpl implements UserService {
     }
 
     private String validateAndNormalizeEmail(String email) {
-        if (email == null || email.isBlank()) throw new InvalidActionException("Email field is blank");
-        return email.toLowerCase().trim();
+        if (email == null || email.isBlank()) {
+            throw new InvalidActionException("Email field is blank");
+        }
+
+        String cleanEmail = email.toLowerCase().trim();
+
+        if (isInvalidEmailFormat(cleanEmail)) {
+            throw new InvalidActionException("Invalid email format");
+        }
+
+        return cleanEmail;
     }
 
     private void checkCollisions(String email, List<String> existingInDb, java.util.Set<String> processed) {
@@ -414,5 +425,11 @@ public class UserServiceImpl implements UserService {
     // 6-digit OTP
     private String generateNumericOtp() {
         return String.valueOf(new java.util.Random().nextInt(900000) + 100000);
+    }
+
+    private boolean isInvalidEmailFormat(String email) {
+        // Standard basic regex
+        String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        return email == null || !email.matches(regex);
     }
 }

@@ -61,9 +61,18 @@ export const Candidate = () => {
     return (
         <div className="AdminOverall">
             <CandidateHeader />
-
             <div className="CandidateDashboard">
-                <h2 className="dashboard-title">Candidate Dashboard</h2>
+
+                <div className="dashboard-header">
+                    <h2 className="dashboard-title">Candidate Dashboard</h2>
+
+                    <button
+                        className="view-results-btn"
+                        onClick={() => navigate("/candidate/results")}
+                    >
+                        View Results
+                    </button>
+                </div>
 
                 {exams.length === 0 && (
                     <p className="empty-text">No exams assigned.</p>
@@ -78,7 +87,6 @@ export const Candidate = () => {
                             isEligible={eligibleExams[exam.examId]}
                         />
                     ))}
-
                 </div>
             </div>
         </div>

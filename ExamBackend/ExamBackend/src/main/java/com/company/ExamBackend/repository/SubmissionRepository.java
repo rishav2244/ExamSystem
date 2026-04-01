@@ -1,12 +1,17 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.Submission;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,15 +20,24 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
 
     // Fetches submissions for an exam ONLY if that exam belongs to the admin
     @Query("SELECT s FROM Submission s WHERE s.exam.id = :examId AND s.exam.createdBy.email = :adminEmail")
-    List<Submission> findByExamIdAndAdminEmail(String examId, String adminEmail);
+    Page<Submission> findByExamIdAndAdminEmail(String examId, String adminEmail, Pageable pageable);
 
     // Fetches a single submission details ONLY if it belongs to the admin's exam
     @Query("SELECT s FROM Submission s WHERE s.id = :submissionId AND s.exam.createdBy.email = :adminEmail")
     Optional<Submission> findByIdAndAdminEmail(String submissionId, String adminEmail);
 
-    List<Submission> findByStatus(String status);
+//    Slice<Submission> findByStatus(String status, Pageable pageable);
+
+    @Query(nativeQuery = true, value = "SELECT s.* " +
+            "FROM Submission s " +
+            "JOIN Exam e ON s.exam_id = e.id " +
+            "WHERE s.status = 'IN_PROGRESS' " +
+            "AND (s.created_at + (e.duration * INTERVAL '1 minute')) < :now")
+    Slice<Submission> findExpiredSubmissions(@Param("now") Instant now, Pageable pageable);
 
     boolean existsByExamIdAndCandidateEmail(String examId, String candidateEmail);
+
+    Submission findByIdAndCandidateEmail(String submissionId, String candidateEmail);
 
     List<Submission> findByExamId(String examId);
 
@@ -92,4 +106,12 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
     @Query("UPDATE Submission s SET s.mailed = true " +
             "WHERE s.exam.id = :examId AND s.candidateEmail IN :emails")
     void markMultipleAsMailed(String examId, List<String> emails);
+
+    @Query("SELECT s.score, s.passed, s.timeTaken, s.createdAt, " +
+            "s.exam.totalScore, s.exam.title " +
+            "FROM Submission s " +
+            "WHERE s.candidateEmail = :candidateEmail " +
+            "AND s.status = 'COMPLETED'" +
+            "AND s.mailed = true")
+    Page<Object[]> getCandidateResults(String candidateEmail, Pageable pageable);
 }

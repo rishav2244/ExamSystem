@@ -59,4 +59,10 @@ public class SubmissionResponseDTO {
             description = "Whether the candidate passed the exam."
     )
     private boolean passed;
+
+    @Schema(
+            example = "true",
+            description = "Whether the candidate has been mailed their results."
+    )
+    private boolean mailed;
 }

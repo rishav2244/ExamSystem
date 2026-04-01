@@ -9,6 +9,10 @@ import com.company.ExamBackend.model.ExamCandidate;
 import com.company.ExamBackend.repository.ExamCandidateRepo;
 import com.company.ExamBackend.service.ExamCandidateService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +30,14 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
 
     //Lists all candidates for respective exam.
     @Override
-    public List<CandidateResponseDTO> getCandidates(String examId) {
-        List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
+    public Page<CandidateResponseDTO> getCandidates(
+            String examId,
+            String adminEmail,
+            int page,
+            int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<ExamCandidate> candidates = examCandidateRepo.findByExamIdAndAdminEmail(examId,adminEmail,pageable);
         return candidateMapper.toDTOList(candidates);
     }
 

@@ -18,6 +18,10 @@ import com.company.ExamBackend.service.SnapshotService;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,20 +63,18 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
-    public List<ExamResponseDTO> getExams(String adminEmail) {
-        // Java 17 .toList() creates an unmodifiable list and is more concise
-        return examRepository.findByCreatedBy_Email(adminEmail)
-                .stream()
-                .map(examMapper::toDTO)
-                .toList();
+    public Page<ExamResponseDTO> getExams(String adminEmail, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("endTime").descending());
+        return examRepository.findByCreatedBy_Email(adminEmail, pageable)
+                .map(examMapper::toDTO);
     }
 
     @Override
-    public List<ExamResponseDTO> getExamsByStatus(String status, String adminEmail) {
-        return examRepository.findByStatusAndCreatedBy_Email(status, adminEmail)
-                .stream()
-                .map(examMapper::toDTO)
-                .toList();
+    public Page<ExamResponseDTO> getExamsByStatus(String status, String adminEmail, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("endTime").descending());
+
+        return examRepository.findByStatusAndCreatedBy_Email(status, adminEmail, pageable)
+                .map(examMapper::toDTO);
     }
 
     @Transactional
@@ -100,7 +102,7 @@ public class ExamServiceImpl implements ExamService {
 
     @Transactional
     @Override
-    public void updateExam(String examId, String status) {
+    public void updateExam(String examId, String status, String adminEmail) {
         log.info("Starting updateExam for ID: {} with status: {}", examId, status);
 
         //Update the status in the DB
@@ -108,47 +110,42 @@ public class ExamServiceImpl implements ExamService {
 
         //Handle side effects (like invitations)
         if ("PUBLISHED".equalsIgnoreCase(status)) {
-            sendInvitationsToUninvitedCandidates(examId);
+            sendInvitationsToUninvitedCandidates(examId,adminEmail);
         }
     }
 
     @Override
     @Transactional
-    public List<CandidateResponseDTO> assignGroupToExam(String groupId, String examId) {
-        // Stops early when exam is not found.
+    public String assignGroupToExam(String groupId, String examId, String adminEmail) {
         Exam exam = findExamById(examId);
+        int pageSize = 100;
+        int totalAssigned = 0;
+        Page<Users> usersPage;
 
-        // List all existing members for group ID.
-        List<GroupMember> sourceMembers = groupMemberRepository.findByGroupId(groupId);
+        do {
+            usersPage = examCandidateRepo.findUsersInGroupNotInExam(groupId, examId, PageRequest.of(0, pageSize));
 
-        // Get list of existing emails among candidates FOR specific exam ID.
-        // Assures that check is for email repetition in exam, allowing multiple exams per candidate.
-        List<String> existingEmails = examCandidateRepo.findByExamId(examId)
-                .stream()
-                .map(ExamCandidate::getEmail)
-                .toList();
+            List<ExamCandidate> newCandidates = usersPage.getContent().stream()
+                    .map(user -> {
+                        ExamCandidate ec = new ExamCandidate();
+                        ec.setExam(exam);
+                        ec.setEmail(user.getEmail());
+                        ec.setName(user.getName());
+                        ec.setStatus("UNINVITED");
+                        return ec;
+                    }).toList();
 
-        // We make a list of ExamCandidate that we save.
-        List<ExamCandidate> newCandidates = sourceMembers.stream()
-                .map(GroupMember::getUser) //Maps each user in a group to what we want to work with.
-                .filter(user -> !existingEmails.contains(user.getEmail()))// Doesn't allow users from
-                // the exam whose email already exists in the list for the exam.
-                .map(user -> {
-                    ExamCandidate ec = new ExamCandidate();
-                    ec.setExam(exam);
-                    ec.setEmail(user.getEmail());
-                    ec.setName(user.getName());
-                    ec.setStatus("UNINVITED");
-                    return ec;
-                }).toList();
+            if (!newCandidates.isEmpty()) {
+                examCandidateRepo.saveAll(newCandidates);
+                totalAssigned += newCandidates.size();
+                
+                entityManager.flush();
+                entityManager.clear();
+            }
 
-        //Make sure we aren't trying to save empty lists.
-        if (!newCandidates.isEmpty()) {
-            List<ExamCandidate> saved = examCandidateRepo.saveAll(newCandidates);
-            return candidateMapper.toDTOList(saved);
-        }
+        } while (usersPage.hasContent());
 
-        return List.of();
+        return totalAssigned + " new candidates assigned to the exam.";
     }
 
     @Override
@@ -223,17 +220,20 @@ public class ExamServiceImpl implements ExamService {
         }
     }
 
-    private void sendInvitationsToUninvitedCandidates(String examId) {
-        List<ExamCandidate> candidates = examCandidateRepo.findByExamId(examId);
+    private void sendInvitationsToUninvitedCandidates(String examId, String adminEmail) {
+        int pageSize = 50;
+        Page<ExamCandidate> uninvitedPage;
 
-        List<ExamCandidate> toUpdate = candidates.stream()
-                .filter(c -> "UNINVITED".equals(c.getStatus()))
-                .peek(this::sendInvitationEmail) // Side-effect: sends email and sets status
-                .toList();
+        do {
+            uninvitedPage = examCandidateRepo.findUninvitedByExamId(examId, PageRequest.of(0, pageSize));
 
-        if (!toUpdate.isEmpty()) {
-            examCandidateRepo.saveAll(toUpdate);
-        }
+            if (uninvitedPage.hasContent()) {
+                uninvitedPage.getContent().forEach(this::sendInvitationEmail);
+                examCandidateRepo.saveAll(uninvitedPage.getContent());
+                entityManager.flush();
+            }
+
+        } while (uninvitedPage.hasContent());
     }
 
     private void sendInvitationEmail(ExamCandidate candidate) {

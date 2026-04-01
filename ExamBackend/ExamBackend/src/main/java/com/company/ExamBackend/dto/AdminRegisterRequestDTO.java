@@ -2,7 +2,6 @@ package com.company.ExamBackend.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
@@ -23,7 +22,6 @@ public class AdminRegisterRequestDTO {
     @Getter
     @Setter
     public static class IndividualRegistrationDTO {
-        @Email(message = "Invalid email format")
         @Schema(
                 example = "user1@company.com"
         )

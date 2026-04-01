@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 import { CreateExamModal } from './CreateExamModal';
 import { ExamDetailsModal } from './ExamDetailsModal';
@@ -7,30 +7,35 @@ import { getExams } from '../api/api';
 
 export const Admin = () => {
     const [listExams, setListExams] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [pageSize] = useState(5); 
+
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [SelectedExam, setSelectedExam] = useState(null);
 
-    const fetchExams = async () => {
+    const fetchExams = useCallback(async (page) => {
         try {
-            const exams = await getExams();
-            setListExams(exams);
+            const data = await getExams(page, pageSize);
+            setListExams(data.content);
+            setTotalPages(data.totalPages);
+            setCurrentPage(data.number);
         } catch (err) {
-            console.error("Failed to fetch exams:", err);
-            alert("Failed to fetch exams");
+        }
+    }, [pageSize]);
+
+    useEffect(() => {
+        fetchExams(0); 
+    }, [fetchExams]);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            fetchExams(newPage);
         }
     };
 
-    useEffect(() => {
-        fetchExams();
-    }, []);
-
-
     return (
-        <div
-            className="AdminOverall">
-
-    
-
+        <div className="AdminOverall">
             <div className="AdminExamSection">
                 <div className="AdminExamHeader">
                     <h2>Exams</h2>
@@ -50,44 +55,61 @@ export const Admin = () => {
                             <th>Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        {listExams.map((exam) => (
-                            <tr key={exam.id}>
-                                <td>{exam.title}</td>
-
-                                <td>
-                                    <span className={`status ${exam.status.toLowerCase()}`}>
-                                        {exam.status}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <button
-                                        className="ViewBtn"
-                                        onClick={() => setSelectedExam(exam)}
-                                    >
-                                        View
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {listExams.length > 0 ? (
+                            listExams.map((exam) => (
+                                <tr key={exam.id}>
+                                    <td>{exam.title}</td>
+                                    <td>
+                                        <span className={`status ${exam.status.toLowerCase()}`}>
+                                            {exam.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button
+                                            className="ViewBtn"
+                                            onClick={() => setSelectedExam(exam)}
+                                        >
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr><td colSpan="3" style={{ textAlign: 'center' }}>No exams found.</td></tr>
+                        )}
                     </tbody>
                 </table>
-            </div>
+                <div className="PaginationControls">
+                    <button
+                        disabled={currentPage === 0}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                    >
+                        Previous
+                    </button>
 
+                    <span>Page {currentPage + 1} of {totalPages}</span>
+
+                    <button
+                        disabled={currentPage === totalPages - 1 || totalPages === 0}
+                        onClick={() => handlePageChange(currentPage + 1)}
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
 
             {isCreateModalOpen && (
                 <CreateExamModal
                     onClose={() => setIsCreateModalOpen(false)}
-                    onExamCreated={fetchExams} />
+                    onExamCreated={() => fetchExams(currentPage)} />
             )}
 
             {SelectedExam && (
                 <ExamDetailsModal
                     exam={SelectedExam}
-                    onClose={() => setSelectedExam(false)}
-                    onQuestionsUploaded={fetchExams} />
+                    onClose={() => setSelectedExam(null)}
+                    onQuestionsUploaded={() => fetchExams(currentPage)} />
             )}
         </div>
     );

@@ -1,6 +1,8 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.Exam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,9 +15,9 @@ import java.util.Optional;
 
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, String> {
-    List<Exam> findByStatusAndCreatedBy_Email(String status, String email);
+    Page<Exam> findByStatusAndCreatedBy_Email(String status, String email, Pageable pageable);
 
-    List<Exam> findByCreatedBy_Email(String email);
+    Page<Exam> findByCreatedBy_Email(String email, Pageable pageable);
 
     @Modifying
     @Transactional

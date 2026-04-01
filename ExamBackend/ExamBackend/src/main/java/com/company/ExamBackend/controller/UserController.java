@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -115,16 +118,20 @@ public class UserController {
             summary = "List all candidates",
             description = "Fetches all users with the role CANDIDATE. Admin access required.")
     @GetMapping("/candidates")
-    public ResponseEntity<List<UserHeavyDTO>> getCandidates() {
-        return ResponseEntity.ok(userService.getCandidates());
+    public ResponseEntity<Page<UserHeavyDTO>> getCandidates(
+            @PageableDefault(size = 5, sort = "name") Pageable pageable
+    ) {
+        return ResponseEntity.ok(userService.getCandidates(pageable));
     }
 
     @Operation(
             summary = "Lists all users",
             description = "Lists all users regardless of role.")
     @GetMapping("/users")
-    public ResponseEntity<List<UserHeavyDTO>> getUsers() {
-        return ResponseEntity.ok(userService.getUsers());
+    public ResponseEntity<Page<UserHeavyDTO>> getUsers(
+            @PageableDefault(size = 5, sort = "name") Pageable pageable
+    ) {
+        return ResponseEntity.ok(userService.getUsers(pageable));
     }
 
     @Operation(

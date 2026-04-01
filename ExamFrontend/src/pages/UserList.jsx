@@ -1,70 +1,51 @@
 import { useEffect, useState } from 'react';
-// import { CreateUserCard } from "../components/cardType/CreateUserCard";
-// import { UserCard } from "../components/cardType/UserCard";
 import { UserDetailsModal } from "./UserDetailsModal";
 import { CreateUserModal } from './CreateUserModal';
 import { getAllUsers } from "../api/api";
 
 export const UserList = () => {
-    const [listUsers, setListUsers] = useState([]);
+    const [pageData, setPageData] = useState({ content: [], totalPages: 0, totalElements: 0 });
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize] = useState(5);
+
     const [selectedUser, setSelectedUser] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [jumpPage, setJumpPage] = useState("");
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [roleFilter, setRoleFilter] = useState("ALL");
-
-    const fetchUsers = async () => {
+    const fetchUsers = async (page) => {
         try {
-            const users = await getAllUsers();
-            setListUsers(users);
+            const data = await getAllUsers(page, pageSize);
+            setPageData(data);
+            setJumpPage(page + 1);
         } catch (err) {
             console.error("Failed to fetch users:", err);
         }
     };
 
-    useEffect(() => { fetchUsers(); }, []);
+    useEffect(() => {
+        fetchUsers(currentPage);
+    }, [currentPage]);
 
-    const filteredUsers = listUsers.filter((user) => {
-        const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRole = roleFilter === "ALL" || user.role === roleFilter;
-        return matchesSearch && matchesRole;
-    });
+    const handlePageJump = (e) => {
+        e.preventDefault();
+        const p = parseInt(jumpPage) - 1;
+        if (p >= 0 && p < pageData.totalPages) {
+            setCurrentPage(p);
+        } else {
+            setJumpPage(currentPage + 1);
+        }
+    };
 
     return (
         <div className="UserListOverall">
-            <div className="filter-bar">
-                <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search by name or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <select
-                    className="role-select"
-                    value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                >
-                    <option value="ALL">All Roles</option>
-                    <option value="ADMIN">Admin</option>
-                    <option value="CANDIDATE">Candidate</option>
-                </select>
-                <div className="user-count">
-                    Found: {filteredUsers.length}
-                </div>
-            </div>
             <div className="AdminUserSection">
-
                 <div className="AdminUserHeader">
-                    <h2>Users</h2>
-                    <button
-                        className="CreateUserBtn"
-                        onClick={() => setIsCreateModalOpen(true)}
-                    >
+                    <h2>Users (Total: {pageData.totalElements})</h2>
+                    <button className="CreateUserBtn" onClick={() => setIsCreateModalOpen(true)}>
                         + Create User
                     </button>
                 </div>
+
                 <table className="UserTable">
                     <thead>
                         <tr>
@@ -74,24 +55,18 @@ export const UserList = () => {
                             <th>Action</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        {filteredUsers.map((user) => (
+                        {pageData.content.map((user) => (
                             <tr key={user.id}>
                                 <td>{user.name}</td>
                                 <td>{user.email}</td>
-
                                 <td>
                                     <span className={`role-badge ${user.role.toLowerCase()}`}>
                                         {user.role}
                                     </span>
                                 </td>
-
                                 <td>
-                                    <button
-                                        className="ViewBtn"
-                                        onClick={() => setSelectedUser(user)}
-                                    >
+                                    <button className="ViewBtn" onClick={() => setSelectedUser(user)}>
                                         View
                                     </button>
                                 </td>
@@ -100,13 +75,40 @@ export const UserList = () => {
                     </tbody>
                 </table>
 
-            </div>
+                <div className="UserPagination">
+                    <button
+                        disabled={currentPage === 0}
+                        onClick={() => setCurrentPage(prev => prev - 1)}
+                    >
+                        Prev
+                    </button>
 
+                    <form onSubmit={handlePageJump} className="page-jump-container">
+                        <span>Page</span>
+                        <input
+                            type="number"
+                            className="page-input"
+                            value={jumpPage}
+                            onChange={(e) => setJumpPage(e.target.value)}
+                            min="1"
+                            max={pageData.totalPages}
+                        />
+                        <span>of {pageData.totalPages}</span>
+                    </form>
+
+                    <button
+                        disabled={currentPage >= pageData.totalPages - 1}
+                        onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
 
             {isCreateModalOpen && (
                 <CreateUserModal
                     onClose={() => setIsCreateModalOpen(false)}
-                    onUserCreated={fetchUsers}
+                    onUserCreated={() => fetchUsers(currentPage)}
                 />
             )}
 

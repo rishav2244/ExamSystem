@@ -3,12 +3,11 @@ package com.company.ExamBackend.controller;
 import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
-import com.company.ExamBackend.mapper.CandidateMapper;
-import com.company.ExamBackend.model.ExamCandidate;
 import com.company.ExamBackend.service.ExamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,15 +45,19 @@ public class ExamController {
             description = "Used by admin to fetch all exams."
     )
     @GetMapping("/getExams")
-    public ResponseEntity<List<ExamResponseDTO>> getExams(
+    public ResponseEntity<Page<ExamResponseDTO>> getExams(
             @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         String adminEmail = userDetails.getUsername();
+
         if (status != null && !status.isEmpty()) {
-            return ResponseEntity.ok(examService.getExamsByStatus(status, adminEmail));
+            return ResponseEntity.ok(examService.getExamsByStatus(status, adminEmail, page, size));
         }
-        return ResponseEntity.ok(examService.getExams(adminEmail));
+
+        return ResponseEntity.ok(examService.getExams(adminEmail, page, size));
     }
 
     //Publishes exam.
@@ -63,8 +66,10 @@ public class ExamController {
             description = "Used by admin to publish an exam."
     )
     @PostMapping("/publishExam/{examId}")
-    public ResponseEntity<String> publishExam(@PathVariable String examId) {
-        examService.updateExam(examId, "PUBLISHED");
+    public ResponseEntity<String> publishExam(
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        examService.updateExam(examId, "PUBLISHED",  userDetails.getUsername());
         return ResponseEntity.ok("Exam published");
     }
 
@@ -74,8 +79,11 @@ public class ExamController {
             description = "Used by admin to assign candidates of a group to exam."
     )
     @PostMapping("/Candidates/{examId}/{groupId}")
-    public ResponseEntity<List<CandidateResponseDTO>> setCandidate(@PathVariable String examId, @PathVariable String groupId) {
-        return ResponseEntity.ok(examService.assignGroupToExam(groupId, examId));
+    public ResponseEntity<String> setCandidate(
+            @PathVariable String examId,
+            @PathVariable String groupId,
+            @AuthenticationPrincipal  UserDetails userDetails) {
+        return ResponseEntity.ok(examService.assignGroupToExam(groupId, examId, userDetails.getUsername()));
     }
 
     //Deletes exam.

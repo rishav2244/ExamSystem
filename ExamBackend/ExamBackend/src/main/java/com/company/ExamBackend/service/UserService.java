@@ -1,6 +1,8 @@
 package com.company.ExamBackend.service;
 
 import com.company.ExamBackend.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,8 +14,8 @@ public interface UserService
     UserResponseDTO verifyRegistration(VerifyOtpRequestDTO dto);
     ResendResponseDTO resendOtp(String email);
     BulkRegistrationSummaryDTO adminRegisterAttempt(AdminRegisterRequestDTO adminRegisterRequestDTO);
-    List<UserHeavyDTO> getCandidates();
-    List<UserHeavyDTO> getUsers();
+    Page<UserHeavyDTO> getCandidates(Pageable pageable);
+    Page<UserHeavyDTO> getUsers(Pageable pageable);
     UserHeavyDTO getUserById(String id);
     LoginResponseDTO refreshAccessToken(String refreshTokenRequest);
     void resetPassword(String currentUserEmail, PasswordResetDTO passwordResetDTO);

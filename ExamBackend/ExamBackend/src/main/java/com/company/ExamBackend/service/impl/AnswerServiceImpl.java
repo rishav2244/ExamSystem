@@ -10,6 +10,7 @@ import com.company.ExamBackend.repository.OptionRepository;
 import com.company.ExamBackend.repository.QuestionRepository;
 import com.company.ExamBackend.repository.SubmissionRepository;
 import com.company.ExamBackend.service.AnswerService;
+import com.company.ExamBackend.service.EmailService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,8 @@ public class AnswerServiceImpl implements AnswerService {
     private final SubmissionRepository submissionRepository;
     private final QuestionRepository questionRepository;
     private final OptionRepository optionRepository;
+
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -48,30 +51,33 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     @Transactional
-    public void finalizeSubmission(String submissionId) {
-        Submission submission = submissionRepository.findById(submissionId)
-                .orElseThrow(() -> new SubmissionNotFoundException("Submission not found"));
+    public void finalizeSubmission(String submissionId, String candidateEmail) {
+        Submission submission = submissionRepository.findByIdAndCandidateEmail(submissionId,  candidateEmail);
 
-        if ("COMPLETED".equals(submission.getStatus())) return;
+        if(submission == null){
+            throw new SubmissionNotFoundException("Possible BOLA attempt.");
+        }
 
-        List<Answer> candidateAnswers = answerRepository.findBySubmissionIdWithDetails(submissionId);
+        if ("COMPLETED".equals(submission.getStatus())) return; //Prevents evaluating over existing attempt
 
-        Exam exam = submission.getExam();
-        int totalPossibleMarks = exam.getTotalScore();
-        double cutoffPercentage = exam.getCutoff();
+        List<Object[]> evaluatedResult = answerRepository.calculateResult(submissionId, candidateEmail);
 
-        double earnedScore = calculateEarnedScore(candidateAnswers);
         int minutesTaken = calculateTimeTaken(submission.getCreatedAt());
 
-        boolean passed = checkPassStatus(earnedScore, totalPossibleMarks, cutoffPercentage);
+        applyFinalSubmissionDetails(
+                submission, //Existing submission entry
+                (double) evaluatedResult.get(0)[0], //Score of candidate
+                minutesTaken, //time taken in minutes
+                (boolean) evaluatedResult.get(0)[1]); // Passed or not
 
-        applyFinalSubmissionDetails(submission, earnedScore, minutesTaken, passed);
+        emailService.sendExamCompletionConfirmation(submission.getCandidateEmail(),submission.getExam().getTitle());
     }
 
     // ======================================================================================
-    // Modularized Helpers
+    // Helper methods
     // ======================================================================================
 
+    @Deprecated
     private double calculateEarnedScore(List<Answer> answers) {
         return answers.stream()
                 .filter(a -> a.getSelectedOption() != null && a.getSelectedOption().isCorrect())
@@ -79,6 +85,7 @@ public class AnswerServiceImpl implements AnswerService {
                 .sum();
     }
 
+    @Deprecated
     private boolean checkPassStatus(double earned, int total, double cutoffPercentage) {
         if (total == 0) return false;
 
