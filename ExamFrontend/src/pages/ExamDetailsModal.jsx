@@ -35,6 +35,10 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
     const [candidates, setCandidates] = useState([]);
     const [cutoff, setCutoff] = useState(40);
 
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const pageSize = 5;
+
     const isPending = exam?.status === "PENDING";
     const [sendingMail, setSendingMail] = useState(false);
 
@@ -72,29 +76,30 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
 
     useEffect(() => {
-
         if (exam?.status === "PUBLISHED") {
-
-            getExamCandidates(exam.id)
-                .then(data => setCandidates(data || []))
+            getExamCandidates(exam.id, currentPage, pageSize)
+                .then(data => {
+                    setCandidates(data.content || []);
+                    setTotalPages(data.totalPages || 0);
+                })
                 .catch(err => console.error("Failed to load assigned candidates", err));
-
         }
         else if (exam?.status === "SAVED" && selectedGroupId) {
-
             getGroupMembers(selectedGroupId)
                 .then(data => setCandidates(data || []))
                 .catch(err => console.error("Failed to preview group", err));
-
         }
         else {
-
             setCandidates([]);
-
+            setTotalPages(0);
         }
+    }, [exam?.status, exam?.id, selectedGroupId, currentPage]);
 
-    }, [exam?.status, exam?.id, selectedGroupId]);
-
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     const transformCSV = (rows) => {
 
@@ -411,7 +416,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
     return (
         <div className="modal-backdrop" onClick={onClose}>
-            <div className="modal-window" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-window wide-modal" onClick={(e) => e.stopPropagation()}>
 
                 {sendingMail && <MailSendingModal />}
 
@@ -419,59 +424,49 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
                 <h2>Exam details</h2>
 
-                {exam &&
-                    (
-                        <div className="modal-exam-header">
-
-                            <div className="exam-title-row">
-                                <h2 className="exam-title">{exam.title}</h2>
-                                <p className={`exam-status-text ${exam.status.toLowerCase()}`}>
-                                    Status: {exam.status}
-                                </p>
-                            </div>
-
-                            <div className="exam-info-grid">
-
-                                <div className="exam-info-card">
-                                    <span className="label">Start Time</span>
-                                    <span className="value">
-                                        {new Date(exam.startTime).toLocaleString()}
-                                    </span>
-                                </div>
-
-                                <div className="exam-info-card">
-                                    <span className="label">End Time</span>
-                                    <span className="value">
-                                        {new Date(exam.endTime).toLocaleString()}
-                                    </span>
-                                </div>
-
-                                <div className="exam-info-card">
-                                    <span className="label">Total Marks</span>
-                                    <span className="value">{exam.totalMarks}</span>
-                                </div>
-
-                                <div className="exam-info-card">
-                                    <span className="label">Cutoff Marks</span>
-                                    <span className="value">
-                                        {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
-                                    </span>
-                                </div>
-
-                            </div>
-
+                {exam && (
+                    <div className="modal-exam-header">
+                        <div className="exam-title-row">
+                            <h2 className="exam-title">{exam.title}</h2>
+                            <p className={`exam-status-text ${exam.status.toLowerCase()}`}>
+                                Status: {exam.status}
+                            </p>
                         </div>
-                    )
-                }
 
+                        <div className="exam-info-grid">
+                            <div className="exam-info-card">
+                                <span className="label">Start Time</span>
+                                <span className="value">
+                                    {new Date(exam.startTime).toLocaleString()}
+                                </span>
+                            </div>
+
+                            <div className="exam-info-card">
+                                <span className="label">End Time</span>
+                                <span className="value">
+                                    {new Date(exam.endTime).toLocaleString()}
+                                </span>
+                            </div>
+
+                            <div className="exam-info-card">
+                                <span className="label">Total Marks</span>
+                                <span className="value">{exam.totalMarks}</span>
+                            </div>
+
+                            <div className="exam-info-card">
+                                <span className="label">Cutoff Marks</span>
+                                <span className="value">
+                                    {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="modal-body">
-
                     {isPending ? (
                         <div className="upload-section">
-
                             <h3>Upload Questions (CSV)</h3>
-
                             <input
                                 type="file"
                                 accept=".csv"
@@ -480,7 +475,6 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
                             {CSVObj && CSVObj.length > 0 && (
                                 <div className="exam-questions-container">
-
                                     {CSVObj.map((q, index) => (
                                         <ExamQuestionDraft
                                             key={index}
@@ -489,18 +483,13 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                             onChange={handleQuestionUpdate}
                                         />
                                     ))}
-
                                 </div>
                             )}
-
                         </div>
                     ) : (
                         <div className="view-section">
-
                             <h3>Exam Questions</h3>
-
                             <div className="exam-questions-container">
-
                                 {backendQuestions.map((q, index) => (
                                     <ExamQuestion
                                         key={index}
@@ -508,40 +497,30 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                         index={index}
                                     />
                                 ))}
-
                             </div>
 
                             {exam?.status === "SAVED" && (
                                 <div className="group-assignment-section">
-
                                     <h4>Select Candidate Group</h4>
-
                                     <div className="group-input-group">
-
                                         <select
                                             value={selectedGroupId}
                                             onChange={(e) => setSelectedGroupId(e.target.value)}
                                             className="group-dropdown"
                                         >
                                             <option value="">-- Select Group to Assign --</option>
-
                                             {availableGroups.map((grp) => (
                                                 <option key={grp.id} value={grp.id}>
                                                     {grp.name}
                                                 </option>
                                             ))}
-
                                         </select>
-
                                     </div>
-
                                 </div>
                             )}
 
                             {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
-
                                 <div className="candidate-list-container">
-
                                     <h5>
                                         {exam?.status === "PUBLISHED"
                                             ? "Assigned Candidates"
@@ -549,7 +528,6 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                     </h5>
 
                                     <div className="candidate-scroll">
-
                                         {candidates.length > 0 ? (
                                             candidates.map((c) => (
                                                 <CandidateRow
@@ -562,26 +540,53 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                                 No candidates found.
                                             </p>
                                         )}
-
                                     </div>
+
+                                    {/* Pagination Controls - Only show for Published Exams (since that's the paginated API) */}
+                                    {exam?.status === "PUBLISHED" && totalPages > 1 && (
+                                        <div className="UserPagination">
+                                            <button
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 0}
+                                            >
+                                                Previous
+                                            </button>
+
+                                            <div className="page-jump-container">
+                                                <span>Page</span>
+                                                <input
+                                                    type="number"
+                                                    className="page-input"
+                                                    value={currentPage + 1}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value);
+                                                        if (!isNaN(val)) handlePageChange(val - 1);
+                                                    }}
+                                                />
+                                                <span>of {totalPages}</span>
+                                            </div>
+
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage >= totalPages - 1}
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    )}
 
                                     {exam?.status === "SAVED" && (
                                         <p className="draft-notice">
                                             Review carefully. This list will be finalized on Publish.
                                         </p>
                                     )}
-
                                 </div>
-
                             )}
-
                         </div>
                     )}
-
                 </div>
 
                 <div className="modal-footer">
-
                     <button
                         onClick={handleDeleteExam}
                         className="DeleteExamButton"
@@ -591,11 +596,8 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
                     {isPending && CSVObj && CSVObj.length > 0 && (
                         <div className="save-actions-container">
-
                             <div className="cutoff-input-wrapper">
-
                                 <label>Pass Cutoff (%): </label>
-
                                 <input
                                     type="number"
                                     value={cutoff}
@@ -604,19 +606,14 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                     max="100"
                                     className="cutoff-input"
                                 />
-
                             </div>
-
+                            <button
+                                onClick={handleSave}
+                                className="QuestionsSaveButton"
+                            >
+                                Save Questions to Exam
+                            </button>
                         </div>
-                    )}
-
-                    {isPending && CSVObj && CSVObj.length > 0 && (
-                        <button
-                            onClick={handleSave}
-                            className="QuestionsSaveButton"
-                        >
-                            Save Questions to Exam
-                        </button>
                     )}
 
                     {exam?.status === "SAVED" && selectedGroupId !== "" && (
@@ -627,9 +624,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                             Confirm & Publish Exam
                         </button>
                     )}
-
                 </div>
-
             </div>
         </div>
     );

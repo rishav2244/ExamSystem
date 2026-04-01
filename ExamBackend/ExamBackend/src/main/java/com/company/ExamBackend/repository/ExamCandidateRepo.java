@@ -1,6 +1,8 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.ExamCandidate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +20,14 @@ public interface ExamCandidateRepo extends JpaRepository<ExamCandidate,String> {
             "WHERE u.email = :adminEmail " +
             "AND e.id = :examId")
     List<ExamCandidate> findByExamIdAndAdminEmail(String examId, String adminEmail);
+
+    @Query("SELECT ec " +
+            "FROM ExamCandidate ec " +
+            "JOIN ec.exam e " +
+            "JOIN e.createdBy u " +
+            "WHERE u.email = :adminEmail " +
+            "AND e.id = :examId")
+    Page<ExamCandidate> findByExamIdAndAdminEmail(String examId, String adminEmail, Pageable pageable);
 
     List<ExamCandidate> findByEmail(String email);
 

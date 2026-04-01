@@ -3,6 +3,7 @@ package com.company.ExamBackend.mapper;
 import com.company.ExamBackend.dto.CandidateDashboardDTO;
 import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.model.ExamCandidate;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,6 +25,10 @@ public class CandidateMapper {
         return entities.stream()
                 .map(this::toDTO)//This calls current spring object.
                 .toList();
+    }
+
+    public Page<CandidateResponseDTO> toDTOList(Page<ExamCandidate> entities) {
+        return entities.map(this::toDTO);
     }
 
     public CandidateDashboardDTO toDashboardDTO(ExamCandidate entity) {
