@@ -60,11 +60,9 @@ public class AnswerServiceImpl implements AnswerService {
 
         if ("COMPLETED".equals(submission.getStatus())) return;
 
-        // This will now return [0.0, false] even if all answers are wrong or missing
         List<Object[]> evaluatedResult = answerRepository.calculateResult(submissionId, candidateEmail);
 
         if (evaluatedResult.isEmpty()) {
-            // This should theoretically never happen now unless the ID is wrong
             throw new RuntimeException("Evaluation failed to produce a result.");
         }
 

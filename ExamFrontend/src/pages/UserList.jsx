@@ -1,20 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { UserDetailsModal } from "./UserDetailsModal";
 import { CreateUserModal } from './CreateUserModal';
-import { getAllUsers } from "../api/api";
+import { getAllUsers, searchUsers } from "../api/api";
 
 export const UserList = () => {
+    const DEBOUNCE_DELAY = 600;
+    const isInitialMount = useRef(true);
+
     const [pageData, setPageData] = useState({ content: [], totalPages: 0, totalElements: 0 });
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize] = useState(5);
 
+    const [searchTerm, setSearchTerm] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [jumpPage, setJumpPage] = useState("");
 
-    const fetchUsers = async (page) => {
+    const fetchUsers = async (page, query) => {
         try {
-            const data = await getAllUsers(page, pageSize);
+            let data;
+            if (query && query.trim() !== "") {
+                data = await searchUsers(query, page, pageSize);
+            } else {
+                data = await getAllUsers(page, pageSize);
+            }
             setPageData(data);
             setJumpPage(page + 1);
         } catch (err) {
@@ -22,8 +31,27 @@ export const UserList = () => {
         }
     };
 
+    // Effect 1: Handle Search with Debounce
     useEffect(() => {
-        fetchUsers(currentPage);
+        // Skip debounce on the very first load because Effect 2 handles it
+        if (isInitialMount.current) {
+            return;
+        }
+
+        const handler = setTimeout(() => {
+            fetchUsers(currentPage, searchTerm);
+        }, DEBOUNCE_DELAY);
+
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
+
+    // Effect 2: Handle Pagination & Initial Load (Instant)
+    useEffect(() => {
+        fetchUsers(currentPage, searchTerm);
+        
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+        }
     }, [currentPage]);
 
     const handlePageJump = (e) => {
@@ -41,9 +69,29 @@ export const UserList = () => {
             <div className="AdminUserSection">
                 <div className="AdminUserHeader">
                     <h2>Users (Total: {pageData.totalElements})</h2>
-                    <button className="CreateUserBtn" onClick={() => setIsCreateModalOpen(true)}>
-                        + Create User
-                    </button>
+                    
+                    <div className="AdminHeaderActions">
+                        <div className="SearchContainer">
+                            <input 
+                                type="text" 
+                                className="SearchInput"
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(0); // This triggers Effect 2 instantly
+                                }}
+                            />
+                            {searchTerm && (
+                                <button className="SearchClearBtn" onClick={() => setSearchTerm("")}>
+                                    &times;
+                                </button>
+                            )}
+                        </div>
+                        <button className="CreateUserBtn" onClick={() => setIsCreateModalOpen(true)}>
+                            + Create User
+                        </button>
+                    </div>
                 </div>
 
                 <table className="UserTable">
@@ -56,22 +104,30 @@ export const UserList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {pageData.content.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>
-                                    <span className={`role-badge ${user.role.toLowerCase()}`}>
-                                        {user.role}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button className="ViewBtn" onClick={() => setSelectedUser(user)}>
-                                        View
-                                    </button>
+                        {pageData.content.length > 0 ? (
+                            pageData.content.map((user) => (
+                                <tr key={user.id}>
+                                    <td>{user.name}</td>
+                                    <td>{user.email}</td>
+                                    <td>
+                                        <span className={`role-badge ${user.role.toLowerCase()}`}>
+                                            {user.role}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button className="ViewBtn" onClick={() => setSelectedUser(user)}>
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>
+                                    No users found.
                                 </td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
 
@@ -108,7 +164,7 @@ export const UserList = () => {
             {isCreateModalOpen && (
                 <CreateUserModal
                     onClose={() => setIsCreateModalOpen(false)}
-                    onUserCreated={() => fetchUsers(currentPage)}
+                    onUserCreated={() => fetchUsers(currentPage, searchTerm)}
                 />
             )}
 

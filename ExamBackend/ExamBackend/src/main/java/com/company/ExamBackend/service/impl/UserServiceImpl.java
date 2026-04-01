@@ -14,9 +14,12 @@ import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -192,6 +195,50 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserHeavyDTO> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(userMapper::toUserHeavy);
+    }
+
+    @Override
+    public Page<UserHeavyDTO> searchUsers(
+            UserSearchDTO searchDTO,
+            int size,
+            int page,
+            String sortBy) {
+
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        if(sortBy.equals("name") || sortBy.equals("email") || sortBy.equals("role"))
+        {
+            sort = Sort.by(Sort.Direction.ASC, sortBy);
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Users> userPage = userRepository.findUserByQuery(
+                searchDTO.getSearchQuery(),
+                pageable
+        );
+
+        return userPage.map(userMapper::toUserHeavy);
+    }
+
+    @Override
+    public Page<UserHeavyDTO> searchCandidates(
+            UserSearchDTO searchDTO,
+            int size,
+            int page,
+            String sortBy) {
+
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        if(sortBy.equals("name") || sortBy.equals("email") || sortBy.equals("role"))
+        {
+            sort = Sort.by(Sort.Direction.ASC, sortBy);
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Users> userPage = userRepository.findCandidateByQuery(
+                searchDTO.getSearchQuery(),
+                pageable
+        );
+
+        return userPage.map(userMapper::toUserHeavy);
     }
 
     @Override

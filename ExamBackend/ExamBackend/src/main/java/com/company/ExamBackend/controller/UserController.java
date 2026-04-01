@@ -144,4 +144,32 @@ public class UserController {
     public ResponseEntity<UserHeavyDTO> getUser(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
+
+    @Operation(
+            summary = "Search for users",
+            description = "Searches for users from database."
+    )
+    @PostMapping("/search")
+    public ResponseEntity<Page<UserHeavyDTO>> getUsers(
+            @RequestBody UserSearchDTO userSearchDTO,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sort
+    ){
+        return ResponseEntity.ok(userService.searchUsers(userSearchDTO, size, page, sort));
+    }
+
+    @Operation(
+            summary = "Search for candidates",
+            description = "Searches for candidates from database."
+    )
+    @PostMapping("/search-candidates")
+    public ResponseEntity<Page<UserHeavyDTO>> getCandidates(
+            @RequestBody UserSearchDTO userSearchDTO,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sort
+    ){
+        return ResponseEntity.ok(userService.searchCandidates(userSearchDTO, size, page, sort));
+    }
 }

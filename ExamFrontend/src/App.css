@@ -4975,3 +4975,40 @@ button:hover {
   left: 50%;
   transform: translateX(-50%);
 }
+
+/* Layout helper for the header */
+.AdminHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Search bar styling */
+.SearchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.SearchInput {
+    padding: 6px 30px 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 200px;
+}
+
+.SearchClearBtn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #888;
+    line-height: 1;
+}
+
+.SearchClearBtn:hover {
+    color: #333;
+}

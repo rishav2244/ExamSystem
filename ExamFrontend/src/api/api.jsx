@@ -468,6 +468,32 @@ export const getCandidateResults = async (page = 0, size = 10) => {
     }
 };
 
+export const searchUsers = async (searchQuery, page = 0, size = 10, sort = "name") => {
+    try {
+        const payload = { searchQuery };
+        const resp = await axios.post(`${API_URL}/user/search`, payload, {
+            params: { page, size, sort }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error searching users:", err);
+        throw err;
+    }
+};
+
+export const searchCandidates = async (searchQuery, page = 0, size = 10, sort = "name") => {
+    try {
+        const payload = { searchQuery };
+        const resp = await axios.post(`${API_URL}/user/search-candidates`, payload, {
+            params: { page, size, sort }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error searching candidates:", err);
+        throw err;
+    }
+};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));

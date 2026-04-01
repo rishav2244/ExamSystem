@@ -16,6 +16,8 @@ public interface UserService
     BulkRegistrationSummaryDTO adminRegisterAttempt(AdminRegisterRequestDTO adminRegisterRequestDTO);
     Page<UserHeavyDTO> getCandidates(Pageable pageable);
     Page<UserHeavyDTO> getUsers(Pageable pageable);
+    Page<UserHeavyDTO> searchUsers(UserSearchDTO userSearchDTO, int size, int page, String sort);
+    Page<UserHeavyDTO> searchCandidates(UserSearchDTO userSearchDTO, int size, int page, String sort);
     UserHeavyDTO getUserById(String id);
     LoginResponseDTO refreshAccessToken(String refreshTokenRequest);
     void resetPassword(String currentUserEmail, PasswordResetDTO passwordResetDTO);
