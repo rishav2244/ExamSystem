@@ -267,10 +267,20 @@ export const assignGroupToExam = async (examId, groupId) => {
     return resp.data
 };
 
-export const getExamCandidates = async (examId) => {
+export const getExamCandidates = async (examId, page = 0, size = 10) => {
     try {
-        const resp = await axios.get(`${API_URL}/candidate/candidates/${examId}`);
-        return resp.status === 204 ? [] : resp.data;
+        const resp = await axios.get(`${API_URL}/candidate/candidates/${examId}`, {
+            params: { page, size }
+        });
+
+        if (resp.status === 204) {
+            return {
+                content: [],
+                totalPages: 0,
+                totalElements: 0
+            };
+        }
+        return resp.data;
     } catch (err) {
         console.error("Error fetching candidates:", err);
         throw err;
@@ -344,9 +354,14 @@ export const getSubmissionsOverview = async () => {
     }
 };
 
-export const getSubmissionsByExam = async (examId) => {
+export const getSubmissionsByExam = async (examId, page = 0, size = 10) => {
     try {
-        const resp = await axios.get(`${API_URL}/submissions/exam/${examId}`);
+        const resp = await axios.get(`${API_URL}/submissions/exam/${examId}`, {
+            params: {
+                page: page,
+                size: size
+            }
+        });
         return resp.data;
     } catch (err) {
         console.error("Error fetching submissions:", err);
