@@ -29,6 +29,9 @@ public interface ExamCandidateRepo extends JpaRepository<ExamCandidate,String> {
             "AND e.id = :examId")
     Page<ExamCandidate> findByExamIdAndAdminEmail(String examId, String adminEmail, Pageable pageable);
 
+    @Query("SELECT ec FROM ExamCandidate ec WHERE ec.exam.id = :examId AND ec.status = 'UNINVITED'")
+    Page<ExamCandidate> findUninvitedByExamId(String examId, Pageable pageable);
+
     List<ExamCandidate> findByEmail(String email);
 
     ExamCandidate findByExamIdAndEmail(String examId, String email);

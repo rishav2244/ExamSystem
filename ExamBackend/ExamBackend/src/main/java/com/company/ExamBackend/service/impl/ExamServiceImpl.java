@@ -226,16 +226,19 @@ public class ExamServiceImpl implements ExamService {
     }
 
     private void sendInvitationsToUninvitedCandidates(String examId, String adminEmail) {
-        List<ExamCandidate> candidates = examCandidateRepo.findByExamIdAndAdminEmail(examId,adminEmail);
+        int pageSize = 50;
+        Page<ExamCandidate> uninvitedPage;
 
-        List<ExamCandidate> toUpdate = candidates.stream()
-                .filter(c -> "UNINVITED".equals(c.getStatus()))
-                .peek(this::sendInvitationEmail) // Side-effect: sends email and sets status
-                .toList();
+        do {
+            uninvitedPage = examCandidateRepo.findUninvitedByExamId(examId, PageRequest.of(0, pageSize));
 
-        if (!toUpdate.isEmpty()) {
-            examCandidateRepo.saveAll(toUpdate);
-        }
+            if (uninvitedPage.hasContent()) {
+                uninvitedPage.getContent().forEach(this::sendInvitationEmail);
+                examCandidateRepo.saveAll(uninvitedPage.getContent());
+                entityManager.flush();
+            }
+
+        } while (uninvitedPage.hasContent());
     }
 
     private void sendInvitationEmail(ExamCandidate candidate) {
