@@ -32,7 +32,6 @@ public interface UserRepository extends JpaRepository<Users,String>
     @Query("SELECT u " +
             "FROM Users u " +
             "WHERE (u.name ILIKE %:query% " +
-            "OR u.role ILIKE %:query% " +
             "OR u.email ILIKE %:query%) " +
             "AND u.role = 'CANDIDATE'"
     )

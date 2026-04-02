@@ -1,23 +1,43 @@
-import { useState, useEffect } from 'react';
-import { getCandidatesOnly } from '../../api/api';
+import { useState, useEffect, useCallback } from 'react';
+import { getCandidatesOnly, searchCandidates } from '../../api/api';
 
 export const ManualMemberSelector = ({ onSelectionChange }) => {
     const [pageData, setPageData] = useState({ content: [], totalPages: 0 });
     const [currentPage, setCurrentPage] = useState(0);
     const [selectedUsers, setSelectedUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const fetchPage = async (page) => {
+    // Fetching logic that decides between Search and Global list
+    const fetchPage = useCallback(async (page, query) => {
         try {
-            const data = await getCandidatesOnly(page, 5);
+            let data;
+            if (query.trim()) {
+                // Call the Search API
+                data = await searchCandidates(query, page, 5);
+            } else {
+                // Call the default API
+                data = await getCandidatesOnly(page, 5);
+            }
             setPageData(data);
         } catch (err) {
             console.error("Selector fetch error:", err);
         }
-    };
+    }, []);
 
+    // Debounce Search Logic
     useEffect(() => {
-        fetchPage(currentPage);
-    }, [currentPage]);
+        const handler = setTimeout(() => {
+            setCurrentPage(0); // Reset to first page on new search
+            fetchPage(0, searchQuery);
+        }, 500); // 500ms debounce
+
+        return () => clearTimeout(handler);
+    }, [searchQuery, fetchPage]);
+
+    // Handle pagination changes
+    useEffect(() => {
+        fetchPage(currentPage, searchQuery);
+    }, [currentPage, fetchPage]);
 
     const toggleUser = (user) => {
         const isSelected = selectedUsers.some(u => u.id === user.id);
@@ -43,18 +63,40 @@ export const ManualMemberSelector = ({ onSelectionChange }) => {
     return (
         <div className="manual-selector-wrapper">
             <div className="selector-header-actions">
-                <span className="selection-counter">
-                    Selected: <strong>{selectedUsers.length}</strong>
-                </span>
-                {selectedUsers.length > 0 && (
-                    <button type="button" className="clear-selection-btn" onClick={clearAll}>
-                        Clear All
-                    </button>
-                )}
+                {/* Search Bar Implementation */}
+                <div className="SearchContainer">
+                    <input
+                        type="text"
+                        className="SearchInput"
+                        placeholder="Search candidates..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                        <button 
+                            className="SearchClearBtn" 
+                            onClick={() => setSearchQuery('')}
+                            type="button"
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
+
+                <div className="selection-stats">
+                    <span className="selection-counter">
+                        Selected: <strong>{selectedUsers.length}</strong>
+                    </span>
+                    {selectedUsers.length > 0 && (
+                        <button type="button" className="clear-selection-btn" onClick={clearAll}>
+                            Clear All
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="selection-list-container">
-                {pageData.content.length > 0 ? (
+                {pageData.content && pageData.content.length > 0 ? (
                     pageData.content.map(user => (
                         <div
                             key={user.id}
@@ -91,7 +133,7 @@ export const ManualMemberSelector = ({ onSelectionChange }) => {
                 </span>
                 <button
                     type="button"
-                    disabled={currentPage >= pageData.totalPages - 1}
+                    disabled={currentPage >= (pageData.totalPages || 1) - 1}
                     onClick={() => setCurrentPage(prev => prev + 1)}
                 >
                     Next &rarr;
