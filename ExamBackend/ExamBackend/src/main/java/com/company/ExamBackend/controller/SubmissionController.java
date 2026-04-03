@@ -1,9 +1,6 @@
 package com.company.ExamBackend.controller;
 
-import com.company.ExamBackend.dto.ResultMailResponseDTO;
-import com.company.ExamBackend.dto.SubmissionDetailsDTO;
-import com.company.ExamBackend.dto.SubmissionResponseDTO;
-import com.company.ExamBackend.dto.SubmissionsOverviewDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,6 +80,24 @@ public class SubmissionController {
         ResultMailResponseDTO resultMailResponseDTO =
                 submissionService.sendResults(examId,userDetails.getUsername());
         return ResponseEntity.ok(resultMailResponseDTO);
+    }
+
+    @Operation(
+            summary = "Search for submission",
+            description = "Searches for candidate submission by name or email"
+    )
+    @PostMapping("/submission/search")
+    public ResponseEntity<Page<SubmissionResponseDTO>> searchCandidateSubmission(
+            @RequestBody SearchSubmCandDTO searchSubmCandDTO,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(submissionService.searchSubmissionByExam(
+                searchSubmCandDTO,
+                userDetails.getUsername(),
+                page,
+                size)
+        );
     }
 
 //    @Operation(

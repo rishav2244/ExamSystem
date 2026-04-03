@@ -114,4 +114,12 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
             "AND s.status = 'COMPLETED'" +
             "AND s.mailed = true")
     Page<Object[]> getCandidateResults(String candidateEmail, Pageable pageable);
+
+    @Query("SELECT s " +
+            "FROM Submission s " +
+            "WHERE s.exam.id = :examId " +
+            "AND (s.candidateEmail ILIKE %:query% " +
+            "OR s.candidateName ILIKE %:query% )" +
+            "AND s.exam.createdBy.email = :adminEmail")
+    Page<Submission> searchSubmissionByQuery(String query, String examId, String adminEmail, Pageable pageable);
 }

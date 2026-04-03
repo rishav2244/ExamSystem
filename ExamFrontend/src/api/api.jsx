@@ -513,9 +513,9 @@ export const searchExams = async (query, page = 0, size = 10) => {
         const payload = { query: query };
 
         const resp = await axios.post(`${API_URL}/exams/search`, payload, {
-            params: { 
-                page: page, 
-                size: size 
+            params: {
+                page: page,
+                size: size
             }
         });
 
@@ -528,14 +528,35 @@ export const searchExams = async (query, page = 0, size = 10) => {
 
 export const searchGroupMembers = async (groupId, query, page = 0, size = 5) => {
     try {
-        const payload = { query }; 
-        
+        const payload = { query };
+
         const resp = await axios.post(`${API_URL}/userGroups/userList/${groupId}`, payload, {
             params: { page, size }
         });
         return resp.data;
     } catch (err) {
         console.error("Error searching group members:", err);
+        throw err;
+    }
+};
+
+export const searchSubmissions = async (examId, query, page = 0, size = 5) => {
+    try {
+        const payload = {
+            examId: examId,
+            query: query
+        };
+
+        const resp = await axios.post(`${API_URL}/submissions/submission/search`, payload, {
+            params: {
+                page: page,
+                size: size
+            }
+        });
+
+        return resp.data;
+    } catch (err) {
+        console.error("Error searching submissions:", err.response?.data || err.message);
         throw err;
     }
 };

@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
-import { getSubmissionsByExam } from '../api/api';
+import { getSubmissionsByExam, sendResults, searchSubmissions } from '../api/api';
 import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
-import { sendResults } from '../api/api';
 
 export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const [submissions, setSubmissions] = useState([]);
@@ -12,34 +11,52 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
 
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const pageSize = 10; 
+    const pageSize = 10;
 
     const navigate = useNavigate();
     const [sendingResults, setSendingResults] = useState(false);
     const [resultSummary, setResultSummary] = useState(null);
-    const [sendError, setSendError] = useState(null);
 
-    useEffect(() => {
+    // 1. Unified Fetching Logic
+    const fetchSubmissions = async (page, query) => {
         setLoading(true);
-        getSubmissionsByExam(exam.id, currentPage, pageSize)
-            .then(data => {
-                setSubmissions(data.content || []); 
-                setTotalPages(data.totalPages || 0);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setLoading(false);
-            });
-    }, [exam.id, currentPage]);
+        try {
+            let data;
+            if (query.trim()) {
+                // Use the new Search API
+                data = await searchSubmissions(exam.id, query, page, pageSize);
+            } else {
+                // Use standard pagination
+                data = await getSubmissionsByExam(exam.id, page, pageSize);
+            }
+            setSubmissions(data.content || []);
+            setTotalPages(data.totalPages || 0);
+        } catch (err) {
+            console.error("Fetch error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const filteredAndSortedData = useMemo(() => {
-        // Note: Filtering here only filters the CURRENT page. 
-        let processed = [...submissions].filter(sub =>
-            sub.candidateName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            sub.candidateEmail.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+    // 2. Debounce Effect for Search
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            setCurrentPage(0); // Reset to first page on new search
+            fetchSubmissions(0, searchTerm);
+        }, 500); // 500ms debounce
 
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
+
+    // 3. Effect for Pagination (only triggers if NOT searching, or on page change)
+    useEffect(() => {
+        // We only trigger this manually on page changes to avoid double-fetching with the search effect
+        fetchSubmissions(currentPage, searchTerm);
+    }, [currentPage]);
+
+    // Client-side sorting (Filtering is now handled by Server)
+    const sortedData = useMemo(() => {
+        let processed = [...submissions];
         if (sortConfig.key) {
             processed.sort((a, b) => {
                 let aVal = a[sortConfig.key] ?? 0;
@@ -50,10 +67,10 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
             });
         }
         return processed;
-    }, [submissions, searchTerm, sortConfig]);
+    }, [submissions, sortConfig]);
 
     const handlePageChange = (newPage) => {
-        if (newPage >= 0 && newPage < totalPages) {
+        if (newPage >= 0 && (totalPages === 0 || newPage < totalPages)) {
             setCurrentPage(newPage);
         }
     };
@@ -65,7 +82,9 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
         }
         setSortConfig({ key, direction });
     };
+
     const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleString() : "N/A";
+    
     const getSortIcon = (key) => {
         if (sortConfig.key !== key) return "↕️";
         return sortConfig.direction === 'asc' ? "↑" : "↓";
@@ -92,11 +111,10 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const handleSendResults = async () => {
         try {
             setSendingResults(true);
-            setSendError(null);
             const response = await sendResults(exam.id);
             setResultSummary(response);
         } catch (err) {
-            setSendError("Failed to send results");
+            alert("Failed to send results");
         } finally {
             setSendingResults(false);
         }
@@ -109,15 +127,25 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                 <h2>Results: {exam.title}</h2>
 
                 <div className="modal-actions">
-                    <div className='submissions-details-search-div'>
+                    {/* New Debounced Search UI with provided CSS classes */}
+                    <div className="SearchContainer">
                         <input
                             type="text"
-                            placeholder="Search current page..."
-                            className="table-search-input"
+                            placeholder="Search by name or email..."
+                            className="SearchInput"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        {searchTerm && (
+                            <button 
+                                className="SearchClearBtn" 
+                                onClick={() => setSearchTerm("")}
+                            >
+                                ✕
+                            </button>
+                        )}
                     </div>
+                    
                     <div className='submissions-details-buttons-div'>
                         <button className="csv-btn" onClick={handleDownloadCSV}>Download CSV</button>
                         <button className="stats-btn" onClick={() => navigate(`/admin/exam-statistics/${exam.id}`, { state: { exam, submissions } })}>
@@ -129,7 +157,6 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                     </div>
                 </div>
 
-                {/* Result Summary logic remains same */}
                 {resultSummary && (
                     <div className="result-mail-summary">
                         <p><strong>Total Attempted:</strong> {resultSummary.attempted}</p>
@@ -155,7 +182,7 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredAndSortedData.map(sub => (
+                                    {sortedData.map(sub => (
                                         <tr key={sub.id} className="clickable-row" onClick={() => navigate(`/admin/submissions/${sub.id}`, { state: { sub } })}>
                                             <td>{sub.candidateName}</td>
                                             <td>{sub.candidateEmail}</td>
@@ -168,11 +195,15 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                             <td><span className={`mailed-badge ${sub.mailed ? 'sent' : 'pending'}`}>{sub.mailed ? "Mailed" : "Not Mailed"}</span></td>
                                         </tr>
                                     ))}
+                                    {sortedData.length === 0 && (
+                                        <tr>
+                                            <td colSpan="9" style={{textAlign: 'center', padding: '20px'}}>No submissions found matching your search.</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
 
-                        {/* Pagination Controls */}
                         <div className="UserPagination">
                             <button 
                                 onClick={() => handlePageChange(currentPage - 1)} 
@@ -189,12 +220,12 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                                     value={currentPage + 1}
                                     onChange={(e) => handlePageChange(Number(e.target.value) - 1)}
                                 />
-                                <span>of {totalPages}</span>
+                                <span>of {totalPages || 1}</span>
                             </div>
 
                             <button 
                                 onClick={() => handlePageChange(currentPage + 1)} 
-                                disabled={currentPage >= totalPages - 1}
+                                disabled={currentPage >= totalPages - 1 || totalPages === 0}
                             >
                                 Next
                             </button>

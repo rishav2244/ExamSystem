@@ -9,7 +9,21 @@ public interface SubmissionService {
     StartExamResponseDTO startExam(StartExamRequestDTO dto, String email);
     void reportViolation(String submissionId);
     void checkEligibility(String examId, String email);
-    Page<SubmissionResponseDTO> getSubmissionsByExam(String examId, String adminEmail, int page, int size);
+
+    Page<SubmissionResponseDTO> getSubmissionsByExam(
+            String examId,
+            String adminEmail,
+            int page,
+            int size
+    );
+
+    Page<SubmissionResponseDTO> searchSubmissionByExam(
+            SearchSubmCandDTO searchSubmCandDTO,
+            String adminEmail,
+            int page,
+            int size
+    );
+
     SubmissionDetailsDTO getSubmissionDetails(String submissionId, String adminEmail);
     SubmissionsOverviewDTO getSubmissionsOverview(String email);
     ResultMailResponseDTO sendResults(String examId, String adminEmail);

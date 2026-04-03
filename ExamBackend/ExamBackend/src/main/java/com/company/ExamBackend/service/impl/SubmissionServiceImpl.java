@@ -76,6 +76,22 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
+    public Page<SubmissionResponseDTO> searchSubmissionByExam(
+            SearchSubmCandDTO searchSubmCandDTO,
+            String adminEmail,
+            int page,
+            int size
+    ){
+        Sort sort = Sort.by(Sort.Direction.DESC, "candidateName");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return submissionRepository.searchSubmissionByQuery(
+                searchSubmCandDTO.getQuery(),
+                searchSubmCandDTO.getExamId(),
+                adminEmail,
+                pageable).map(submissionMapper::toResponseDTO);
+    }
+
+    @Override
     public SubmissionDetailsDTO getSubmissionDetails(String submissionId, String adminEmail) {
         // Security check: Only return details if the submission belongs to this admin's exam
         Submission submission = submissionRepository.findByIdAndAdminEmail(submissionId, adminEmail)
