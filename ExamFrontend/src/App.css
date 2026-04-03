@@ -4792,97 +4792,97 @@ button:hover {
 }
 
 .GrpList-Pagination-Container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 15px;
-    padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+  padding: 10px;
 }
 
 .GrpList-Pagination-Btn {
-    padding: 6px 12px;
-    border: 1px solid #007bff;
-    background-color: #fff;
-    color: #007bff;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    min-width: 80px;
+  padding: 6px 12px;
+  border: 1px solid #007bff;
+  background-color: #fff;
+  color: #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 80px;
 }
 
 .GrpList-Pagination-Btn:hover:not(:disabled) {
-    background-color: #007bff;
-    color: #fff;
+  background-color: #007bff;
+  color: #fff;
 }
 
 .GrpList-Pagination-Btn:disabled {
-    border-color: #ccc;
-    color: #ccc;
-    cursor: not-allowed;
+  border-color: #ccc;
+  color: #ccc;
+  cursor: not-allowed;
 }
 
 .GrpList-Pagination-Info {
-    font-size: 14px;
-    color: #555;
+  font-size: 14px;
+  color: #555;
 }
 
 /* Container for the whole pagination block */
 .GrpList-Pagination-Container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin-top: 25px;
-    padding: 10px;
-    font-family: inherit;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 25px;
+  padding: 10px;
+  font-family: inherit;
 }
 
 /* Nav arrows (< and >) */
 .GrpList-Pagination-Nav {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    color: #333;
-    padding: 5px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #333;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
 }
 
 .GrpList-Pagination-Nav:hover:not(:disabled) {
-    background: #e2e6ea;
-    border-color: #adb5bd;
+  background: #e2e6ea;
+  border-color: #adb5bd;
 }
 
 .GrpList-Pagination-Nav:disabled {
-    color: #ccc;
-    cursor: not-allowed;
+  color: #ccc;
+  cursor: not-allowed;
 }
 
 /* The middle section with the input */
 .GrpList-Jump-Container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #495057;
 }
 
 .GrpList-Jump-Input {
-    width: 45px;
-    padding: 4px 2px;
-    text-align: center;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-weight: 600;
-    outline: none;
+  width: 45px;
+  padding: 4px 2px;
+  text-align: center;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-weight: 600;
+  outline: none;
 }
 
 .GrpList-Jump-Input:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+  border-color: #80bdff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, .25);
 }
 
 /*FOR RESULT */
@@ -5071,63 +5071,81 @@ button:hover {
 }
 
 .success-overlay {
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10000; /* Higher than proctoring warnings */
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  /* Higher than proctoring warnings */
 }
 
 .success-modal {
-    border-top: 5px solid #28a745;
+  border-top: 5px solid #28a745;
 }
 
 .success-icon {
-    font-size: 3rem;
-    color: #28a745;
-    margin-bottom: 1rem;
+  font-size: 3rem;
+  color: #28a745;
+  margin-bottom: 1rem;
 }
 
 .confirm-ok {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 /* Layout helper for the header */
 .AdminHeaderActions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 /* Search bar styling */
 .SearchContainer {
-    position: relative;
-    display: flex;
-    align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .SearchInput {
-    padding: 6px 30px 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    width: 200px;
+  padding: 6px 30px 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 200px;
 }
 
 .SearchClearBtn {
-    position: absolute;
-    right: 8px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    color: #888;
-    line-height: 1;
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+  line-height: 1;
 }
 
 .SearchClearBtn:hover {
-    color: #333;
+  color: #333;
+}
+
+.profile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #f1f3f5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-icon:hover {
+  background-color: #e0e0e0;
+  /* transform: scale(1.05); */
 }

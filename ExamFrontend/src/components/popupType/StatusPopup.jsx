@@ -33,7 +33,7 @@ export const StatusPopup = ({ message, type, onClose, data = null }) => {
                             ))}
                         </div>
                         <button type="button" className="pop-dl-btn" onClick={handleDownloadFailures}>
-                            📥 Download List as CSV
+                             Download List as CSV
                         </button>
                     </div>
                 )}

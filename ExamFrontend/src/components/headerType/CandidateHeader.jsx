@@ -1,7 +1,7 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import { AuthenticationContext } from "../../context/AuthenticationContext";
 import { ResetPasswordModal } from "../../pages/ResetPasswordModal";
-
+import { User } from "lucide-react";
 export const CandidateHeader = () => {
 
     const { name, email, role, logout } =
@@ -35,15 +35,13 @@ export const CandidateHeader = () => {
             </h4>
 
             <div className="profile-container" ref={dropdownRef}>
-
-                <div
+                 <div
                     className="profile-icon"
-                    onClick={() =>
-                        setShowDropdown(!showDropdown)
-                    }
+                    onClick={() => setShowDropdown(!showDropdown)}
                 >
-                    👤
+                    <User size={20} />
                 </div>
+
 
                 {showDropdown && (
                     <div className="profile-dropdown">

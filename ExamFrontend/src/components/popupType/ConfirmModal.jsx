@@ -1,5 +1,3 @@
-import React from "react";
-
 export const ConfirmModal = ({ message, onConfirm, onCancel }) => {
   return (
     <div className="popup-overlay">

@@ -1,5 +1,3 @@
-// import "./MailSendingModal.css";
-
 export const MailSendingModal = () => {
   return (
     <div className="mail-sending-overlay">

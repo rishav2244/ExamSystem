@@ -1,5 +1,3 @@
-import React from "react";
-
 export const UserActionPopup = ({ show, message, type, onClose }) => {
 
     if (!show) return null;
