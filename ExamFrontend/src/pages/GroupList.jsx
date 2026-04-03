@@ -12,7 +12,6 @@ export const GroupList = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [pageSize] = useState(5);
     
-    // State for the "Count-Enter" input field
     const [jumpPage, setJumpPage] = useState("1");
 
     const fetchGroups = async (page = 0) => {
@@ -21,7 +20,7 @@ export const GroupList = () => {
             setGroups(data.content || []);
             setTotalPages(data.totalPages || 0);
             setCurrentPage(page);
-            setJumpPage((page + 1).toString()); // Sync input with actual page
+            setJumpPage((page + 1).toString()); 
         } catch (err) { 
             console.error("Failed to fetch groups:", err); 
         }
@@ -29,14 +28,13 @@ export const GroupList = () => {
 
     useEffect(() => { fetchGroups(0); }, []);
 
-    // Handles the "Enter" key on the page input
     const handleJumpPage = (e) => {
         if (e.key === 'Enter') {
             const pageNum = parseInt(jumpPage) - 1;
             if (!isNaN(pageNum) && pageNum >= 0 && pageNum < totalPages) {
                 fetchGroups(pageNum);
             } else {
-                setJumpPage((currentPage + 1).toString()); // Reset on invalid
+                setJumpPage((currentPage + 1).toString()); 
             }
         }
     };
@@ -72,7 +70,6 @@ export const GroupList = () => {
                     </tbody>
                 </table>
 
-                {/* Count-Enter Pagination Controls */}
                 {totalPages > 0 && (
                     <div className="GrpList-Pagination-Container">
                         <button 

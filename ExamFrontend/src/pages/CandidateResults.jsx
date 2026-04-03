@@ -6,7 +6,7 @@ export const CandidateResults = () => {
     const [results, setResults] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [pageSize] = useState(5); // Matches your preference
+    const [pageSize] = useState(5); 
     
     const navigate = useNavigate();
 
@@ -29,13 +29,11 @@ export const CandidateResults = () => {
             setCurrentPage(newPage);
         }
     };
-
-    // Handler for the "Page Jump" input field
     const handleInputChange = (e) => {
         const val = e.target.value;
         if (val === "") return;
         
-        const pageNum = parseInt(val, 10) - 1; // Convert to 0-indexed
+        const pageNum = parseInt(val, 10) - 1;
         if (pageNum >= 0 && pageNum < totalPages) {
             setCurrentPage(pageNum);
         }
@@ -107,8 +105,6 @@ export const CandidateResults = () => {
                         )}
                     </tbody>
                 </table>
-
-                {/* Using your existing UserPagination CSS structure */}
                 {totalPages > 1 && (
                     <div className="UserPagination">
                         <button 

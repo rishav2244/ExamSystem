@@ -30,10 +30,7 @@ export const UserList = () => {
             console.error("Failed to fetch users:", err);
         }
     };
-
-    // Effect 1: Handle Search with Debounce
     useEffect(() => {
-        // Skip debounce on the very first load because Effect 2 handles it
         if (isInitialMount.current) {
             return;
         }
@@ -44,8 +41,6 @@ export const UserList = () => {
 
         return () => clearTimeout(handler);
     }, [searchTerm]);
-
-    // Effect 2: Handle Pagination & Initial Load (Instant)
     useEffect(() => {
         fetchUsers(currentPage, searchTerm);
         
@@ -79,7 +74,7 @@ export const UserList = () => {
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
-                                    setCurrentPage(0); // This triggers Effect 2 instantly
+                                    setCurrentPage(0);
                                 }}
                             />
                             {searchTerm && (
