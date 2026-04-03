@@ -17,5 +17,11 @@ public interface UserGroupService {
             int page,
             int size
     );
+    Page<UserGroupResponseDTO> searchGroup(
+            String adminEmail,
+            GrpSearchDTO grpSearchDTO,
+            int page,
+            int size
+    );
     void deleteUserGroup(String groupId);
 }

@@ -63,10 +63,31 @@ public class UserGroupController {
     }
 
     @Operation(
+            summary = "Search for group",
+            description = "Searches for group based on query."
+    )
+    @PostMapping("/userList/search")
+    public ResponseEntity<Page<UserGroupResponseDTO>> searchGroup(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestBody GrpSearchDTO grpSearchDTO,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
+        return ResponseEntity.ok(
+                userGroupService.searchGroup(
+                        userDetails.getUsername(),
+                        grpSearchDTO,
+                        page,
+                        size
+                        )
+        );
+    }
+
+    @Operation(
             summary = "Search for group member",
             description = "Searches for user from group based on query."
     )
-    @PostMapping("/userList/{groupId}")
+    @PostMapping("/userList/searcg/{groupId}")
     public ResponseEntity<Page<GrpMemberDTO>> searchGroupMember(
             @PathVariable String groupId,
             @RequestParam(defaultValue = "0") int page,
@@ -81,7 +102,7 @@ public class UserGroupController {
                         groupId,
                         page,
                         size
-                        )
+                )
         );
     }
 

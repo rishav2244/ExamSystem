@@ -92,6 +92,21 @@ public class UserGroupServiceImpl  implements UserGroupService {
                 .map(userGroupMapper::toGrpMemberDTO);
     }
 
+    @Override
+    public Page<UserGroupResponseDTO> searchGroup(
+            String adminEmail,
+            GrpSearchDTO grpSearchDTO,
+            int page,
+            int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "ug.name");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return userGroupRepository.searchGroupByQuery(
+                        grpSearchDTO.getQuery(),
+                        adminEmail,
+                        pageable)
+                .map(userGroupMapper::toGroupResponseDTO);
+    }
+
     @Transactional
     @Override
     public void deleteUserGroup(String groupId) {

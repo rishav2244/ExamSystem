@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAllUserGroups } from "../api/api";
+import { getAllUserGroups, searchGroups } from "../api/api";
 import { CreateGroupModal } from './CreateGroupModal';
 import { GroupDetailsModal } from './GroupDetailsModal';
 
@@ -12,31 +12,58 @@ export const GroupList = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [pageSize] = useState(5);
     
+    // Search state
+    const [searchQuery, setSearchQuery] = useState("");
+    
     // State for the "Count-Enter" input field
     const [jumpPage, setJumpPage] = useState("1");
 
-    const fetchGroups = async (page = 0) => {
+    // Central fetch function
+    const fetchGroups = async (page = 0, query = searchQuery) => {
         try {
-            const data = await getAllUserGroups(page, pageSize);
+            let data;
+            if (query.trim() !== "") {
+                data = await searchGroups(query, page, pageSize);
+            } else {
+                data = await getAllUserGroups(page, pageSize);
+            }
+            
             setGroups(data.content || []);
             setTotalPages(data.totalPages || 0);
             setCurrentPage(page);
-            setJumpPage((page + 1).toString()); // Sync input with actual page
+            setJumpPage((page + 1).toString());
         } catch (err) { 
             console.error("Failed to fetch groups:", err); 
         }
     };
 
-    useEffect(() => { fetchGroups(0); }, []);
+    // DEBOUNCE LOGIC: Watch searchQuery and trigger fetch after 500ms
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchGroups(0, searchQuery);
+        }, 500);
 
-    // Handles the "Enter" key on the page input
+        // Cleanup: clear timeout if user types again before 500ms
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
+
+    // Just updates state now; the useEffect above handles the API call
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const clearSearch = () => {
+        setSearchQuery("");
+        // fetchGroups(0, "") is handled by the useEffect above automatically
+    };
+
     const handleJumpPage = (e) => {
         if (e.key === 'Enter') {
             const pageNum = parseInt(jumpPage) - 1;
             if (!isNaN(pageNum) && pageNum >= 0 && pageNum < totalPages) {
                 fetchGroups(pageNum);
             } else {
-                setJumpPage((currentPage + 1).toString()); // Reset on invalid
+                setJumpPage((currentPage + 1).toString()); 
             }
         }
     };
@@ -46,6 +73,22 @@ export const GroupList = () => {
             <div className="AdminGroupSection">
                 <div className="AdminGroupHeader">
                     <h2>Groups</h2>
+                    
+                    <div className="SearchContainer">
+                        <input 
+                            type="text" 
+                            className="SearchInput" 
+                            placeholder="Search groups..." 
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                        />
+                        {searchQuery && (
+                            <button className="SearchClearBtn" onClick={clearSearch}>
+                                &times;
+                            </button>
+                        )}
+                    </div>
+
                     <button className="CreateGroupBtn" onClick={() => setIsCreateOpen(true)}>
                         + Create Group
                     </button>
@@ -59,20 +102,25 @@ export const GroupList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {groups.map(group => (
-                            <tr key={group.id}>
-                                <td>{group.name}</td>
-                                <td>
-                                    <button className="ViewBtn" onClick={() => setSelectedGroup(group)}>
-                                        View
-                                    </button>
-                                </td>
+                        {groups.length > 0 ? (
+                            groups.map(group => (
+                                <tr key={group.id}>
+                                    <td>{group.name}</td>
+                                    <td>
+                                        <button className="ViewBtn" onClick={() => setSelectedGroup(group)}>
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="2" style={{textAlign: 'center', padding: '20px'}}>No groups found.</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
 
-                {/* Count-Enter Pagination Controls */}
                 {totalPages > 0 && (
                     <div className="GrpList-Pagination-Container">
                         <button 
