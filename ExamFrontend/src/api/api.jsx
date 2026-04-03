@@ -576,6 +576,20 @@ export const searchGroups = async (query, page = 0, size = 5) => {
     }
 };
 
+export const searchCandidateResults = async (query, page = 0, size = 10) => {
+    try {
+        const payload = { query };
+        // Added /candidateUser to match the @RequestMapping on the Controller
+        const resp = await axios.post(`${API_URL}/candidateUser/results/search`, payload, {
+            params: { page, size }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Search API Failure:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));

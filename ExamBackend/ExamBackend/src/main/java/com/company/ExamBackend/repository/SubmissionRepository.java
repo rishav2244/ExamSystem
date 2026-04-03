@@ -107,13 +107,12 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
             "WHERE s.exam.id = :examId AND s.candidateEmail IN :emails")
     void markMultipleAsMailed(String examId, List<String> emails);
 
-    @Query("SELECT s.score, s.passed, s.timeTaken, s.createdAt, " +
-            "s.exam.totalScore, s.exam.title " +
+    @Query("SELECT s " +
             "FROM Submission s " +
             "WHERE s.candidateEmail = :candidateEmail " +
             "AND s.status = 'COMPLETED'" +
             "AND s.mailed = true")
-    Page<Object[]> getCandidateResults(String candidateEmail, Pageable pageable);
+    Page<Submission> getCandidateResults(String candidateEmail, Pageable pageable);
 
     @Query("SELECT s " +
             "FROM Submission s " +
@@ -122,4 +121,12 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
             "OR s.candidateName ILIKE %:query% )" +
             "AND s.exam.createdBy.email = :adminEmail")
     Page<Submission> searchSubmissionByQuery(String query, String examId, String adminEmail, Pageable pageable);
+
+    @Query("SELECT s " +
+            "FROM Submission s " +
+            "WHERE s.exam.title ILIKE %:query% " +
+            "AND s.candidateEmail = :candidateEmail " +
+            "AND s.status = 'COMPLETED' " +
+            "AND s.mailed = true")
+    Page<Submission> searchCandidateSubmissionByQuery(String query, String candidateEmail, Pageable pageable);
 }

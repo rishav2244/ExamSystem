@@ -138,4 +138,21 @@ public class CandidateController {
                 submissionService.fetchCandidateResults(userDetails.getUsername(), page, size);
         return ResponseEntity.ok(candidateSubmissionsOverview);
     }
+
+    @Operation(
+            summary = "Searches for a candidate result",
+            description = "Fetches results for exams for which candidate has appeared and " +
+                    "results have been mailed, based on criteria"
+    )
+    @PostMapping("/results/search")
+    public ResponseEntity<Page<CandidateSubmissionDetailDTO>> searchResults(
+            @RequestBody CandidateResSearchDTO candidateResSearchDTO,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<CandidateSubmissionDetailDTO> candidateSubmissionsOverview =
+                submissionService.searchCandidateResults(candidateResSearchDTO, userDetails.getUsername(), page, size);
+        return ResponseEntity.ok(candidateSubmissionsOverview);
+    }
 }

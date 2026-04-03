@@ -89,14 +89,14 @@ public class SubmissionMapper {
         return qr;
     }
 
-    public CandidateSubmissionDetailDTO toCandidateSubmissionDetailDTO(Object[] objects) {
+    public CandidateSubmissionDetailDTO toCandidateSubmissionDetailDTO(Submission submission) {
         CandidateSubmissionDetailDTO dto = new CandidateSubmissionDetailDTO();
-        dto.setScore(objects[0] != null ? ((Number) objects[0]).doubleValue() : 0.0);
-        dto.setPassed((Boolean) objects[1]);
-        dto.setTimeTaken(objects[2] != null ? ((Number) objects[2]).intValue() : 0);
-        dto.setDate((Instant) objects[3]);
-        dto.setTotalScore(objects[4] != null ? ((Number) objects[4]).doubleValue() : 0.0);
-        dto.setTitle((String) objects[5]);
+        dto.setScore(submission.getScore());
+        dto.setPassed(submission.isPassed());
+        dto.setTimeTaken(submission.getTimeTaken());
+        dto.setDate(submission.getCreatedAt());
+        dto.setTotalScore(submission.getScore());
+        dto.setTitle(submission.getExam().getTitle());
         return dto;
     }
 }

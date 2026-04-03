@@ -28,4 +28,10 @@ public interface SubmissionService {
     SubmissionsOverviewDTO getSubmissionsOverview(String email);
     ResultMailResponseDTO sendResults(String examId, String adminEmail);
     Page<CandidateSubmissionDetailDTO> fetchCandidateResults(String candidateEmail, int page, int size);
+    Page<CandidateSubmissionDetailDTO> searchCandidateResults(
+            CandidateResSearchDTO candidateResSearchDTO,
+            String candidateEmail,
+            int page,
+            int size
+    );
 }

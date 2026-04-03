@@ -150,11 +150,26 @@ public class SubmissionServiceImpl implements SubmissionService {
         return submissionRepository
                 .getCandidateResults(
                         candidateEmail,
-                        PageRequest.of(page, size, sort) // Pass the sort object here
+                        PageRequest.of(page, size, sort)
                 )
                 .map(submissionMapper::toCandidateSubmissionDetailDTO);
     }
 
+    @Override
+    public Page<CandidateSubmissionDetailDTO> searchCandidateResults(
+            CandidateResSearchDTO candidateResSearchDTO,
+            String candidateEmail,
+            int page,
+            int size
+    ){
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return submissionRepository.searchCandidateSubmissionByQuery(
+                candidateResSearchDTO.getQuery(),
+                candidateEmail,
+                pageable
+        ).map(submissionMapper::toCandidateSubmissionDetailDTO);
+    }
     // ======================================================================================
     // Helper Methods
     // ======================================================================================
