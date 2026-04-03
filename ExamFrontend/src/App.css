@@ -5108,6 +5108,8 @@ button:hover {
   position: relative;
   display: flex;
   align-items: center;
+  margin-left: auto;
+  margin-right: 20px;
 }
 
 .SearchInput {
