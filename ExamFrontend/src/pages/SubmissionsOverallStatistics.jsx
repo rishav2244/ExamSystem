@@ -43,7 +43,7 @@ export const SubmissionsOverallStatistics = () => {
                     className="btn-stats-back"
                     onClick={() => navigate('/admin/submissions/')}
                 >
-                    ← Submissions
+                    Submissions
                 </button>
 
                 <div>
