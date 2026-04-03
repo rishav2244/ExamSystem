@@ -21,7 +21,7 @@ public class Exam
     private String title;
 
     @Column(nullable = false)
-    private int duration;
+    private int duration; //In minutes
 
     @Column(nullable = false)
     private Instant startTime;

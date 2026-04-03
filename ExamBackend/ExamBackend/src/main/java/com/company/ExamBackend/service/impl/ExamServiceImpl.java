@@ -1,9 +1,6 @@
 package com.company.ExamBackend.service.impl;
 
-import com.company.ExamBackend.dto.CandidateResponseDTO;
-import com.company.ExamBackend.dto.CreateExamDTO;
-import com.company.ExamBackend.dto.ExamResponseDTO;
-import com.company.ExamBackend.dto.CandidateExamDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.exception.EmailNotFoundException;
 import com.company.ExamBackend.exception.ExamNotFoundException;
 import com.company.ExamBackend.exception.InvalidActionException;
@@ -22,10 +19,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -165,6 +165,23 @@ public class ExamServiceImpl implements ExamService {
 
         // Save the status change (if it was UNINVITED, it's now INVITED)
         examCandidateRepo.save(candidate);
+    }
+
+    @Override
+    @Transactional
+    public Page<ExamResponseDTO> searchExam(
+            ExamSearchDTO examSearchDTO,
+            String adminEmail,
+            int page,
+            int size){
+        Sort sort = Sort.by("endTime").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Exam> examPage = examRepository.searchByQuery(
+                examSearchDTO.getQuery(),
+                adminEmail,
+                pageable);
+        examPage.map(examMapper::toDTO);
+        return examPage.map(examMapper::toDTO);
     }
 
     // ======================================================================================

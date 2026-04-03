@@ -494,6 +494,24 @@ export const searchCandidates = async (searchQuery, page = 0, size = 10, sort = 
     }
 };
 
+export const searchExams = async (query, page = 0, size = 10) => {
+    try {
+        const payload = { query: query };
+
+        const resp = await axios.post(`${API_URL}/exams/search`, payload, {
+            params: { 
+                page: page, 
+                size: size 
+            }
+        });
+
+        return resp.data;
+    } catch (err) {
+        console.error("Error searching exams:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));

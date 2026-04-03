@@ -7,7 +7,6 @@ export const ManualMemberSelector = ({ onSelectionChange }) => {
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Fetching logic that decides between Search and Global list
     const fetchPage = useCallback(async (page, query) => {
         try {
             let data;
@@ -24,17 +23,15 @@ export const ManualMemberSelector = ({ onSelectionChange }) => {
         }
     }, []);
 
-    // Debounce Search Logic
     useEffect(() => {
         const handler = setTimeout(() => {
-            setCurrentPage(0); // Reset to first page on new search
+            setCurrentPage(0);
             fetchPage(0, searchQuery);
         }, 500); // 500ms debounce
 
         return () => clearTimeout(handler);
     }, [searchQuery, fetchPage]);
 
-    // Handle pagination changes
     useEffect(() => {
         fetchPage(currentPage, searchQuery);
     }, [currentPage, fetchPage]);
@@ -63,7 +60,6 @@ export const ManualMemberSelector = ({ onSelectionChange }) => {
     return (
         <div className="manual-selector-wrapper">
             <div className="selector-header-actions">
-                {/* Search Bar Implementation */}
                 <div className="SearchContainer">
                     <input
                         type="text"

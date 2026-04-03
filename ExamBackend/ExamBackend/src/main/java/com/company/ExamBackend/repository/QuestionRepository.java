@@ -21,7 +21,7 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
             "q.parentExam.id = :examId " +
             "AND parentExam.createdBy.email = :adminEmail " +
             "ORDER BY q.id Asc")
-    List<Question> findAllByExamIdWithOptions(@Param("examId") String examId, String adminEmail);
+    List<Question> findAllByExamIdWithOptions(@Param("examId") String examId, @Param("adminEmail") String adminEmail);
 
     @Modifying
     @Transactional

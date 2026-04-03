@@ -29,4 +29,12 @@ public interface ExamRepository extends JpaRepository<Exam, String> {
             "WHERE e.status = 'PUBLISHED' " +
             "AND e.createdBy.email = :adminEmail")
     Long publishedCount(String adminEmail);
+
+    @Query("SELECT e " +
+            "FROM Exam e " +
+            "WHERE (e.title ILIKE %:query% " +
+            "OR e.status ILIKE %:query%) " +
+            "AND e.createdBy.email = :adminEmail"
+    )
+    Page<Exam> searchByQuery(String query, String adminEmail, Pageable pageable);
 }

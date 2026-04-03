@@ -3,6 +3,7 @@ package com.company.ExamBackend.controller;
 import com.company.ExamBackend.dto.CandidateResponseDTO;
 import com.company.ExamBackend.dto.CreateExamDTO;
 import com.company.ExamBackend.dto.ExamResponseDTO;
+import com.company.ExamBackend.dto.ExamSearchDTO;
 import com.company.ExamBackend.service.ExamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -109,5 +110,25 @@ public class ExamController {
     public ResponseEntity<String> resendInvitation(@PathVariable String candidateId) {
         examService.resendInvitation(candidateId);
         return ResponseEntity.ok("Invitation resent successfully");
+    }
+
+    @Operation(
+            summary = "Searches for exam",
+            description = "Used by admin to Searches for exam based on criteria."
+    )
+    @PostMapping("/search")
+    public ResponseEntity<Page<ExamResponseDTO>> searchExam(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestBody ExamSearchDTO examSearchDTO
+            ) {
+        Page<ExamResponseDTO> exams =
+                examService.searchExam(
+                        examSearchDTO,
+                        userDetails.getUsername(),
+                        page,
+                        size);
+        return ResponseEntity.ok(exams);
     }
 }
