@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getExams } from '../api/api';
+import { getExams, searchExams } from '../api/api';
 import { SubmissionDetailsModal } from './SubmissionDetailsModal';
 
 export const Submissions = () => {
@@ -10,33 +10,76 @@ export const Submissions = () => {
     const [pageSize] = useState(5);
 
     const [selectedExam, setSelectedExam] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
+
     const navigate = useNavigate();
 
-    const fetchExams = useCallback(async (page) => {
-        try {
-            const data = await getExams(page, pageSize);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery.trim());
+        }, 500);
 
-            setExams(data.content);
-            setTotalPages(data.totalPages);
-            setCurrentPage(data.number);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const fetchExams = useCallback(async (page, query = '') => {
+        try {
+            let data;
+
+            if (query) {
+                data = await searchExams(query, page, pageSize);
+            } else {
+                data = await getExams(page, pageSize);
+            }
+
+            setExams(data.content || []);
+            setTotalPages(data.totalPages || 0);
+            setCurrentPage(data.number || 0);
         } catch (err) {
             console.error("Error fetching exams for submissions:", err);
+            setExams([]);
+            setTotalPages(0);
         }
     }, [pageSize]);
 
     useEffect(() => {
-        fetchExams(0);
-    }, [fetchExams]);
+        fetchExams(0, debouncedQuery);
+    }, [fetchExams, debouncedQuery]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
-            fetchExams(newPage);
+            fetchExams(newPage, debouncedQuery);
         }
-    }; 
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const clearSearch = () => {
+        setSearchQuery('');
+    };
 
     return (
         <div className="SubmissionsPage">
             <h2>Exam Submissions</h2>
+
+            <div className="SearchContainer" style={{ marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    className="SearchInput"
+                    placeholder="Search exams by title..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                />
+                {searchQuery && (
+                    <button className="SearchClearBtn" onClick={clearSearch}>
+                        ×
+                    </button>
+                )}
+            </div>
+
             <button
                 className="btn-view-overall-stats"
                 onClick={() => navigate('overall')}
@@ -66,7 +109,11 @@ export const Submissions = () => {
                             </tr>
                         ))
                     ) : (
-                        <tr><td colSpan="4" style={{ textAlign: 'center' }}>No exams found.</td></tr>
+                        <tr>
+                            <td colSpan="4" style={{ textAlign: 'center' }}>
+                                {searchQuery ? 'No exams found matching your search.' : 'No exams found.'}
+                            </td>
+                        </tr>
                     )}
                 </tbody>
             </table>

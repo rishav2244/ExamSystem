@@ -16,7 +16,24 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, String > {
     boolean existsByNameAndCreatedBy_Email(String name, String email);
 
     // Only fetches groups belonging to the parent admin
-    @Query(value = "SELECT ug FROM UserGroup ug JOIN FETCH ug.createdBy WHERE ug.createdBy.email = :email",
-            countQuery = "SELECT COUNT(ug) FROM UserGroup ug WHERE ug.createdBy.email = :email")
+    @Query(value = "SELECT ug " +
+            "FROM UserGroup ug " +
+            "JOIN FETCH ug.createdBy " +
+            "WHERE ug.createdBy.email = :email",
+            countQuery = "SELECT COUNT(ug) " +
+                    "FROM UserGroup ug " +
+                    "WHERE ug.createdBy.email = :email")
     Page<UserGroup> findByCreatedBy_Email(String email, Pageable pageable);
+
+    @Query(value = "SELECT ug " +
+            "FROM UserGroup ug " +
+            "JOIN FETCH ug.createdBy " +
+            "WHERE ug.createdBy.email = :email " +
+            "AND ug.name ILIKE %:query%",
+            countQuery = "SELECT COUNT(ug) " +
+                    "FROM UserGroup ug " +
+                    "WHERE ug.createdBy.email = :email " +
+                    "AND ug.name ILIKE %:query%"
+    )
+    Page<UserGroup> searchGroupByQuery(String query, String email, Pageable pageable);
 }

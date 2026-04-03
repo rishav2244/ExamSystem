@@ -120,7 +120,6 @@ export const createExam = async (title, duration, startTime, endTime, status, cr
 
 export const getExams = async (page = 0, size = 10, status = null) => {
     try {
-        // Build params object explicitly
         const queryParams = new URLSearchParams();
         queryParams.append("page", page);
         queryParams.append("size", size);
@@ -129,9 +128,7 @@ export const getExams = async (page = 0, size = 10, status = null) => {
             queryParams.append("status", status);
         }
 
-        // Log this to your console to verify the URL
         const fullUrl = `${API_URL}/exams/getExams?${queryParams.toString()}`;
-        console.log("Fetching from:", fullUrl);
 
         const resp = await axios.get(`${API_URL}/exams/getExams`, {
             params: queryParams
@@ -530,7 +527,7 @@ export const searchGroupMembers = async (groupId, query, page = 0, size = 5) => 
     try {
         const payload = { query };
 
-        const resp = await axios.post(`${API_URL}/userGroups/userList/${groupId}`, payload, {
+        const resp = await axios.post(`${API_URL}/userGroups/userList/search/${groupId}`, payload, {
             params: { page, size }
         });
         return resp.data;
@@ -557,6 +554,24 @@ export const searchSubmissions = async (examId, query, page = 0, size = 5) => {
         return resp.data;
     } catch (err) {
         console.error("Error searching submissions:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
+export const searchGroups = async (query, page = 0, size = 5) => {
+    try {
+        const payload = { query };
+
+        const resp = await axios.post(`${API_URL}/userGroups/userList/search`, payload, {
+            params: {
+                page: page,
+                size: size
+            }
+        });
+
+        return resp.data;
+    } catch (err) {
+        console.error("Error searching groups:", err.response?.data || err.message);
         throw err;
     }
 };

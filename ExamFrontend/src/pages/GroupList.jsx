@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { getAllUserGroups } from "../api/api";
+import { useEffect, useState, useRef } from 'react';
+import { getAllUserGroups, searchGroups } from "../api/api";
 import { CreateGroupModal } from './CreateGroupModal';
 import { GroupDetailsModal } from './GroupDetailsModal';
 
@@ -12,21 +12,60 @@ export const GroupList = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [pageSize] = useState(5);
     
+    // Search state
+    const [searchQuery, setSearchQuery] = useState("");
+    // Ref to track the first render to skip debounce on mount
+    const isFirstRender = useRef(true);
+    
+    // State for the "Count-Enter" input field
     const [jumpPage, setJumpPage] = useState("1");
 
-    const fetchGroups = async (page = 0) => {
+    // Central fetch function
+    const fetchGroups = async (page = 0, query = searchQuery) => {
         try {
-            const data = await getAllUserGroups(page, pageSize);
+            let data;
+            if (query.trim() !== "") {
+                data = await searchGroups(query, page, pageSize);
+            } else {
+                data = await getAllUserGroups(page, pageSize);
+            }
+            
             setGroups(data.content || []);
             setTotalPages(data.totalPages || 0);
             setCurrentPage(page);
-            setJumpPage((page + 1).toString()); 
+            setJumpPage((page + 1).toString());
         } catch (err) { 
             console.error("Failed to fetch groups:", err); 
         }
     };
 
-    useEffect(() => { fetchGroups(0); }, []);
+    // 1. INITIAL LOAD ONLY: Fired once on mount
+    useEffect(() => {
+        fetchGroups(0, "");
+    }, []);
+
+    // 2. DEBOUNCE ONLY FOR SEARCH: Skips the very first render
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const handler = setTimeout(() => {
+            fetchGroups(0, searchQuery);
+        }, 500);
+
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const clearSearch = () => {
+        setSearchQuery("");
+        // The debounce effect will pick up the empty string and fetch page 0
+    };
 
     const handleJumpPage = (e) => {
         if (e.key === 'Enter') {
@@ -44,6 +83,22 @@ export const GroupList = () => {
             <div className="AdminGroupSection">
                 <div className="AdminGroupHeader">
                     <h2>Groups</h2>
+                    
+                    <div className="SearchContainer">
+                        <input 
+                            type="text" 
+                            className="SearchInput" 
+                            placeholder="Search groups..." 
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                        />
+                        {searchQuery && (
+                            <button className="SearchClearBtn" onClick={clearSearch}>
+                                &times;
+                            </button>
+                        )}
+                    </div>
+
                     <button className="CreateGroupBtn" onClick={() => setIsCreateOpen(true)}>
                         + Create Group
                     </button>
@@ -57,16 +112,22 @@ export const GroupList = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {groups.map(group => (
-                            <tr key={group.id}>
-                                <td>{group.name}</td>
-                                <td>
-                                    <button className="ViewBtn" onClick={() => setSelectedGroup(group)}>
-                                        View
-                                    </button>
-                                </td>
+                        {groups.length > 0 ? (
+                            groups.map(group => (
+                                <tr key={group.id}>
+                                    <td>{group.name}</td>
+                                    <td>
+                                        <button className="ViewBtn" onClick={() => setSelectedGroup(group)}>
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="2" style={{textAlign: 'center', padding: '20px'}}>No groups found.</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
 
