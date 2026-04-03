@@ -231,9 +231,16 @@ export const getAllUsers = async (page = 0, size = 5) => {
     }
 };
 
-export const getAllUserGroups = async () => {
-    const resp = await axios.get(`${API_URL}/userGroups`);
-    return resp.data;
+export const getAllUserGroups = async (page = 0, size = 5) => {
+    try {
+        const resp = await axios.get(`${API_URL}/userGroups`, {
+            params: { page, size }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching user groups:", err);
+        throw err;
+    }
 };
 
 export const createGroup = async (groupData) => {
@@ -245,9 +252,16 @@ export const deleteGroup = async (groupId) => {
     await axios.delete(`${API_URL}/userGroups/delete/${groupId}`);
 };
 
-export const getGroupMembers = async (groupId) => {
-    const resp = await axios.get(`${API_URL}/userGroups/userList/${groupId}`);
-    return resp.data;
+export const getGroupMembers = async (groupId, page = 0, size = 5) => {
+    try {
+        const resp = await axios.get(`${API_URL}/userGroups/userList/${groupId}`, {
+            params: { page, size }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error fetching group members:", err);
+        throw err;
+    }
 };
 
 export const getCandidatesOnly = async (page = 0, size = 5) => {
@@ -508,6 +522,20 @@ export const searchExams = async (query, page = 0, size = 10) => {
         return resp.data;
     } catch (err) {
         console.error("Error searching exams:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
+export const searchGroupMembers = async (groupId, query, page = 0, size = 5) => {
+    try {
+        const payload = { query }; 
+        
+        const resp = await axios.post(`${API_URL}/userGroups/userList/${groupId}`, payload, {
+            params: { page, size }
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error searching group members:", err);
         throw err;
     }
 };

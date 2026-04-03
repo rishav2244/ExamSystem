@@ -8,18 +8,10 @@ export const Admin = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [pageSize] = useState(5);
-    
-    // Search State
     const [searchTerm, setSearchTerm] = useState("");
-
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [SelectedExam, setSelectedExam] = useState(null);
 
-    /**
-     * unified fetch logic: 
-     * If searchTerm exists, use searchExams API.
-     * Otherwise, use the standard getExams API.
-     */
     const fetchExams = useCallback(async (page, query = searchTerm) => {
         try {
             let data;
@@ -38,10 +30,9 @@ export const Admin = () => {
     }, [pageSize, searchTerm]);
 
     useEffect(() => {
-        // Debounce search or simple fetch on mount
         const delayDebounceFn = setTimeout(() => {
             fetchExams(0);
-        }, 300); // 300ms debounce to prevent spamming API on every keystroke
+        }, 300);
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm, fetchExams]);
@@ -54,7 +45,7 @@ export const Admin = () => {
 
     const clearSearch = () => {
         setSearchTerm("");
-        fetchExams(0, ""); // Force immediate fetch of all exams
+        fetchExams(0, "");
     };
 
     return (
@@ -63,7 +54,6 @@ export const Admin = () => {
                 <div className="AdminExamHeader">
                     <h2>Exams</h2>
                     
-                    {/* Added Search Bar */}
                     <div className="SearchContainer">
                         <input
                             type="text"
