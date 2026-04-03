@@ -120,7 +120,6 @@ export const createExam = async (title, duration, startTime, endTime, status, cr
 
 export const getExams = async (page = 0, size = 10, status = null) => {
     try {
-        // Build params object explicitly
         const queryParams = new URLSearchParams();
         queryParams.append("page", page);
         queryParams.append("size", size);
@@ -129,9 +128,7 @@ export const getExams = async (page = 0, size = 10, status = null) => {
             queryParams.append("status", status);
         }
 
-        // Log this to your console to verify the URL
         const fullUrl = `${API_URL}/exams/getExams?${queryParams.toString()}`;
-        console.log("Fetching from:", fullUrl);
 
         const resp = await axios.get(`${API_URL}/exams/getExams`, {
             params: queryParams
