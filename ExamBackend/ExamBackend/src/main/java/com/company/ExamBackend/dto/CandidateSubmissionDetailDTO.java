@@ -30,7 +30,7 @@ public class CandidateSubmissionDetailDTO{
             description = "Total score possible in exam",
             example = "10.0"
     )
-    private Double totalScore;
+    private Integer totalScore;
 
     @Schema(
             description = "Whether candidate has passed the exam or not",

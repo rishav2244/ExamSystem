@@ -95,7 +95,7 @@ public class SubmissionMapper {
         dto.setPassed(submission.isPassed());
         dto.setTimeTaken(submission.getTimeTaken());
         dto.setDate(submission.getCreatedAt());
-        dto.setTotalScore(submission.getScore());
+        dto.setTotalScore(submission.getExam().getTotalScore());
         dto.setTitle(submission.getExam().getTitle());
         return dto;
     }
