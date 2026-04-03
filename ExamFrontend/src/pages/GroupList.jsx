@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getAllUserGroups, searchGroups } from "../api/api";
 import { CreateGroupModal } from './CreateGroupModal';
 import { GroupDetailsModal } from './GroupDetailsModal';
@@ -14,6 +14,8 @@ export const GroupList = () => {
     
     // Search state
     const [searchQuery, setSearchQuery] = useState("");
+    // Ref to track the first render to skip debounce on mount
+    const isFirstRender = useRef(true);
     
     // State for the "Count-Enter" input field
     const [jumpPage, setJumpPage] = useState("1");
@@ -37,24 +39,32 @@ export const GroupList = () => {
         }
     };
 
-    // DEBOUNCE LOGIC: Watch searchQuery and trigger fetch after 500ms
+    // 1. INITIAL LOAD ONLY: Fired once on mount
     useEffect(() => {
+        fetchGroups(0, "");
+    }, []);
+
+    // 2. DEBOUNCE ONLY FOR SEARCH: Skips the very first render
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
         const handler = setTimeout(() => {
             fetchGroups(0, searchQuery);
         }, 500);
 
-        // Cleanup: clear timeout if user types again before 500ms
         return () => clearTimeout(handler);
     }, [searchQuery]);
 
-    // Just updates state now; the useEffect above handles the API call
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
 
     const clearSearch = () => {
         setSearchQuery("");
-        // fetchGroups(0, "") is handled by the useEffect above automatically
+        // The debounce effect will pick up the empty string and fetch page 0
     };
 
     const handleJumpPage = (e) => {
@@ -63,7 +73,6 @@ export const GroupList = () => {
             if (!isNaN(pageNum) && pageNum >= 0 && pageNum < totalPages) {
                 fetchGroups(pageNum);
             } else {
-                setJumpPage((currentPage + 1).toString()); 
                 setJumpPage((currentPage + 1).toString()); 
             }
         }
