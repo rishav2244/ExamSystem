@@ -5190,3 +5190,51 @@ button:hover {
   background-color: #e0e0e0;
 
 }
+.GrpList-Pagination-Container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.GrpList-Jump-Container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  color: #333;
+}
+
+.GrpList-Jump-Input {
+  width: 40px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.GrpList-Pagination-Nav {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.GrpList-Pagination-Nav:not(:disabled) {
+  background-color: #2f6fed;
+  color: white;
+}
+
+.GrpList-Pagination-Nav:not(:disabled):hover {
+  background-color: #1e5ae0;
+}
+
+.GrpList-Pagination-Nav:disabled {
+  background-color: #9ec1f7;
+  color: white;
+  cursor: not-allowed;
+}

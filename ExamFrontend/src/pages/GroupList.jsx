@@ -11,17 +11,15 @@ export const GroupList = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [pageSize] = useState(5);
-    
-    // Search state
+
     const [searchQuery, setSearchQuery] = useState("");
-    // Ref to track the first render to skip debounce on mount
     const isFirstRender = useRef(true);
-    
-    // State for the "Count-Enter" input field
+
     const [jumpPage, setJumpPage] = useState("1");
 
-    // Central fetch function
     const fetchGroups = async (page = 0, query = searchQuery) => {
+        if (page < 0 || page >= totalPages && totalPages !== 0) return;
+
         try {
             let data;
             if (query.trim() !== "") {
@@ -29,22 +27,20 @@ export const GroupList = () => {
             } else {
                 data = await getAllUserGroups(page, pageSize);
             }
-            
+
             setGroups(data.content || []);
             setTotalPages(data.totalPages || 0);
             setCurrentPage(page);
             setJumpPage((page + 1).toString());
-        } catch (err) { 
-            console.error("Failed to fetch groups:", err); 
+        } catch (err) {
+            console.error("Failed to fetch groups:", err);
         }
     };
 
-    // 1. INITIAL LOAD ONLY: Fired once on mount
     useEffect(() => {
         fetchGroups(0, "");
     }, []);
 
-    // 2. DEBOUNCE ONLY FOR SEARCH: Skips the very first render
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
@@ -64,16 +60,15 @@ export const GroupList = () => {
 
     const clearSearch = () => {
         setSearchQuery("");
-        // The debounce effect will pick up the empty string and fetch page 0
     };
 
     const handleJumpPage = (e) => {
         if (e.key === 'Enter') {
             const pageNum = parseInt(jumpPage) - 1;
             if (!isNaN(pageNum) && pageNum >= 0 && pageNum < totalPages) {
-                fetchGroups(pageNum);
+                fetchGroups(pageNum, searchQuery);
             } else {
-                setJumpPage((currentPage + 1).toString()); 
+                setJumpPage((currentPage + 1).toString());
             }
         }
     };
@@ -83,12 +78,12 @@ export const GroupList = () => {
             <div className="AdminGroupSection">
                 <div className="AdminGroupHeader">
                     <h2>Groups</h2>
-                    
+
                     <div className="SearchContainer">
-                        <input 
-                            type="text" 
-                            className="SearchInput" 
-                            placeholder="Search groups..." 
+                        <input
+                            type="text"
+                            className="SearchInput"
+                            placeholder="Search groups..."
                             value={searchQuery}
                             onChange={handleSearchChange}
                         />
@@ -117,7 +112,10 @@ export const GroupList = () => {
                                 <tr key={group.id}>
                                     <td>{group.name}</td>
                                     <td>
-                                        <button className="ViewBtn" onClick={() => setSelectedGroup(group)}>
+                                        <button
+                                            className="ViewBtn"
+                                            onClick={() => setSelectedGroup(group)}
+                                        >
                                             View
                                         </button>
                                     </td>
@@ -125,25 +123,26 @@ export const GroupList = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="2" style={{textAlign: 'center', padding: '20px'}}>No groups found.</td>
+                                <td colSpan="2" style={{ textAlign: 'center', padding: '20px' }}>
+                                    No groups found.
+                                </td>
                             </tr>
                         )}
                     </tbody>
                 </table>
-
                 {totalPages > 0 && (
                     <div className="GrpList-Pagination-Container">
-                        <button 
+                        <button
                             className="GrpList-Pagination-Nav"
-                            onClick={() => fetchGroups(currentPage - 1)}
+                            onClick={() => fetchGroups(currentPage - 1, searchQuery)}
                             disabled={currentPage === 0}
                         >
-                            &laquo;
+                            Prev
                         </button>
 
                         <div className="GrpList-Jump-Container">
                             <span>Page</span>
-                            <input 
+                            <input
                                 type="text"
                                 className="GrpList-Jump-Input"
                                 value={jumpPage}
@@ -153,23 +152,30 @@ export const GroupList = () => {
                             <span>of {totalPages}</span>
                         </div>
 
-                        <button 
+                        <button
                             className="GrpList-Pagination-Nav"
-                            onClick={() => fetchGroups(currentPage + 1)}
+                            onClick={() => fetchGroups(currentPage + 1, searchQuery)}
                             disabled={currentPage === totalPages - 1}
                         >
-                            &raquo;
+                            Next
                         </button>
                     </div>
                 )}
             </div>
 
             {isCreateOpen && (
-                <CreateGroupModal onClose={() => setIsCreateOpen(false)} onGroupCreated={() => fetchGroups(0)} />
+                <CreateGroupModal
+                    onClose={() => setIsCreateOpen(false)}
+                    onGroupCreated={() => fetchGroups(0)}
+                />
             )}
 
             {selectedGroup && (
-                <GroupDetailsModal group={selectedGroup} onClose={() => setSelectedGroup(null)} onGroupDeleted={() => fetchGroups(0)} />
+                <GroupDetailsModal
+                    group={selectedGroup}
+                    onClose={() => setSelectedGroup(null)}
+                    onGroupDeleted={() => fetchGroups(0)}
+                />
             )}
         </div>
     );

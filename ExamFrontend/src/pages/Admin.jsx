@@ -120,7 +120,7 @@ export const Admin = () => {
                         disabled={currentPage === 0}
                         onClick={() => handlePageChange(currentPage - 1)}
                     >
-                        Previous
+                        Prev
                     </button>
 
                     <span>Page {currentPage + 1} of {totalPages || 1}</span>
