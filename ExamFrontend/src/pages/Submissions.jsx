@@ -75,7 +75,7 @@ export const Submissions = () => {
                 />
                 {searchQuery && (
                     <button className="SearchClearBtn" onClick={clearSearch}>
-                        ×
+                        ✕
                     </button>
                 )}
             </div>
