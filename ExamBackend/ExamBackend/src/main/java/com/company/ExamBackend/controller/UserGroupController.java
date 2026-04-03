@@ -1,13 +1,11 @@
 package com.company.ExamBackend.controller;
 
-import com.company.ExamBackend.dto.CreateGroupDTO;
-import com.company.ExamBackend.dto.CreateGroupResponseDTO;
-import com.company.ExamBackend.dto.GrpMemberDTO;
-import com.company.ExamBackend.dto.UserGroupResponseDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.service.UserGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,9 +42,11 @@ public class UserGroupController {
             summary = "Gets all groups",
             description = "Used by admin to create new user."
     )
-    public ResponseEntity<List<UserGroupResponseDTO>> getAllUserGroups(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(userGroupService.getAllUserGroups(userDetails.getUsername()));
+    public ResponseEntity<Page<UserGroupResponseDTO>> getAllUserGroups(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(userGroupService.getAllUserGroups(userDetails.getUsername(), page, size));
     }
 
     @Operation(
@@ -54,8 +54,35 @@ public class UserGroupController {
             description = "Used by admin list users from group."
     )
     @GetMapping("/userList/{groupId}")
-    public ResponseEntity<List<GrpMemberDTO>> getAllUsersByGroupId(@PathVariable String groupId) {
-        return ResponseEntity.ok(userGroupService.getMembersByGroupId(groupId));
+    public ResponseEntity<Page<GrpMemberDTO>> getAllUsersByGroupId(
+            @PathVariable String groupId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(userGroupService.getMembersByGroupId(userDetails.getUsername(), groupId, page, size));
+    }
+
+    @Operation(
+            summary = "Search for group member",
+            description = "Searches for user from group based on query."
+    )
+    @PostMapping("/userList/{groupId}")
+    public ResponseEntity<Page<GrpMemberDTO>> searchGroupMember(
+            @PathVariable String groupId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestBody GrpMemberSearchDTO grpMemberSearchDTO,
+            @AuthenticationPrincipal UserDetails userDetails
+    ){
+        return ResponseEntity.ok(
+                userGroupService.searchMember(
+                        userDetails.getUsername(),
+                        grpMemberSearchDTO,
+                        groupId,
+                        page,
+                        size
+                        )
+        );
     }
 
     @Operation(

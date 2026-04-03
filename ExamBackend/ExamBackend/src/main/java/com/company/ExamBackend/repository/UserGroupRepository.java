@@ -1,6 +1,8 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.UserGroup;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,6 +16,7 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, String > {
     boolean existsByNameAndCreatedBy_Email(String name, String email);
 
     // Only fetches groups belonging to the parent admin
-    @Query("SELECT ug FROM UserGroup ug JOIN FETCH ug.createdBy WHERE ug.createdBy.email = :email")
-    List<UserGroup> findByCreatedBy_Email(String email);
+    @Query(value = "SELECT ug FROM UserGroup ug JOIN FETCH ug.createdBy WHERE ug.createdBy.email = :email",
+            countQuery = "SELECT COUNT(ug) FROM UserGroup ug WHERE ug.createdBy.email = :email")
+    Page<UserGroup> findByCreatedBy_Email(String email, Pageable pageable);
 }

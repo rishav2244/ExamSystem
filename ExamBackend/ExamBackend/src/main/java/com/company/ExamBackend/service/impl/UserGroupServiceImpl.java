@@ -14,6 +14,10 @@ import com.company.ExamBackend.repository.UserGroupRepository;
 import com.company.ExamBackend.repository.UserRepository;
 import com.company.ExamBackend.service.UserGroupService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,19 +60,36 @@ public class UserGroupServiceImpl  implements UserGroupService {
     }
 
     @Override
-    public List<UserGroupResponseDTO> getAllUserGroups(String adminEmail) {
-        return userGroupRepository.findByCreatedBy_Email(adminEmail)
-                .stream()
-                .map(userGroupMapper::toGroupResponseDTO)
-                .toList();
+    public Page<UserGroupResponseDTO> getAllUserGroups(String adminEmail, int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "name");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return userGroupRepository.findByCreatedBy_Email(adminEmail, pageable)
+                .map(userGroupMapper::toGroupResponseDTO);
     }
 
     @Override
-    public List<GrpMemberDTO> getMembersByGroupId(String groupId) {
-        return groupMemberRepository.findByGroupId(groupId)
-                .stream()
-                .map(userGroupMapper::toGrpMemberDTO)
-                .toList();
+    public Page<GrpMemberDTO> getMembersByGroupId(String adminEmail, String groupId, int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "gm.user.name");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return groupMemberRepository.findByGroupId(groupId, adminEmail, pageable)
+                .map(userGroupMapper::toGrpMemberDTO);
+    }
+
+    @Override
+    public Page<GrpMemberDTO> searchMember(
+            String adminEmail,
+            GrpMemberSearchDTO grpMemberSearchDTO,
+            String groupId,
+            int page,
+            int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "gm.user.name");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return groupMemberRepository.searchByQueryAndGroupId(
+                grpMemberSearchDTO.getQuery(),
+                        groupId,
+                        adminEmail,
+                        pageable)
+                .map(userGroupMapper::toGrpMemberDTO);
     }
 
     @Transactional
