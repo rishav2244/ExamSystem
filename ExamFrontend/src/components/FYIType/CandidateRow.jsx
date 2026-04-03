@@ -18,14 +18,12 @@ export const CandidateRow = ({ candidate }) => {
 
             const response = await resendInvitation(candidate.id);
 
-            // ✅ IMPORTANT CHECK
             if (response?.success === false || response?.error) {
 
                 showPopup(response?.message || "Failed to resend invitation.", "error");
                 return;
             }
-
-            // ✅ SUCCESS ONLY IF ACTUALLY SUCCESS
+            
             setStatus("INVITED");
             showPopup("Invitation resent successfully!", "success", 2000);
 

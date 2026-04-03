@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import { uploadSnapshot } from '../../api/api';
 import { ViolationOverlay } from '../FYIType/ViolationOverlay';

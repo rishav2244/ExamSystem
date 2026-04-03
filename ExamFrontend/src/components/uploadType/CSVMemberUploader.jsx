@@ -41,8 +41,7 @@ export const CSVMemberUploader = ({ onEmailsParsed, onError }) => {
 
                 const extractedEmails = new Set();
                 let invalidCount = 0;
-
-                // 2. Iterate through rows (skipping header)
+                
                 for (let i = 1; i < rows.length; i++) {
                     const currentRow = rows[i];
 

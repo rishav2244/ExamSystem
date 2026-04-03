@@ -201,6 +201,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         return null;
 
     };
+    
     const handleConfirmAndPublish = async () => {
 
         if (!selectedGroupId) {
@@ -541,8 +542,6 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                             </p>
                                         )}
                                     </div>
-
-                                    {/* Pagination Controls - Only show for Published Exams (since that's the paginated API) */}
                                     {exam?.status === "PUBLISHED" && totalPages > 1 && (
                                         <div className="UserPagination">
                                             <button
