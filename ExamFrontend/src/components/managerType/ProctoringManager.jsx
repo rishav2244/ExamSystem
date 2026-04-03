@@ -5,7 +5,6 @@ import { ViolationOverlay } from '../FYIType/ViolationOverlay';
 
 export const ProctoringManager = ({
     submissionId,
-    studentId,
     violationCount,
     isDisqualified,
     showWarning,

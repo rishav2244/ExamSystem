@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const UserDetailsModal = ({ user, onClose }) => {
     if (!user) return null;
 
@@ -33,17 +31,6 @@ export const UserDetailsModal = ({ user, onClose }) => {
                 </div>
 
                 <div className="modal-footer">
-                    {/* <button 
-                        className="DeleteUserButton"
-                        onClick={() => {
-                            if(window.confirm("Delete this user?")) {
-                                console.log("Deleting user:", user.id);
-                            }
-                        }}
-                    >
-                        Delete User
-                    </button> */}
-                    
                     <button 
                         className="form-submit" 
                         style={{ margin: 0 }} 

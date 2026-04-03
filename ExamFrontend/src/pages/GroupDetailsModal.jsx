@@ -11,7 +11,6 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
     const [jumpPage, setJumpPage] = useState("1");
     const [pageSize] = useState(5);
 
-    // This ref helps us track if the component is mounting for the first time
     const isFirstRun = useRef(true);
 
     const fetchMembers = useCallback(async (page = 0, query = "") => {
@@ -36,10 +35,7 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
         }
     }, [group.id, pageSize]);
 
-    // EFFECT 1: Handle Initial Load and Debounced Search
     useEffect(() => {
-        // Skip the very first run to avoid double-fetching on mount 
-        // since Effect 2 handles the initial 0-page load
         if (isFirstRun.current) {
             isFirstRun.current = false;
             fetchMembers(0, "");
@@ -48,12 +44,11 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
 
         const handler = setTimeout(() => {
             fetchMembers(0, searchTerm);
-        }, 500); // 500ms delay
+        }, 500); 
 
-        return () => clearTimeout(handler); // Cleanup: cancels the timer if user types again
+        return () => clearTimeout(handler);
     }, [searchTerm, fetchMembers]);
 
-    // Simplified handleSearch - only updates the state
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
@@ -62,7 +57,6 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
         if (e.key === 'Enter') {
             const pageNum = parseInt(jumpPage) - 1;
             if (!isNaN(pageNum) && pageNum >= 0 && pageNum < totalPages) {
-                // For direct jumps, we don't debounce, we just fire
                 fetchMembers(pageNum, searchTerm);
             } else {
                 setJumpPage((currentPage + 1).toString());

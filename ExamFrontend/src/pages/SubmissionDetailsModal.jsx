@@ -23,10 +23,8 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
         try {
             let data;
             if (query.trim()) {
-                // Use the new Search API
                 data = await searchSubmissions(exam.id, query, page, pageSize);
             } else {
-                // Use standard pagination
                 data = await getSubmissionsByExam(exam.id, page, pageSize);
             }
             setSubmissions(data.content || []);
@@ -37,24 +35,17 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
             setLoading(false);
         }
     };
-
-    // 2. Debounce Effect for Search
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            setCurrentPage(0); // Reset to first page on new search
+            setCurrentPage(0); 
             fetchSubmissions(0, searchTerm);
         }, 500); // 500ms debounce
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
-
-    // 3. Effect for Pagination (only triggers if NOT searching, or on page change)
     useEffect(() => {
-        // We only trigger this manually on page changes to avoid double-fetching with the search effect
         fetchSubmissions(currentPage, searchTerm);
     }, [currentPage]);
-
-    // Client-side sorting (Filtering is now handled by Server)
     const sortedData = useMemo(() => {
         let processed = [...submissions];
         if (sortConfig.key) {
@@ -84,11 +75,6 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
     };
 
     const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleString() : "N/A";
-    
-    const getSortIcon = (key) => {
-        if (sortConfig.key !== key) return "↕️";
-        return sortConfig.direction === 'asc' ? "↑" : "↓";
-    };
 
     const handleDownloadCSV = () => {
         const formattedData = submissions.map(sub => ({
@@ -170,13 +156,13 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                             <table className="admin-table">
                                 <thead>
                                     <tr>
-                                        <th onClick={() => requestSort('candidateName')} className="sortable">Candidate {getSortIcon('candidateName')}</th>
+                                        <th onClick={() => requestSort('candidateName')} className="sortable">Candidate</th>
                                         <th>Email</th>
-                                        <th onClick={() => requestSort('score')} className="sortable">Score {getSortIcon('score')}</th>
-                                        <th onClick={() => requestSort('violations')} className="sortable">Violations {getSortIcon('violations')}</th>
+                                        <th onClick={() => requestSort('score')} className="sortable">Score</th>
+                                        <th onClick={() => requestSort('violations')} className="sortable">Violations</th>
                                         <th>Time Taken</th>
-                                        <th onClick={() => requestSort('submittedAt')} className="sortable">Submitted {getSortIcon('submittedAt')}</th>
-                                        <th onClick={() => requestSort('passed')} className="sortable">Result {getSortIcon('passed')}</th>
+                                        <th onClick={() => requestSort('submittedAt')} className="sortable">Submitted</th>
+                                        <th onClick={() => requestSort('passed')} className="sortable">Result</th>
                                         <th>Status</th>
                                         <th>Mailed</th>
                                     </tr>

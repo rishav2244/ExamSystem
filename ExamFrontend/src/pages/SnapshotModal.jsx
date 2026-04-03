@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export const SnapshotModal = ({ pair, initialIdx, onClose }) => {
     const [currentIdx, setCurrentIdx] = useState(initialIdx);

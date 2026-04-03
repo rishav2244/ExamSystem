@@ -1,5 +1,3 @@
-import React from "react";
-
 export const ExamPopupModal = ({ message, type, onClose }) => {
 
   const getTitle = () => {

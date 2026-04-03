@@ -143,7 +143,6 @@ export const ExamInterface = () => {
                             Previous
                         </button>
                         {currentIdx < examData.questions.length - 1 && (
-                            // <button className="next-btn" onClick={() => setCurrentIdx(p => p + 1)}>Next</button>
                             <button
                                 className="nav-btn next-btn"
                                 onClick={() => setCurrentIdx(p => p + 1)}

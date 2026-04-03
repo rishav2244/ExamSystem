@@ -11,10 +11,8 @@ export const ManualMemberSelector = ({ onSelectionChange }) => {
         try {
             let data;
             if (query.trim()) {
-                // Call the Search API
                 data = await searchCandidates(query, page, 5);
             } else {
-                // Call the default API
                 data = await getCandidatesOnly(page, 5);
             }
             setPageData(data);

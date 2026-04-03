@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const SnapshotSet = ({ pair, onOpen }) => {
     const isViolation = pair[0].violation;
     const slNo = pair[0].sl_violation;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getSnapshots, getSecureImageUrl} from "../api/api";
 import { SnapshotSet } from "../components/FYIType/SnapshotSet";
@@ -47,7 +47,7 @@ export const SnapshotGallery = () => {
     return (
         <div className="pg-gallery-wrapper">
             <div className="pg-gallery-nav">
-                <button onClick={() => navigate(-1)} className="pg-back-button">← Return</button>
+                <button onClick={() => navigate(-1)} className="pg-back-button"> Return</button>
                 <h2 className="pg-gallery-title">Proctoring Timeline</h2>
             </div>
 

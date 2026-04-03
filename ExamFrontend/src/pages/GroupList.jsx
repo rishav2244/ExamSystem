@@ -64,6 +64,7 @@ export const GroupList = () => {
                 fetchGroups(pageNum);
             } else {
                 setJumpPage((currentPage + 1).toString()); 
+                setJumpPage((currentPage + 1).toString()); 
             }
         }
     };

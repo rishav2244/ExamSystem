@@ -37,13 +37,6 @@ export const PopupProvider = ({ children }) => {
                             {popup.type === "warning" && "Warning"}
                             {popup.type === "info" && "Notice"}
                         </h3>
-                        {/* <h3 className={`popup-title popup-${popup.type}`}>
-                            {popup.type === "error" && "❌ Error"}
-                            {popup.type === "success" && "✅ Success"}
-                            {popup.type === "warning" && "⚠ Warning"}
-                            {popup.type === "info" && "ℹ Notice"}
-                        </h3> */}
-
                         <p className="popup-message">
                             {popup.message}
                         </p>

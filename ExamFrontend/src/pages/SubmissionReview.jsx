@@ -58,7 +58,7 @@ export const SubmissionReview = () => {
                     className="view-snapshots-btn"
                     onClick={() => navigate(`/admin/submissions/${submissionId}/snapshots`)}
                 >
-                    📷 View Proctoring Snapshots
+                    View Proctoring Snapshots
                 </button>
             </div>
 
