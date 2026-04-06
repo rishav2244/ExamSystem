@@ -123,7 +123,7 @@ export const Submissions = () => {
                     disabled={currentPage === 0}
                     onClick={() => handlePageChange(currentPage - 1)}
                 >
-                    Previous
+                    Prev
                 </button>
 
                 <span style={{ margin: '0 15px' }}>
