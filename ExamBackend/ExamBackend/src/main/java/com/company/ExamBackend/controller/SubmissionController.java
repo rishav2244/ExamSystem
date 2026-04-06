@@ -4,6 +4,7 @@ import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.service.SubmissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -75,10 +76,10 @@ public class SubmissionController {
     )
     @PostMapping("/send-results/{examId}")
     public ResponseEntity<ResultMailResponseDTO> SendResults(
-           @PathVariable String examId,
-            @AuthenticationPrincipal UserDetails userDetails){
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails) {
         ResultMailResponseDTO resultMailResponseDTO =
-                submissionService.sendResults(examId,userDetails.getUsername());
+                submissionService.sendResults(examId, userDetails.getUsername());
         return ResponseEntity.ok(resultMailResponseDTO);
     }
 
@@ -100,19 +101,23 @@ public class SubmissionController {
         );
     }
 
-//    @Operation(
-//            summary = "Submissions CSV download",
-//            description = "Sends CSV containing details of candidatate submissions"
-//    )
-//    public void downloadSubmissionsCsv(HttpServletResponse response) throws IOException {
-//        // 1. Fetch your data
-//        List<SubmissionDTO> submissions = submissionService.findAllByExamId(...);
-//
-//        // 2. Set headers
-//        response.setContentType("text/csv");
-//        response.setHeader("Content-Disposition", "attachment; filename=\"submissions.csv\"");
-//
-//        // 3. Write to response stream
-//        submissionService.writeSubmissionsToCsv(response.getWriter(), submissions);
-//    }
+    @Operation(
+            summary = "Download submissions CSV",
+            description = "Exports all submissions for a specific exam as a CSV file."
+    )
+    @GetMapping("/exam/{examId}/export")
+    public void exportSubmissionsCsv(
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletResponse response) throws IOException {
+
+        // File type
+        response.setContentType("text/csv");
+        response.setCharacterEncoding("UTF-8");
+        // Filename
+        String filename = "submissions_" + examId + ".csv";
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+
+        submissionService.exportSubmissionsToCsv(examId, userDetails.getUsername(), response.getWriter());
+    }
 }

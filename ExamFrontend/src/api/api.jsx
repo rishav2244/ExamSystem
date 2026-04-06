@@ -590,6 +590,14 @@ export const searchCandidateResults = async (query, page = 0, size = 10) => {
     }
 };
 
+
+export const exportSubmissionsCsv = async (examId) => {
+    const response = await axios.get(`${API_URL}/submissions/exam/${examId}/export`, {
+        responseType: 'blob',
+    });
+    return response;
+};
+
 axios.interceptors.request.use(
     (config) => {
         const auth = JSON.parse(sessionStorage.getItem("auth"));

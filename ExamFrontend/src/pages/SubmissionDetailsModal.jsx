@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
-import { getSubmissionsByExam, sendResults, searchSubmissions } from '../api/api';
+import { getSubmissionsByExam, sendResults, searchSubmissions, exportSubmissionsCsv } from '../api/api'; // Added exportSubmissionsCsv
 import { useNavigate } from "react-router-dom";
-import Papa from "papaparse";
 
 export const SubmissionDetailsModal = ({ exam, onClose }) => {
     const [submissions, setSubmissions] = useState([]);
@@ -15,9 +14,9 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
 
     const navigate = useNavigate();
     const [sendingResults, setSendingResults] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false); // Added download loading state
     const [resultSummary, setResultSummary] = useState(null);
 
-    // 1. Unified Fetching Logic
     const fetchSubmissions = async (page, query) => {
         setLoading(true);
         try {
@@ -35,17 +34,19 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
             setLoading(false);
         }
     };
+
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             setCurrentPage(0); 
             fetchSubmissions(0, searchTerm);
-        }, 500); // 500ms debounce
-
+        }, 500);
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
+
     useEffect(() => {
         fetchSubmissions(currentPage, searchTerm);
     }, [currentPage]);
+
     const sortedData = useMemo(() => {
         let processed = [...submissions];
         if (sortConfig.key) {
@@ -76,22 +77,32 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
 
     const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleString() : "N/A";
 
-    const handleDownloadCSV = () => {
-        const formattedData = submissions.map(sub => ({
-            Name: sub.candidateName,
-            Email: sub.candidateEmail,
-            Score: sub.score,
-            Result: sub.passed ? "PASS" : "FAIL"
-        }));
-        const csv = Papa.unparse(formattedData);
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", `${exam.title}_results.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownloadCSV = async () => {
+        try {
+            setIsDownloading(true);
+            const response = await exportSubmissionsCsv(exam.id);
+            
+            // Create a blob from the response data
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            
+            // Set filename (optionally parse from content-disposition if exposed)
+            const filename = `${exam.title.replace(/\s+/g, '_')}_results.csv`;
+            link.setAttribute("download", filename);
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Download failed", err);
+            alert("Failed to generate CSV export.");
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handleSendResults = async () => {
@@ -113,7 +124,6 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                 <h2>Results: {exam.title}</h2>
 
                 <div className="modal-actions">
-                    {/* New Debounced Search UI with provided CSS classes */}
                     <div className="SearchContainer">
                         <input
                             type="text"
@@ -133,7 +143,15 @@ export const SubmissionDetailsModal = ({ exam, onClose }) => {
                     </div>
                     
                     <div className='submissions-details-buttons-div'>
-                        <button className="csv-btn" onClick={handleDownloadCSV}>Download CSV</button>
+                        {/* Updated button with loading state */}
+                        <button 
+                            className="csv-btn" 
+                            onClick={handleDownloadCSV} 
+                            disabled={isDownloading}
+                        >
+                            {isDownloading ? "Preparing..." : "Download CSV"}
+                        </button>
+                        
                         <button className="stats-btn" onClick={() => navigate(`/admin/exam-statistics/${exam.id}`, { state: { exam, submissions } })}>
                             View Statistics
                         </button>

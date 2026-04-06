@@ -1,12 +1,14 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.Submission;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 public interface SubmissionRepository extends JpaRepository<Submission, String> {
@@ -25,6 +28,10 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
     // Fetches a single submission details ONLY if it belongs to the admin's exam
     @Query("SELECT s FROM Submission s WHERE s.id = :submissionId AND s.exam.createdBy.email = :adminEmail")
     Optional<Submission> findByIdAndAdminEmail(String submissionId, String adminEmail);
+
+    @QueryHints(value = @QueryHint(name = org.hibernate.jpa.HibernateHints.HINT_FETCH_SIZE, value = "100"))
+    @Query("SELECT s FROM Submission s WHERE s.exam.id = :examId AND s.exam.createdBy.email = :adminEmail")
+    Stream<Submission> streamAllByExamIdAndAdminEmail(String examId, String adminEmail);
 
 //    Slice<Submission> findByStatus(String status, Pageable pageable);
 

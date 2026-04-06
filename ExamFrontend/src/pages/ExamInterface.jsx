@@ -85,7 +85,6 @@ export const ExamInterface = () => {
             if (document.fullscreenElement) {
                 await document.exitFullscreen();
             }
-            await showNotification("Your exam has been submitted successfully!");
 
             navigate('/user');
         } catch (error) {

@@ -10,6 +10,8 @@ import com.company.ExamBackend.repository.*;
 import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.SubmissionService;
 import lombok.AllArgsConstructor;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +19,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -170,6 +177,55 @@ public class SubmissionServiceImpl implements SubmissionService {
                 pageable
         ).map(submissionMapper::toCandidateSubmissionDetailDTO);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void exportSubmissionsToCsv(String examId, String adminEmail, PrintWriter writer) {
+        try (Stream<Submission> submissionStream =
+                     submissionRepository.streamAllByExamIdAndAdminEmail(examId, adminEmail);
+             CSVPrinter printer =
+                     CSVFormat.DEFAULT
+                             .builder()
+                             .setHeader(
+                                     "Candidate",
+                                     "Email",
+                                     "Score",
+                                     "Violations",
+                                     "Time Taken",
+                                     "Submitted at",
+                                     "Result")
+                             .get()
+                             .print(writer)){
+
+            submissionStream.forEach(s -> {
+                try {
+
+                    String formattedDate = s.getSubmittedAt() != null
+                            ? DATE_FORMATTER.format(s.getSubmittedAt())
+                            : "N/A";
+
+                    String resultStatus = s.isPassed() ? "PASSED" : "FAILED";
+
+                    printer.printRecord(
+                            s.getCandidateName(),
+                            s.getCandidateEmail(),
+                            s.getScore(),
+                            s.getViolations(),
+                            s.getTimeTaken(),
+                            formattedDate,
+                            resultStatus
+                    );
+                } catch (IOException e) {
+                    throw new RuntimeException("Error writing record", e);
+                }
+            });
+
+            printer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException("CSV Export Failed", e);
+        }
+    }
+
     // ======================================================================================
     // Helper Methods
     // ======================================================================================
@@ -286,4 +342,8 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .examId(examId)
                 .build();
     }
+
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .withZone(ZoneId.systemDefault());
 }

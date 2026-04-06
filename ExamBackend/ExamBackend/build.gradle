@@ -57,6 +57,9 @@ dependencies {
 	// Main test starter (includes JUnit, Spring Test, Mockito, etc.)
 	// Supports @DataJpaTest, @WebMvcTest, @SpringBootTest, etc.
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	//For DB to CSV
+	implementation("org.apache.commons:commons-csv:1.14.1")
 }
 
 tasks.named('test') {

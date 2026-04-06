@@ -63,15 +63,18 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
 
     useEffect(() => {
-
         if (exam?.status === "SAVED") {
-
-            getAllUserGroups()
-                .then(data => setAvailableGroups(data))
+            getAllUserGroups(0, 100) // Fetching a larger size to fill the dropdown
+                .then(data => {
+                    // IMPORTANT: Use data.content because it's a Page object
+                    if (data && data.content) {
+                        setAvailableGroups(data.content);
+                    } else if (Array.isArray(data)) {
+                        setAvailableGroups(data);
+                    }
+                })
                 .catch(err => console.error("Failed to load groups", err));
-
         }
-
     }, [exam?.status]);
 
 
@@ -85,14 +88,27 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 .catch(err => console.error("Failed to load assigned candidates", err));
         }
         else if (exam?.status === "SAVED" && selectedGroupId) {
-            getGroupMembers(selectedGroupId)
-                .then(data => setCandidates(data || []))
-                .catch(err => console.error("Failed to preview group", err));
+            // Debugging: See what the ID is and what the API returns
+            console.log("Fetching members for group ID:", selectedGroupId);
+
+            getGroupMembers(selectedGroupId, 0, 100)
+                .then(data => {
+                    console.log("API Response for members:", data);
+                    // Spring Page object wrapper check
+                    const memberList = data.content || data;
+                    setCandidates(Array.isArray(memberList) ? memberList : []);
+                    setTotalPages(data.totalPages || 0);
+                })
+                .catch(err => {
+                    console.error("Failed to preview group", err);
+                    setCandidates([]);
+                });
         }
         else {
             setCandidates([]);
             setTotalPages(0);
         }
+        // Ensure selectedGroupId is in the dependency array!
     }, [exam?.status, exam?.id, selectedGroupId, currentPage]);
 
     const handlePageChange = (newPage) => {
@@ -201,7 +217,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
         return null;
 
     };
-    
+
     const handleConfirmAndPublish = async () => {
 
         if (!selectedGroupId) {

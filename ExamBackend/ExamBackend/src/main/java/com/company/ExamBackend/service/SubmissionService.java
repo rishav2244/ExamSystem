@@ -3,6 +3,7 @@ package com.company.ExamBackend.service;
 import com.company.ExamBackend.dto.*;
 import org.springframework.data.domain.Page;
 
+import java.io.PrintWriter;
 import java.util.List;
 
 public interface SubmissionService {
@@ -34,4 +35,6 @@ public interface SubmissionService {
             int page,
             int size
     );
+
+    void exportSubmissionsToCsv(String examId, String adminEmail, PrintWriter writer);
 }
