@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { getGroupMembers, searchGroupMembers, deleteGroup } from '../api/api';
+import { useConfirm } from '../components/popupType/useConfirm';
 
 export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
     const [members, setMembers] = useState([]);
@@ -10,6 +11,8 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
     const [totalPages, setTotalPages] = useState(0);
     const [jumpPage, setJumpPage] = useState("1");
     const [pageSize] = useState(5);
+
+    const { confirmPopup } = useConfirm();
 
     const isFirstRun = useRef(true);
 
@@ -65,7 +68,10 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
     };
 
     const handleDelete = async () => {
-        if (window.confirm(`Are you sure you want to delete "${group.name}"?`)) {
+
+        const confirmDelete = await confirmPopup("Are you sure you want to delete this group?");
+
+        if (confirmDelete) {
             try {
                 await deleteGroup(group.id);
                 onGroupDeleted(); 
@@ -73,6 +79,9 @@ export const GroupDetailsModal = ({ group, onClose, onGroupDeleted }) => {
             } catch (err) {
                 alert("Failed to delete group.");
             }
+        }
+        else{
+            return;
         }
     };
 
