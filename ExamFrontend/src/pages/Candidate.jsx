@@ -3,7 +3,8 @@ import { AuthenticationContext } from "../context/AuthenticationContext";
 import { CandidateExamCard } from "../components/cardType/CandidateExamCard";
 import { CandidateHeader } from "../components/headerType/CandidateHeader";
 import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useNotification } from "../components/popupType/NotificationContext";
 
 export const Candidate = () => {
     const { email, name } = useContext(AuthenticationContext);
@@ -12,6 +13,8 @@ export const Candidate = () => {
     const [eligibleExams, setEligibleExams] = useState({});
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         if (email) {
@@ -26,6 +29,14 @@ export const Candidate = () => {
                 });
         }
     }, [email]);
+
+    useEffect(() => {
+
+        if (location.state?.ExamSubmitted) {
+            showNotification("Exam submitted successfully.");
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [loading, location.state, showNotification, navigate]);
 
     const handleEligibilityCheck = async (examId) => {
 

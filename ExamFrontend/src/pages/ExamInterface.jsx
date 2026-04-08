@@ -5,7 +5,6 @@ import { QuestionCard } from '../components/cardType/QuestionCard';
 import { ExamHeader } from '../components/headerType/ExamHeader';
 import { ProctoringManager } from '../components/managerType/ProctoringManager';
 import { QuestionNavigation } from '../components/navType/QuestionNavigation';
-import { useNotification } from '../components/popupType/NotificationContext';
 
 export const ExamInterface = () => {
     const location = useLocation();
@@ -13,7 +12,6 @@ export const ExamInterface = () => {
     const { examId, submissionId, duration } = location.state || {};
     const auth = JSON.parse(sessionStorage.getItem("auth"));
     // const studentId = auth?.user?.id;
-    const { showNotification } = useNotification();
 
     const [examData, setExamData] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
@@ -86,7 +84,7 @@ export const ExamInterface = () => {
                 await document.exitFullscreen();
             }
 
-            navigate('/user');
+            navigate('/user', { state: { ExamSubmitted: true } });
         } catch (error) {
             console.error("Submission failed", error);
         }

@@ -18,6 +18,11 @@ ExamBackend/target/
 ExamBackend/.classpath
 ExamBackend/.project
 ExamBackend/.settings/
+ExamBackend/ExamBackend/target/
+ExamBackend/ExamBackend/.classpath
+ExamBackend/ExamBackend/.project
+ExamBackend/ExamBackend/.settings/
+ExamBackend/ExamBackend/.env
 
 # Secrets
 .env
@@ -32,7 +37,7 @@ ExamFrontend/build/
 ExamFrontend/dist/
 
 # Env files (DO NOT COMMIT SECRETS)
-ExamFrontend/.e nv
+ExamFrontend/.env
 ExamFrontend/.env.local
 ExamFrontend/.env.development.local
 ExamFrontend/.env.test.local
