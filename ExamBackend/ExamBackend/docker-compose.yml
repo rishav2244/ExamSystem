@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+
+      POSTGRES_DB: examdb
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d examdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  app:
+    build: .
+    container_name: exam_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      # Map your host folder to the container path defined in your .env
+      - /home/rishava/Downloads/Exavalu/ExamPortal/snapshots:/app/data/snapshots
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    restart: always
+
+volumes:
+  postgres_data:

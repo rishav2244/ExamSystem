@@ -1,9 +1,28 @@
+# Stage 1: Build
+FROM amazoncorretto:17-alpine AS build
+WORKDIR /app
+
+# Copy wrapper and configs
+COPY gradlew .
+COPY gradle ./gradle
+COPY build.gradle settings.gradle ./
+
+# Cache dependencies
+RUN ./gradlew build -x test --no-daemon > /dev/null 2>&1 || true
+
+# Build JAR
+COPY src ./src
+RUN ./gradlew bootJar -x test --no-daemon
+
+# Stage 2: Runtime
 FROM amazoncorretto:17-alpine
 WORKDIR /app
-# Copy everything from the CURRENT folder (the inner ExamBackend)
-COPY . .
-RUN chmod +x ./gradlew
-RUN ./gradlew bootJar --no-daemon
 
-# Verify the jar name in your build/libs folder after a local build!
-ENTRYPOINT ["java", "-jar", "build/libs/ExamBackend-0.0.1-SNAPSHOT.jar"]
+# Ensure the snapshot directory exists
+RUN mkdir -p /app/data/snapshots && chmod 777 /app/data/snapshots
+
+# Copy the JAR from the build stage
+COPY --from=build /app/build/libs/*.jar app.jar
+
+# Spring will use the SERVER_PORT env var automatically
+ENTRYPOINT ["java", "-jar", "app.jar"]
