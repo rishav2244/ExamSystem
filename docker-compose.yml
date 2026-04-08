@@ -1,34 +1,43 @@
 services:
-  # The Database
-  exam-db:
+  db:
     image: postgres:15-alpine
-    container_name: exam-db
+    container_name: postgres_db
     environment:
-      POSTGRES_USER: examadmin
-      POSTGRES_PASSWORD: examadmin
       POSTGRES_DB: examdb
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d examdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
 
-  # The Java Backend
   backend:
-    # POINT TO THE NESTED FOLDER
-    build: ./ExamBackend/ExamBackend 
-    container_name: exam-backend
-    env_file:
-      - ./ExamBackend/ExamBackend/.env
-    ports:
-      - "8081:8080"
-    environment:
-      DB_URL: jdbc:postgresql://exam-db:5432/examdb
+    build: ./ExamBackend/ExamBackend
+    container_name: exam_backend
     depends_on:
-      - exam-db
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - /home/rishava/Downloads/Exavalu/ExamPortal/snapshots:/app/data/snapshots
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    restart: always
 
-  # The React Frontend
   frontend:
     build: ./ExamFrontend
-    container_name: exam-frontend
+    container_name: exam_frontend
     ports:
-      - "3000:80"
+      - "5173:80"
     depends_on:
       - backend
+    restart: always
+
+volumes:
+  postgres_data:
