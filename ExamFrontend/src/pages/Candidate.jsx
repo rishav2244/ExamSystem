@@ -72,35 +72,32 @@ export const Candidate = () => {
     }
 
     return (
-        <div className={styles.CandidateOverall}>
-            <CandidateHeader />
-            <div className={styles.CandidateDashboard}>
+        <div className={styles.CandidateDashboard}>
 
-                <div className={styles.DashboardHeader}>
-                    <h2 className={styles.DashboardTitle}>Candidate Dashboard</h2>
+            <div className={styles.DashboardHeader}>
+                <h2 className={styles.DashboardTitle}>Candidate Dashboard</h2>
 
-                    <button
-                        className={styles.ViewResultsBtn}
-                        onClick={() => navigate("/candidate/results")}
-                    >
-                        View Results
-                    </button>
-                </div>
+                <button
+                    className={styles.ViewResultsBtn}
+                    onClick={() => navigate("/candidate/results")}
+                >
+                    View Results
+                </button>
+            </div>
 
-                {exams.length === 0 && (
-                    <p className={styles.EmptyText}>No exams assigned.</p>
-                )}
+            {exams.length === 0 && (
+                <p className={styles.EmptyText}>No exams assigned.</p>
+            )}
 
-                <div className={styles.CandidateExamList}>
-                    {exams.map((exam) => (
-                        <CandidateExamCard
-                            key={exam.examId}
-                            exam={exam}
-                            onJoin={handleEligibilityCheck}
-                            isEligible={eligibleExams[exam.examId]}
-                        />
-                    ))}
-                </div>
+            <div className={styles.CandidateExamList}>
+                {exams.map((exam) => (
+                    <CandidateExamCard
+                        key={exam.examId}
+                        exam={exam}
+                        onJoin={handleEligibilityCheck}
+                        isEligible={eligibleExams[exam.examId]}
+                    />
+                ))}
             </div>
         </div>
     );

@@ -24,7 +24,7 @@ export const Login = () => {
             if (data.user && data.user.role === "ADMIN") {
                 navigate("/admin");
             } else {
-                navigate("/user");
+                navigate("/candidate");
             }
         } catch (err) {
             const errorMsg =

@@ -10,6 +10,7 @@ import { Admin } from "./pages/Admin";
 import { UserList } from "./pages/UserList";
 import { GroupList } from "./pages/GroupList";
 import { AdminLayout } from "./layouts/AdminLayout";
+import { CandidateLayout } from "./layouts/CandidateLayout";
 import { CandidateExamSetup } from "./pages/CandidateExamSetup";
 import { ExamInterface } from "./pages/ExamInterface";
 import { Submissions } from "./pages/Submissions";
@@ -37,11 +38,19 @@ function App() {
           <Route element={<ProtectedRoute />}>
 
             <Route element={<NotificationProvider />}>
-              <Route path="/user" element={<Candidate />} />
+              <Route path="/candidate" element={<CandidateLayout />}>
 
-              <Route path="/candidate/exam-setup" element={<CandidateExamSetup />} />
+                <Route index element={<Candidate />} />
 
-              <Route path="/candidate/exam-room" element={<ExamInterface />} />
+                <Route path="dashboard" element={<Candidate />} />
+
+                <Route path="results" element={<CandidateResults />} />
+
+                <Route path="exam-setup" element={<CandidateExamSetup />} />
+
+                <Route path="exam-room" element={<ExamInterface />} />
+
+              </Route>
             </Route>
 
 
@@ -72,11 +81,10 @@ function App() {
               </Route>
             </Route>
           </Route>
-          <Route path="/candidate/results" element={<CandidateResults />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
-    </AuthenticationContextProvider>
+    </AuthenticationContextProvider >
   );
 }
 

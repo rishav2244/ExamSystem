@@ -72,7 +72,7 @@ export const CandidateResults = () => {
         <div className="results-page">
             <div className="top-bar">
                 <div className="top-bar-left">
-                    <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
+                    <button className="back-btn" onClick={() => navigate("/candidate/dashboard")}>Back</button>
                     <div className="page-title">
                         <h2>Results</h2>
                         <p>Your exam performance overview</p>

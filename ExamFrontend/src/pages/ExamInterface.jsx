@@ -11,7 +11,6 @@ export const ExamInterface = () => {
     const navigate = useNavigate();
     const { examId, submissionId, duration } = location.state || {};
     const auth = JSON.parse(sessionStorage.getItem("auth"));
-    // const studentId = auth?.user?.id;
 
     const [examData, setExamData] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
@@ -33,7 +32,7 @@ export const ExamInterface = () => {
     }, [submissionId, isDisqualified, showWarning]);
 
     useEffect(() => {
-        if (!examId || !submissionId) return navigate('/user');
+        if (!examId || !submissionId) return navigate('/candidate/dashboard');
         document.documentElement.requestFullscreen().catch(console.error);
         fetchExamContent(examId).then(setExamData);
     }, [examId, submissionId, navigate]);
@@ -84,7 +83,7 @@ export const ExamInterface = () => {
                 await document.exitFullscreen();
             }
 
-            navigate('/user', { state: { ExamSubmitted: true } });
+            navigate('/candidate/dashboard', { state: { ExamSubmitted: true } });
         } catch (error) {
             console.error("Submission failed", error);
         }
