@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { loginAttempt } from "../api/api";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 
+import styles from "./css/Login.module.css"
+
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -32,7 +34,7 @@ export const Login = () => {
     };
 
     return (
-        <div className="login-card">
+        <div className={styles.loginCard}>
             <h2>Exam Portal Login</h2>
 
             <input
