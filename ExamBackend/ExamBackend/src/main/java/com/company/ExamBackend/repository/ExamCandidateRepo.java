@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -55,4 +56,14 @@ public interface ExamCandidateRepo extends JpaRepository<ExamCandidate,String> {
     @Transactional
     @Query("DELETE FROM ExamCandidate c WHERE c.exam.id = :examId")
     void deleteByExamId(String examId);
+
+    @Query("SELECT ec " +
+            "FROM ExamCandidate ec " +
+            "JOIN ec.exam e " +
+            "WHERE ec.email = :email " +
+            "AND (ec.status = 'INVITED' " +
+            "OR (ec.status = 'ATTEMPTED' " +
+            "AND e.allowResume = TRUE)) " +
+            "AND :now BETWEEN e.startTime AND e.endTime")
+    List<ExamCandidate> findActiveDashboardExams(String email, Instant now);
 }

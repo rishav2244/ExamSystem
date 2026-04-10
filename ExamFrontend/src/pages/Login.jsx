@@ -1,6 +1,5 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import "../App.css";
 
 import { loginAttempt } from "../api/api";
 import { AuthenticationContext } from "../context/AuthenticationContext";

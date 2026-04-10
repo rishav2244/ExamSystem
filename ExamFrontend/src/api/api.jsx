@@ -618,7 +618,8 @@ axios.interceptors.response.use(
 
         if (error.response?.status === 401 &&
             !originalRequest._retry &&
-            !originalRequest.url.includes('/user/refresh')) {
+            !originalRequest.url.includes('/user/refresh') &&
+            !originalRequest.url.includes('/user/login')) {
 
             originalRequest._retry = true;
 

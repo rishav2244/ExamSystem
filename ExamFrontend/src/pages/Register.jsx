@@ -15,8 +15,9 @@ export const Register = () => {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const loginRedirectTime = 2000;
+
     const handleSendOtp = async (e) => {
-        e.preventDefault();
         setLoading(true);
         setMessage("");
         try {
@@ -38,8 +39,8 @@ export const Register = () => {
         setMessage("");
         try {
             await verifyOtp(email, otp);
-            setMessage("Registration successful!");
-            setTimeout(() => navigate("/login"), 2000);
+            setMessage("Registration successful! Redirecting to login in "+(loginRedirectTime/1000)+" seconds...");
+            setTimeout(() => navigate("/login"), loginRedirectTime);
         } catch (err) {
             setMessage(err.response?.data || "OTP verification failed");
         } finally {

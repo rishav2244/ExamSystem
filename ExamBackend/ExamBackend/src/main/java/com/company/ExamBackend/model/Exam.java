@@ -38,6 +38,9 @@ public class Exam
     @Column(nullable = false)
     private int totalScore;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean allowResume = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private Users createdBy;

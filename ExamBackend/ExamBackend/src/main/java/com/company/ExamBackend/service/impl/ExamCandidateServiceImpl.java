@@ -61,11 +61,8 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
     //Sends exam details to candidate dashboard.
     @Override
     public List<CandidateDashboardDTO> getCandidateDashboard(String email) {
-        Instant now = Instant.now();
-
-        return examCandidateRepo.findByEmail(email).stream()
-                .filter(candidate -> "INVITED".equals(candidate.getStatus()))
-                .filter(candidate -> isWithinValidTimeWindow(candidate, now))
+        return examCandidateRepo.findActiveDashboardExams(email, Instant.now())
+                .stream()
                 .map(candidateMapper::toDashboardDTO)
                 .toList();
     }

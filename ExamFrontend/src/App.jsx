@@ -21,6 +21,8 @@ import { NotificationProvider } from "./components/popupType/NotificationContext
 import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
 import { Register } from "./pages/Register";
 
+import "./App.css";
+
 import { CandidateResults } from "./pages/CandidateResults";
 function App() {
   return (
@@ -65,7 +67,7 @@ function App() {
 
                 <Route path="submissions/:submissionId/snapshots" element={<SnapshotGallery />} />
 
-                <Route path="/admin/exam-statistics/:examId" element={<ExamStatisticsPage />} />
+                <Route path="exam-statistics/:examId" element={<ExamStatisticsPage />} />
 
               </Route>
             </Route>
