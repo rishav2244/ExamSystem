@@ -6,6 +6,8 @@ import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useNotification } from "../components/popupType/NotificationContext";
 
+import styles from "./css/Candidate.module.css"
+
 export const Candidate = () => {
     const { email, name } = useContext(AuthenticationContext);
     const [exams, setExams] = useState([]);
@@ -66,19 +68,19 @@ export const Candidate = () => {
 
 
     if (loading) {
-        return <p className="loading-text">Loading your exams...</p>;
+        return <p className={styles.LoadingText}>Loading your exams...</p>;
     }
 
     return (
-        <div className="AdminOverall">
+        <div className={styles.CandidateOverall}>
             <CandidateHeader />
-            <div className="CandidateDashboard">
+            <div className={styles.CandidateDashboard}>
 
-                <div className="dashboard-header">
-                    <h2 className="dashboard-title">Candidate Dashboard</h2>
+                <div className={styles.DashboardHeader}>
+                    <h2 className={styles.DashboardTitle}>Candidate Dashboard</h2>
 
                     <button
-                        className="view-results-btn"
+                        className={styles.ViewResultsBtn}
                         onClick={() => navigate("/candidate/results")}
                     >
                         View Results
@@ -86,10 +88,10 @@ export const Candidate = () => {
                 </div>
 
                 {exams.length === 0 && (
-                    <p className="empty-text">No exams assigned.</p>
+                    <p className={styles.EmptyText}>No exams assigned.</p>
                 )}
 
-                <div className="candidate-exam-list">
+                <div className={styles.CandidateExamList}>
                     {exams.map((exam) => (
                         <CandidateExamCard
                             key={exam.examId}

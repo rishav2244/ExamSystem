@@ -1019,20 +1019,6 @@ button {
   font-weight: bold;
 }
 
-.view-results-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.view-results-btn:hover {
-  background-color: #0056b3;
-}
-
 .modal-window h2 {
   margin-bottom: 1rem;
   border-bottom: 2px solid #eee;
@@ -1699,24 +1685,6 @@ button {
 }
 
 /* FOR CANDIDATE.JSX */
-
-.CandidateDashboard {
-  background-color: #f5f7fa;
-  min-height: calc(100vh - 64px);
-  padding: 24px 32px;
-}
-
-.CandidateDashboard .candidate-exam-list,
-.dashboard-title {
-  max-width: 1200px;
-}
-
-.dashboard-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 16px;
-}
 
 .candidate-exam-list {
   display: grid;
@@ -4994,28 +4962,6 @@ button:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-}
-
-.view-results-btn {
-  background: #6366f1;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-
-  transition: all 0.2s ease;
-}
-
-.view-results-btn:hover {
-  background: #4f46e5;
-  transform: translateY(-1px);
-}
-
-.view-results-btn:active {
-  transform: scale(0.97);
 }
 
 .cutoff-input-wrapper {
