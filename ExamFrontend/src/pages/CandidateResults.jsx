@@ -1,39 +1,29 @@
-import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
 import { getCandidateResults, searchCandidateResults } from "../api/api";
+import styles from "./css/CandidateResults.module.css"
+import { CandidateResultTopBar } from "../components/barType/CandidateResultTopBar";
 
 export const CandidateResults = () => {
     const [results, setResults] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [pageSize] = useState(5);
-    
-    const [searchQuery, setSearchQuery] = useState("");
-    const [debouncedQuery, setDebouncedQuery] = useState("");
-    
-    const navigate = useNavigate();
 
-    // 1. Debounce Logic: Sync searchQuery to debouncedQuery
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedQuery(searchQuery);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // 2. Fetch Logic: Triggered by Page OR Debounced Query changes
     useEffect(() => {
         const loadData = async () => {
             try {
                 let data;
-                if (debouncedQuery.trim() !== "") {
+                if (searchQuery.trim() !== "") {
                     // Execute Search
-                    data = await searchCandidateResults(debouncedQuery, currentPage, pageSize);
+                    data = await searchCandidateResults(searchQuery, currentPage, pageSize);
                 } else {
                     // Normal Fetch
                     data = await getCandidateResults(currentPage, pageSize);
                 }
-                
+
                 if (data) {
                     setResults(data.content || []);
                     setTotalPages(data.totalPages || 0);
@@ -44,13 +34,17 @@ export const CandidateResults = () => {
         };
 
         loadData();
-    }, [currentPage, debouncedQuery, pageSize]);
+    }, [currentPage, searchQuery, pageSize]);
 
-    // 3. Reset page to 0 immediately when user types
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(0); 
-    };
+    // const handleSearchChange = (searchQuery) => {
+    //     setSearchQuery(searchQuery);
+    //     setCurrentPage(0);
+    // };
+
+    const handleSearchChange = useCallback((query) => {
+        setSearchQuery(query);
+        setCurrentPage(0);
+    }, []);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
@@ -69,26 +63,10 @@ export const CandidateResults = () => {
     };
 
     return (
-        <div className="results-page">
-            <div className="top-bar">
-                <div className="top-bar-left">
-                    <button className="back-btn" onClick={() => navigate("/candidate/dashboard")}>Back</button>
-                    <div className="page-title">
-                        <h2>Results</h2>
-                        <p>Your exam performance overview</p>
-                    </div>
-                </div>
-
-                <div className="search-container">
-                    <input
-                        type="text"
-                        className="search-input"
-                        placeholder="Search by exam title..."
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                    />
-                </div>
-            </div>
+        <div className={styles.resultsPage}>
+            <CandidateResultTopBar
+                debouncedQuery={handleSearchChange}
+            />
 
             <div className="table-card">
                 <table className="results-table">
@@ -128,14 +106,14 @@ export const CandidateResults = () => {
                         )}
                     </tbody>
                 </table>
-                
+
                 {totalPages > 1 && (
                     <div className="UserPagination">
                         <button disabled={currentPage === 0} onClick={() => handlePageChange(currentPage - 1)}>Previous</button>
                         <div className="page-jump-container">
                             <span>Page</span>
-                            <input 
-                                type="number" 
+                            <input
+                                type="number"
                                 className="page-input"
                                 value={currentPage + 1}
                                 onChange={handlePaginationInput}
