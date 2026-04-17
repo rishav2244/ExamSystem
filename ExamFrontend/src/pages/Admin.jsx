@@ -5,6 +5,7 @@ import { getExams, searchExams } from '../api/api';
 import { AdminExamHeader } from '../components/headerType/AdminExamHeader';
 import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
 import { AdminExamsTableBody } from '../components/tableType/AdminExams/AdminExamsTableBody';
+import { PageBar } from '../components/barType/PageBar';
 
 export const Admin = () => {
     const [listExams, setListExams] = useState([]);
@@ -74,23 +75,11 @@ export const Admin = () => {
                     />
                 </table>
 
-                <div className="PaginationControls">
-                    <button
-                        disabled={currentPage === 0}
-                        onClick={() => handlePageChange(currentPage - 1)}
-                    >
-                        Prev
-                    </button>
-
-                    <span>Page {currentPage + 1} of {totalPages || 1}</span>
-
-                    <button
-                        disabled={currentPage >= totalPages - 1 || totalPages === 0}
-                        onClick={() => handlePageChange(currentPage + 1)}
-                    >
-                        Next
-                    </button>
-                </div>
+                <PageBar
+                    currentPage={currentPage}
+                    handlePageChange={handlePageChange}
+                    totalPages={totalPages}
+                />
             </div>
 
             {isCreateModalOpen && (
