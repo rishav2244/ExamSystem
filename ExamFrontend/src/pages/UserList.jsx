@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { UserDetailsModal } from "./UserDetailsModal";
 import { CreateUserModal } from './CreateUserModal';
 import { getAllUsers, searchUsers } from "../api/api";
+import { AdminUserHeader } from '../components/headerType/AdminUserHeader';
 
 export const UserList = () => {
     const DEBOUNCE_DELAY = 600;
@@ -30,24 +31,14 @@ export const UserList = () => {
             console.error("Failed to fetch users:", err);
         }
     };
-    useEffect(() => {
-        if (isInitialMount.current) {
-            return;
-        }
-
-        const handler = setTimeout(() => {
-            fetchUsers(currentPage, searchTerm);
-        }, DEBOUNCE_DELAY);
-
-        return () => clearTimeout(handler);
-    }, [searchTerm]);
+    
     useEffect(() => {
         fetchUsers(currentPage, searchTerm);
-        
+
         if (isInitialMount.current) {
             isInitialMount.current = false;
         }
-    }, [currentPage]);
+    }, [currentPage, searchTerm]);
 
     const handlePageJump = (e) => {
         e.preventDefault();
@@ -59,35 +50,23 @@ export const UserList = () => {
         }
     };
 
+    const handleSearchChange = useCallback((query) => {
+            setSearchTerm(query);
+            setCurrentPage(0);
+        }, []);
+
+    const handleCreateModalOpen = (e) => {
+        setIsCreateModalOpen(e);
+    }
+
     return (
         <div className="UserListOverall">
             <div className="AdminUserSection">
-                <div className="AdminUserHeader">
-                    <h2>Users (Total: {pageData.totalElements})</h2>
-                    
-                    <div className="AdminHeaderActions">
-                        <div className="SearchContainer">
-                            <input 
-                                type="text" 
-                                className="SearchInput"
-                                placeholder="Search..."
-                                value={searchTerm}
-                                onChange={(e) => {
-                                    setSearchTerm(e.target.value);
-                                    setCurrentPage(0);
-                                }}
-                            />
-                            {searchTerm && (
-                                <button className="SearchClearBtn" onClick={() => setSearchTerm("")}>
-                                    &times;
-                                </button>
-                            )}
-                        </div>
-                        <button className="CreateUserBtn" onClick={() => setIsCreateModalOpen(true)}>
-                            + Create User
-                        </button>
-                    </div>
-                </div>
+                <AdminUserHeader
+                    searchBar={handleSearchChange}
+                    setIsCreateModalOpen={handleCreateModalOpen}
+                    userCount={pageData.totalElements}
+                />
 
                 <table className="UserTable">
                     <thead>
