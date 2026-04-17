@@ -23,13 +23,11 @@ export const CandidateResults = () => {
         "Duration"
     ];
 
-    // 2. Fetch Logic: Triggered by Page OR Debounced Query changes
     useEffect(() => {
         const loadData = async () => {
             try {
                 let data;
                 if (searchQuery.trim() !== "") {
-                    // Execute Search
                     data = await searchCandidateResults(searchQuery, currentPage, pageSize);
                 } else {
                     // Normal Fetch
@@ -59,7 +57,6 @@ export const CandidateResults = () => {
         }
     };
 
-    // Pagination Input (No debounce per your rule)
     const handlePaginationInput = (e) => {
         const val = e.target.value;
         if (val === "" || isNaN(val)) return;

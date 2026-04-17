@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { CreateExamModal } from './CreateExamModal';
 import { ExamDetailsModal } from './ExamDetailsModal';
 import { getExams, searchExams } from '../api/api';
+import { AdminExamHeader } from '../components/headerType/AdminExamHeader';
 
 export const Admin = () => {
     const [listExams, setListExams] = useState([]);
@@ -20,7 +21,7 @@ export const Admin = () => {
             } else {
                 data = await getExams(page, pageSize);
             }
-            
+
             setListExams(data.content || []);
             setTotalPages(data.totalPages || 0);
             setCurrentPage(data.number || 0);
@@ -29,53 +30,27 @@ export const Admin = () => {
         }
     }, [pageSize, searchTerm]);
 
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            fetchExams(0);
-        }, 300);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, fetchExams]);
-
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
             fetchExams(newPage);
         }
     };
 
-    const clearSearch = () => {
-        setSearchTerm("");
-        fetchExams(0, "");
-    };
+    const searchChange = (searchQuery) => {
+        setSearchTerm(searchQuery);
+    }
+
+    useEffect(() => {
+        fetchExams(0);
+    }, [searchTerm, fetchExams]);
 
     return (
         <div className="AdminOverall">
             <div className="AdminExamSection">
-                <div className="AdminExamHeader">
-                    <h2>Exams</h2>
-                    
-                    <div className="SearchContainer">
-                        <input
-                            type="text"
-                            className="SearchInput"
-                            placeholder="Search"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        {searchTerm && (
-                            <button className="SearchClearBtn" onClick={clearSearch}>
-                                &times;
-                            </button>
-                        )}
-                    </div>
-
-                    <button
-                        className="CreateExamBtn"
-                        onClick={() => setIsCreateModalOpen(true)}
-                    >
-                        + Create Exam
-                    </button>
-                </div>
+                <AdminExamHeader
+                    debouncedSearchTerm={searchChange}
+                    setIsCreateModalOpen={setIsCreateModalOpen}
+                />
 
                 <table className="ExamTable">
                     <thead>
@@ -114,7 +89,7 @@ export const Admin = () => {
                         )}
                     </tbody>
                 </table>
-                
+
                 <div className="PaginationControls">
                     <button
                         disabled={currentPage === 0}

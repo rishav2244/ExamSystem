@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
+import { SearchBar } from "./SearchBar";
 
-export const CandidateResultTopBar = ({debouncedQuery}) => {
+export const CandidateResultTopBar = ({ debouncedQuery }) => {
 
     const [searchBar, setSearchBar] = useState("");
 
@@ -18,6 +19,10 @@ export const CandidateResultTopBar = ({debouncedQuery}) => {
         setSearchBar(e.target.value);
     };
 
+    const clearSearch = () => {
+        setSearchBar("");
+    };
+
     return (
         <div className="top-bar">
             <div className="top-bar-left">
@@ -28,15 +33,12 @@ export const CandidateResultTopBar = ({debouncedQuery}) => {
                 </div>
             </div>
 
-            <div className="search-container">
-                <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search by exam title..."
-                    value={searchBar}
-                    onChange={handleQueryChange}
-                />
-            </div>
+            <SearchBar
+                handleQueryChange={handleQueryChange}
+                placeholderText={"Search for candidate"}
+                searchBar={searchBar}
+                clearSearch={clearSearch}
+            />
         </div>
     )
 }
