@@ -19,7 +19,6 @@ export const UserList = () => {
 
     const tableHeaders = ["Name", "Email", "Role", "Action"];
 
-    // Centralized fetch logic
     const fetchUsers = async (page, query) => {
         try {
             let data;
@@ -34,7 +33,6 @@ export const UserList = () => {
         }
     };
 
-    // Listen for page or search changes
     useEffect(() => {
         fetchUsers(currentPage, searchTerm);
 
@@ -43,7 +41,6 @@ export const UserList = () => {
         }
     }, [currentPage, searchTerm]);
 
-    // This function is passed to PageBar
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
     };
@@ -78,7 +75,6 @@ export const UserList = () => {
                     />
                 </table>
 
-                {/* Integrated Reusable Component */}
                 <PageBar
                     currentPage={currentPage}
                     totalPages={pageData.totalPages}
