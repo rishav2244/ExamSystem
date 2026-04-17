@@ -22,18 +22,6 @@
   background-color: #f5f7fa;
 }
 
-.AdminExamHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.AdminExamHeader h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
 .CreateExamBtn {
   background-color: #2563eb;
   color: white;
@@ -5020,7 +5008,8 @@ button:hover {
 
 .search-container {
   display: flex;
-  align-items: center;
+  align-items: left;
+  justify-content: left;
   gap: 12px;
 }
 

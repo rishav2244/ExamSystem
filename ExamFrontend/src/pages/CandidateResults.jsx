@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { getCandidateResults, searchCandidateResults } from "../api/api";
 import styles from "./css/CandidateResults.module.css"
 import { CandidateResultTopBar } from "../components/barType/CandidateResultTopBar";
-import { TableHeader } from "../components/tableType/TableHeader";
-import { TableBody } from "../components/tableType/TableBody";
+import { TableHeader } from "../components/tableType/CandidateResultsTableHeader";
+import { CandidateTableBody } from "../components/tableType/CandidateResults/CandidateTableBody";
 import { PageBar } from "../components/barType/PageBar";
 
 export const CandidateResults = () => {
@@ -77,7 +77,7 @@ export const CandidateResults = () => {
                     <TableHeader
                         headerArray={tableHeaders}
                     />
-                    <TableBody
+                    <CandidateTableBody
                         currentPage={currentPage}
                         pageSize={pageSize}
                         results={results}

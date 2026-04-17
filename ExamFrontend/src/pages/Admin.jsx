@@ -3,6 +3,8 @@ import { CreateExamModal } from './CreateExamModal';
 import { ExamDetailsModal } from './ExamDetailsModal';
 import { getExams, searchExams } from '../api/api';
 import { AdminExamHeader } from '../components/headerType/AdminExamHeader';
+import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
+import { AdminExamsTableBody } from '../components/tableType/AdminExams/AdminExamsTableBody';
 
 export const Admin = () => {
     const [listExams, setListExams] = useState([]);
@@ -12,6 +14,12 @@ export const Admin = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [SelectedExam, setSelectedExam] = useState(null);
+
+    const tableHeader = [
+        "Exam name",
+        "Status",
+        "Actions"
+    ]
 
     const fetchExams = useCallback(async (page, query = searchTerm) => {
         try {
@@ -40,6 +48,10 @@ export const Admin = () => {
         setSearchTerm(searchQuery);
     }
 
+    const onExamSelected = (exam) => {
+        setSelectedExam(exam);
+    }
+
     useEffect(() => {
         fetchExams(0);
     }, [searchTerm, fetchExams]);
@@ -53,41 +65,13 @@ export const Admin = () => {
                 />
 
                 <table className="ExamTable">
-                    <thead>
-                        <tr>
-                            <th>Exam Name</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {listExams.length > 0 ? (
-                            listExams.map((exam) => (
-                                <tr key={exam.id}>
-                                    <td>{exam.title}</td>
-                                    <td>
-                                        <span className={`status ${exam.status.toLowerCase()}`}>
-                                            {exam.status}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button
-                                            className="ViewBtn"
-                                            onClick={() => setSelectedExam(exam)}
-                                        >
-                                            View
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" style={{ textAlign: 'center' }}>
-                                    No exams found.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
+                    <TableHeader
+                        headerArray={tableHeader}
+                    />
+                    <AdminExamsTableBody
+                        examSelected={onExamSelected}
+                        listExams={listExams}
+                    />
                 </table>
 
                 <div className="PaginationControls">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { SearchBar } from "../barType/SearchBar";
+import styles from "./css/AdminExamHeader.module.css"
 
 export const AdminExamHeader = ({
     debouncedSearchTerm,
@@ -17,31 +18,28 @@ export const AdminExamHeader = ({
         return () => clearTimeout(timer);
     }, [searchTerm, debouncedSearchTerm]);
 
-    const clearSearch = () => {
-        setSearchTerm("");
-    };
-
     const handleQueryChange = (e) => {
         setSearchTerm(e.target.value);
     };
 
     return (
-        <div className="AdminExamHeader">
+        <div className={styles.AdminExamHeader}>
             <h2>Exams</h2>
 
-            <SearchBar
-                clearSearch={clearSearch}
-                handleQueryChange={handleQueryChange}
-                placeholderText={"Search for exams"}
-                searchBar={searchTerm}
-            />
+            <div className={styles.rightItems}>
+                <SearchBar
+                    handleQueryChange={handleQueryChange}
+                    placeholderText={"Search for exams"}
+                    searchBar={searchTerm}
+                />
 
-            <button
-                className="CreateExamBtn"
-                onClick={() => setIsCreateModalOpen(true)}
-            >
-                + Create Exam
-            </button>
-        </div>
+                <button
+                    className="CreateExamBtn"
+                    onClick={() => setIsCreateModalOpen(true)}
+                >
+                    + Create Exam
+                </button>
+            </div>
+        </div >
     )
 }

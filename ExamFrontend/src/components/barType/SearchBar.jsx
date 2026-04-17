@@ -1,23 +1,19 @@
+import styles from "./css/SearchBar.module.css"
+
 export const SearchBar = ({
     searchBar,
     handleQueryChange,
     placeholderText,
-    clearSearch
 }) => {
     return (
-        <div className="search-container">
+        <div className={styles.searchContainer}>
             <input
                 type="text"
-                className="search-input"
+                className={styles.searcgInput}
                 placeholder={placeholderText}
                 value={searchBar}
                 onChange={handleQueryChange}
             />
-            {searchBar && (
-                <button className="SearchClearBtn" onClick={clearSearch}>
-                    &times;
-                </button>
-            )}
         </div>
     )
 }

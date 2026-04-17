@@ -19,10 +19,6 @@ export const CandidateResultTopBar = ({ debouncedQuery }) => {
         setSearchBar(e.target.value);
     };
 
-    const clearSearch = () => {
-        setSearchBar("");
-    };
-
     return (
         <div className="top-bar">
             <div className="top-bar-left">
@@ -35,9 +31,8 @@ export const CandidateResultTopBar = ({ debouncedQuery }) => {
 
             <SearchBar
                 handleQueryChange={handleQueryChange}
-                placeholderText={"Search for candidate"}
+                placeholderText={"Search for exam"}
                 searchBar={searchBar}
-                clearSearch={clearSearch}
             />
         </div>
     )

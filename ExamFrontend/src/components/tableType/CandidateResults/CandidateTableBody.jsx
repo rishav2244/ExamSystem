@@ -1,4 +1,4 @@
-export const TableBody = (
+export const CandidateTableBody = (
     {
         results,
         currentPage,
