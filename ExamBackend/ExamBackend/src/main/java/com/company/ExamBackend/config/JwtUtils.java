@@ -14,14 +14,33 @@ public class JwtUtils {
     @Value("${app.jwt.secret}")
     private String secret;
 
-    @Value("${app.jwt.expiration}")
-    private long expiration;
+    @Value("${app.jwt.access-expiration}") // Short: e.g., 900000 (15 min)
+    private long accessExpiration;
 
-    public String generateToken(String email) {
+    @Value("${app.jwt.refresh-expiration}") // Long: e.g., 604800000 (7 days)
+    private long refreshExpiration;
+
+    public String generateAccessToken(String email) {
+        return buildToken(email, accessExpiration);
+    }
+
+    public String generateRefreshToken(String email) {
+        return buildToken(email, refreshExpiration);
+    }
+
+    public long getAccessExpiration() {
+        return accessExpiration;
+    }
+
+    public long getRefreshExpiration() {
+        return refreshExpiration;
+    }
+
+    private String buildToken(String email, long expirationTime) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }

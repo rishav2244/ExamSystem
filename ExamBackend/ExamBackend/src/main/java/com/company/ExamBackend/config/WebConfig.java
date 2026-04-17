@@ -9,9 +9,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${APP_UPLOAD_DIR}")
-    private String uploadDir;
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -21,13 +18,5 @@ public class WebConfig implements WebMvcConfigurer {
                 .exposedHeaders("Authorization")
                 .allowCredentials(true)
                 .maxAge(3600);
-    }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String location = uploadDir.endsWith("/") ? uploadDir : uploadDir + "/"; //Literal location
-        //Resource handler API to call.
-        registry.addResourceHandler("/api/images/**")
-                .addResourceLocations("file:" + location);
     }
 }

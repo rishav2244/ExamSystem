@@ -10,36 +10,57 @@ import { Admin } from "./pages/Admin";
 import { UserList } from "./pages/UserList";
 import { GroupList } from "./pages/GroupList";
 import { AdminLayout } from "./layouts/AdminLayout";
+import { CandidateLayout } from "./layouts/CandidateLayout";
 import { CandidateExamSetup } from "./pages/CandidateExamSetup";
 import { ExamInterface } from "./pages/ExamInterface";
 import { Submissions } from "./pages/Submissions";
 import { SubmissionReview } from "./pages/SubmissionReview";
 import { SnapshotGallery } from "./pages/SnapshotGallery";
+import { SubmissionsOverallStatistics } from "./pages/SubmissionsOverallStatistics";
+import { NotificationProvider } from "./components/popupType/NotificationContext";
 
+import { ExamStatisticsPage } from "./pages/ExamStatisticsPage";
+import { Register } from "./pages/Register";
 
+import "./App.css";
+
+import { CandidateResults } from "./pages/CandidateResults";
 function App() {
   return (
     <AuthenticationContextProvider>
       <BrowserRouter>
         <Routes>
-          
+
           <Route path="/login" element={<Login />} />
+          {/* <Route path="/login" element={<Login />} /> */}
+          <Route path="/register" element={<Register />} />
 
-          
           <Route element={<ProtectedRoute />}>
-            <Route path="/user" element={<Candidate />} />
 
-            <Route path="/candidate/exam-setup" element={<CandidateExamSetup />} />
+            <Route element={<NotificationProvider />}>
+              <Route path="/candidate" element={<CandidateLayout />}>
 
-            <Route path="/candidate/exam-room" element={<ExamInterface />} />
+                <Route index element={<Candidate />} />
 
-            
+                <Route path="dashboard" element={<Candidate />} />
+
+                <Route path="results" element={<CandidateResults />} />
+
+                <Route path="exam-setup" element={<CandidateExamSetup />} />
+
+                <Route path="exam-room" element={<ExamInterface />} />
+
+              </Route>
+            </Route>
+
+
             <Route element={<AdminRoute />}>
 
               <Route path="/admin" element={<AdminLayout />}>
 
-                
-                <Route index element={<Admin />} />
+
+                {/* <Route index element={<Admin />} /> */}
+                <Route index element={<SubmissionsOverallStatistics />} />
 
                 <Route path="exams" element={<Admin />} />
 
@@ -49,18 +70,21 @@ function App() {
 
                 <Route path="submissions" element={<Submissions />} />
 
+                <Route path="submissions/overall" element={<SubmissionsOverallStatistics />} />
+
                 <Route path="submissions/:submissionId" element={<SubmissionReview />} />
 
                 <Route path="submissions/:submissionId/snapshots" element={<SnapshotGallery />} />
-                
+
+                <Route path="exam-statistics/:examId" element={<ExamStatisticsPage />} />
+
               </Route>
             </Route>
           </Route>
-
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
-    </AuthenticationContextProvider>
+    </AuthenticationContextProvider >
   );
 }
 

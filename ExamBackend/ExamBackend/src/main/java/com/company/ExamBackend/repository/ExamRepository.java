@@ -1,6 +1,8 @@
 package com.company.ExamBackend.repository;
 
 import com.company.ExamBackend.model.Exam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,17 +11,30 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, String> {
-    List<Exam> findCreatedById(String id);
+    Page<Exam> findByStatusAndCreatedBy_Email(String status, String email, Pageable pageable);
 
-    List<Exam> findByStartTimeBeforeAndEndTimeAfter(Instant now1, Instant now2);
-
-    List<Exam> findByStatus(String status);
+    Page<Exam> findByCreatedBy_Email(String email, Pageable pageable);
 
     @Modifying
     @Transactional
     @Query("UPDATE Exam e SET e.status = :status WHERE e.id = :examId")
     int updateExamStatus(String examId, String status);
+
+    @Query("SELECT COUNT(e) " +
+            "FROM Exam e " +
+            "WHERE e.status = 'PUBLISHED' " +
+            "AND e.createdBy.email = :adminEmail")
+    Long publishedCount(String adminEmail);
+
+    @Query("SELECT e " +
+            "FROM Exam e " +
+            "WHERE (e.title ILIKE %:query% " +
+            "OR e.status ILIKE %:query%) " +
+            "AND e.createdBy.email = :adminEmail"
+    )
+    Page<Exam> searchByQuery(String query, String adminEmail, Pageable pageable);
 }

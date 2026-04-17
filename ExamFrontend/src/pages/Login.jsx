@@ -1,9 +1,10 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import "../App.css";
 
 import { loginAttempt } from "../api/api";
 import { AuthenticationContext } from "../context/AuthenticationContext";
+
+import styles from "./css/Login.module.css"
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -17,13 +18,13 @@ export const Login = () => {
         e.preventDefault();
 
         try {
-            const userData = await loginAttempt(email, password);
-            login(userData);
+            const data = await loginAttempt(email, password);
+            login(data);
 
-            if (userData.role === "ADMIN") {
+            if (data.user && data.user.role === "ADMIN") {
                 navigate("/admin");
             } else {
-                navigate("/user");
+                navigate("/candidate");
             }
         } catch (err) {
             const errorMsg =
@@ -33,7 +34,7 @@ export const Login = () => {
     };
 
     return (
-        <div className="login-card">
+        <div className={styles.loginCard}>
             <h2>Exam Portal Login</h2>
 
             <input
@@ -53,7 +54,12 @@ export const Login = () => {
             />
 
             <button onClick={handleLogin}>Login</button>
-
+            <p className="switch-auth">
+                Don't have an account?{" "}
+                <span onClick={() => navigate("/register")}>
+                    Register here
+                </span>
+            </p>
             {message && <p>{message}</p>}
         </div>
     );

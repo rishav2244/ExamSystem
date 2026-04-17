@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,11 +31,15 @@ public class Submission
     private String candidateEmail;
 
     @Column
-    private Float score;
+    private Double score;
+
+    @Column
+    private boolean passed;
 
     @Column(nullable = false)
     private int timeTaken;
 
+    @CreatedDate
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -41,6 +48,9 @@ public class Submission
 
     @Column(nullable = false)
     private String status;
+
+    @Column(nullable = false)
+    private boolean mailed = false;
 
     @Column(nullable = false)
     private String location;

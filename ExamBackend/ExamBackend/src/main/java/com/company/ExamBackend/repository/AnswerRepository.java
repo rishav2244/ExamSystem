@@ -4,16 +4,43 @@ import com.company.ExamBackend.model.Answer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, String> {
     Optional<Answer> findBySubmissionIdAndQuestionId(String submissionId, String questionId);
     List<Answer> findBySubmissionId(String submissionId);
+
+    // Reportedly more efficient due to no n+1 queries
+    // Also note that without FETCH, Hibernate tends to just make references instead of getting actual
+    // data. So when we  try to get actual info about a question, it goes "Oh right forgot brb" and make
+    // another call to db to get the corresponding question. What "Physically" happens without FETCH is
+    // that you get only questionId in the JOINed table's q attribute unless you use JOIN FETCH.
+    // Also, if you're confused, this is particularly useful in the service that calculates score of
+    // a candidate.
+    @Query("SELECT a FROM Answer a " +
+            "JOIN FETCH a.question q " +
+            "LEFT JOIN FETCH a.selectedOption o " +
+            "WHERE a.submission.id = :submissionId")
+    List<Answer> findBySubmissionIdWithDetails(@Param("submissionId") String submissionId);
+
+    @Query("SELECT " +
+            "COALESCE(SUM(CASE WHEN o.isCorrect = true THEN q.marks ELSE 0 END), 0.0), " +
+            "(CASE WHEN COALESCE(SUM(CASE WHEN o.isCorrect = true THEN q.marks ELSE 0 END), 0.0) >= " +
+            "(s.exam.totalScore * s.exam.cutoff / 100.0) THEN true ELSE false END) " +
+            "FROM Submission s " +
+            "LEFT JOIN Answer a ON a.submission.id = s.id " +
+            "LEFT JOIN a.question q " +
+            "LEFT JOIN a.selectedOption o " +
+            "WHERE s.id = :submissionId AND s.candidateEmail = :candidateEmail " +
+            "GROUP BY s.id, s.exam.totalScore, s.exam.cutoff")
+    List<Object[]> calculateResult(@Param("submissionId") String submissionId, @Param("candidateEmail") String candidateEmail);
 
     @Modifying
     @Transactional

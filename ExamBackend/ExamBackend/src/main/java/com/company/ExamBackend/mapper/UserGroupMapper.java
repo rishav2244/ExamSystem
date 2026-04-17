@@ -8,6 +8,8 @@ import com.company.ExamBackend.model.UserGroup;
 import com.company.ExamBackend.model.Users;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class UserGroupMapper {
 
@@ -40,5 +42,24 @@ public class UserGroupMapper {
         dto.setName(group.getName());
         dto.setCreatorName(group.getCreatedBy().getName());
         return dto;
+    }
+
+    public List<GroupMember> toMemberEntities(UserGroup group, List<Users> users) {
+        return users.stream()
+                .filter(u -> "CANDIDATE".equalsIgnoreCase(u.getRole()))
+                .map(u -> toGroupMemberEntity(group, u))
+                .toList();
+    }
+
+    public List<UserGroupResponseDTO> toGroupResponseDTOList(List<UserGroup> groups) {
+        return groups.stream()
+                .map(this::toGroupResponseDTO)
+                .toList();
+    }
+
+    public List<GrpMemberDTO> toGrpMemberDTOList(List<GroupMember> members) {
+        return members.stream()
+                .map(this::toGrpMemberDTO)
+                .toList();
     }
 }

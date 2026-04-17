@@ -11,7 +11,6 @@ export const ExamInterface = () => {
     const navigate = useNavigate();
     const { examId, submissionId, duration } = location.state || {};
     const auth = JSON.parse(sessionStorage.getItem("auth"));
-    const studentId = auth?.user?.id;
 
     const [examData, setExamData] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
@@ -33,7 +32,7 @@ export const ExamInterface = () => {
     }, [submissionId, isDisqualified, showWarning]);
 
     useEffect(() => {
-        if (!examId || !submissionId) return navigate('/user');
+        if (!examId || !submissionId) return navigate('/candidate/dashboard');
         document.documentElement.requestFullscreen().catch(console.error);
         fetchExamContent(examId).then(setExamData);
     }, [examId, submissionId, navigate]);
@@ -61,15 +60,33 @@ export const ExamInterface = () => {
         }
     };
 
+    const handleClearOption = async (questionId) => {
+        setSelectedOptions(prev => ({ ...prev, [questionId]: null }));
+
+        try {
+            await saveAnswer(submissionId, questionId, null);
+        } catch (err) {
+            console.error("Failed to clear answer", err);
+        }
+    };
+
     const handleDismissWarning = () => {
         setShowWarning(false);
         if (!document.fullscreenElement) document.documentElement.requestFullscreen();
     };
 
     const handleFinish = async () => {
-        await finalizeExam(submissionId);
-        if (document.fullscreenElement) document.exitFullscreen();
-        navigate('/user');
+        try {
+            await finalizeExam(submissionId);
+
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            }
+
+            navigate('/candidate/dashboard', { state: { ExamSubmitted: true } });
+        } catch (error) {
+            console.error("Submission failed", error);
+        }
     };
 
     if (!examData) return <div className="loading">Loading Exam...</div>;
@@ -88,14 +105,13 @@ export const ExamInterface = () => {
                 onDismissWarning={handleDismissWarning}
                 onFinalize={handleFinish}
                 submissionId={submissionId}
-                studentId={studentId}
             />
-
             <ExamHeader
                 title={examData.title}
                 timeLeft={timeLeft}
                 violationCount={violationCount}
                 onFinish={handleFinish}
+                isDanger={timeLeft <= 30}
             />
 
             <main className="exam-body">
@@ -114,9 +130,21 @@ export const ExamInterface = () => {
                         onSelect={handleOptionSelect}
                     />
                     <div className="navigation-controls">
-                        <button disabled={currentIdx === 0} onClick={() => setCurrentIdx(p => p - 1)}>Previous</button>
+                        {/* <button disabled={currentIdx === 0} onClick={() => setCurrentIdx(p => p - 1)}>Previous</button> */}
+                        <button
+                            className="nav-btn prev-btn"
+                            disabled={currentIdx === 0}
+                            onClick={() => setCurrentIdx(p => p - 1)}
+                        >
+                            Previous
+                        </button>
                         {currentIdx < examData.questions.length - 1 && (
-                            <button className="next-btn" onClick={() => setCurrentIdx(p => p + 1)}>Next</button>
+                            <button
+                                className="nav-btn next-btn"
+                                onClick={() => setCurrentIdx(p => p + 1)}
+                            >
+                                Next
+                            </button>
                         )}
                     </div>
                 </section>

@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 import { createExam } from "../api/api";
+import { usePopup } from "../components/popupType/usePopup";
 
 export const CreateExamModal = ({ onClose, onExamCreated }) => {
 
     const { email } = useContext(AuthenticationContext);
+    const { showPopup } = usePopup();
 
     const [examData, setExamData] = useState({
         title: "",
@@ -35,27 +37,27 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
     const handleExamCreation = async (e) => {
         e.preventDefault();
         if (!examData.title) {
-            alert("Title is required");
+            showPopup("Title is required", "error");
             return;
         }
         else if (!examData.startTime) {
-            alert("Start time is required");
+            showPopup("Start time is required", "error");
             return;
         }
         else if (!examData.endTime) {
-            alert("End time is required");
+            showPopup("End time is required", "error");
             return;
         }
         else if (!examData.duration) {
-            alert("Duration is required");
+            showPopup("Duration is required", "error");
             return;
         }
         else if (examData.endTime < examData.startTime) {
-            alert("Start date cannot be after end date.")
+            showPopup("Start date cannot be after end date.", "error");
             return;
         }
         else if (isNaN(examData.duration) || Number(examData.duration) <= 0) {
-            alert("Duration cannot be negative or 0 or non-numeric.")
+            showPopup("Duration cannot be negative or 0 or non-numeric.", "error");
             return;
         }
 
@@ -65,7 +67,7 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
 
         const availableMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
         if (availableMinutes < (durationMinutes + 5)) {
-            alert(`The time window (${availableMinutes} mins) is too short for a ${durationMinutes} min exam plus the required 5-minute buffer.`);
+            showPopup(`The time window (${availableMinutes} mins) is too short for a ${durationMinutes} min exam plus the required 5-minute buffer.`, "error");
             return;
         }
 
@@ -91,12 +93,12 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                 examDetailsJSON.createdBy
             );
 
-            alert("Exam created successfully!");
+            showPopup("Exam created successfully!", "success");
             onExamCreated();
             onClose();
         } catch (err) {
             console.error(err);
-            alert("Failed to create exam. See console for details.");
+            showPopup("Failed to create exam. See console for details.", "error");
         }
     }
 

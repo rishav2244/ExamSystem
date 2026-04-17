@@ -3,6 +3,7 @@ package com.company.ExamBackend.exception;
 import com.company.ExamBackend.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,7 +16,8 @@ public class GlobalExceptionHandler {
             ExamNotFoundException.class,
             EmailNotFoundException.class,
             UserNotFoundException.class,
-            GroupNotFoundException.class
+            GroupNotFoundException.class,
+            ExamCandidateNotFoundException.class
     })
     public ResponseEntity<ErrorResponseDTO> handleNotFoundException(Exception ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -26,7 +28,14 @@ public class GlobalExceptionHandler {
     //=========================================================================================================//
     //Conflicts and duplicates
     @ExceptionHandler(EmailExistsException.class)
-    public ResponseEntity<ErrorResponseDTO> handleConflictException(EmailExistsException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleEmailConflictException(EmailExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseDTO(409, ex.getMessage()));
+    }
+
+    //Thrown when trying to create group of existing name.
+    @ExceptionHandler(GroupAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleGroupConflictException(GroupAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseDTO(409, ex.getMessage()));
     }
@@ -34,17 +43,38 @@ public class GlobalExceptionHandler {
 
     //=========================================================================================================//
     //Security business
+
+    //Password doesn't match
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthException(PasswordMismatchException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponseDTO(401, ex.getMessage()));
     }
+
+    //Token expired
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTokenExpiredException(TokenExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body((new ErrorResponseDTO(401, ex.getMessage())));
+    }
+
+    //Token invalid
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTokenExpiredException(InvalidTokenException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body((new ErrorResponseDTO(401, ex.getMessage())));
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponseDTO(403, "You do not have permission to access this resource."));
+    }
+
     //=========================================================================================================//
 
     //=========================================================================================================//
     //Problems with business logic
 
-    //Made this earlier while using generic exceptions. Might not be require anymore?
+    //Made this earlier while using generic exceptions. Might not be required anymore?
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponseDTO> handleIllegalState(IllegalStateException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -58,12 +88,25 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponseDTO(403, ex.getMessage()));
     }
 
-    //Thrown for eligibility cheeck
+    //Thrown for eligibility check
     @ExceptionHandler(EligibilityException.class)
     public ResponseEntity<ErrorResponseDTO> handleEligibility(EligibilityException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponseDTO(400, ex.getMessage()));
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        // Getting first error message we find
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .get(0)
+                .getDefaultMessage();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(400, errorMessage));
+    }
+
     //=========================================================================================================//
 
     //=========================================================================================================//

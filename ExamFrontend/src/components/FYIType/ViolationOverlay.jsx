@@ -1,7 +1,7 @@
 export const ViolationOverlay = ({ count, isDisqualified, onDismiss, onFinalize }) => {
     if (isDisqualified) {
         return (
-            <div className="modal-backdrop violation-overlay">
+            <div className="modal-backdrop violation-overlay" data-html2canvas-ignore>
                 <div className="modal-window" style={{ height: 'auto', minHeight: '250px' }}>
                     <h2 className="warning-text">EXAM TERMINATED</h2>
                     <p>You have reached <b>3 violations</b>.</p>
@@ -15,7 +15,7 @@ export const ViolationOverlay = ({ count, isDisqualified, onDismiss, onFinalize 
     }
 
     return (
-        <div className="modal-backdrop violation-overlay">
+        <div className="modal-backdrop violation-overlay" data-html2canvas-ignore>
             <div className="modal-window" style={{ height: 'auto', minHeight: '200px' }}>
                 <h2 className="warning-text">⚠️ VIOLATION DETECTED</h2>
                 <p>Strike <b>{count} / 3</b> recorded.</p>

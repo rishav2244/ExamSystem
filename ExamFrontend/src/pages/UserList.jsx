@@ -1,112 +1,95 @@
-import { useEffect, useState } from 'react';
-import { CreateUserCard } from "../components/cardType/CreateUserCard";
-import { UserCard } from "../components/cardType/UserCard";
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { UserDetailsModal } from "./UserDetailsModal";
 import { CreateUserModal } from './CreateUserModal';
-import { getAllUsers } from "../api/api";
+import { getAllUsers, searchUsers } from "../api/api";
+import { AdminUserHeader } from '../components/headerType/AdminUserHeader';
+import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
+import { AdminUsersTableBody } from '../components/tableType/AdminUsers/AdminUsersTableBody';
+import { PageBar } from '../components/barType/PageBar';
 
 export const UserList = () => {
-    const [listUsers, setListUsers] = useState([]);
+    const isInitialMount = useRef(true);
+
+    const [pageData, setPageData] = useState({ content: [], totalPages: 0, totalElements: 0 });
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize] = useState(5);
+    const [searchTerm, setSearchTerm] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [roleFilter, setRoleFilter] = useState("ALL");
+    const tableHeaders = ["Name", "Email", "Role", "Action"];
 
-    const fetchUsers = async () => {
+    // Centralized fetch logic
+    const fetchUsers = async (page, query) => {
         try {
-            const users = await getAllUsers();
-            setListUsers(users);
+            let data;
+            if (query && query.trim() !== "") {
+                data = await searchUsers(query, page, pageSize);
+            } else {
+                data = await getAllUsers(page, pageSize);
+            }
+            setPageData(data);
         } catch (err) {
             console.error("Failed to fetch users:", err);
         }
     };
 
-    useEffect(() => { fetchUsers(); }, []);
+    // Listen for page or search changes
+    useEffect(() => {
+        fetchUsers(currentPage, searchTerm);
 
-    const filteredUsers = listUsers.filter((user) => {
-        const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRole = roleFilter === "ALL" || user.role === roleFilter;
-        return matchesSearch && matchesRole;
-    });
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+        }
+    }, [currentPage, searchTerm]);
+
+    // This function is passed to PageBar
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const handleSearchChange = useCallback((query) => {
+        setSearchTerm(query);
+        setCurrentPage(0); // Reset to first page on new search
+    }, []);
+
+    const handleCreateModalOpen = (isOpen) => {
+        setIsCreateModalOpen(isOpen);
+    };
+
+    const handleUserSelection = (usr) => {
+        setSelectedUser(usr);
+    };
 
     return (
         <div className="UserListOverall">
-            <div className="filter-bar">
-                <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search by name or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <select
-                    className="role-select"
-                    value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                >
-                    <option value="ALL">All Roles</option>
-                    <option value="ADMIN">Admin</option>
-                    <option value="CANDIDATE">Candidate</option>
-                </select>
-                <div className="user-count">
-                    Found: {filteredUsers.length}
-                </div>
-            </div>
             <div className="AdminUserSection">
+                <AdminUserHeader
+                    searchBar={handleSearchChange}
+                    setIsCreateModalOpen={handleCreateModalOpen}
+                    userCount={pageData.totalElements}
+                />
 
-                <div className="AdminUserHeader">
-                    <h2>Users</h2>
-                    <button
-                        className="CreateUserBtn"
-                        onClick={() => setIsCreateModalOpen(true)}
-                    >
-                        + Create User
-                    </button>
-                </div>
                 <table className="UserTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {filteredUsers.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-
-                                <td>
-                                    <span className={`role-badge ${user.role.toLowerCase()}`}>
-                                        {user.role}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <button
-                                        className="ViewBtn"
-                                        onClick={() => setSelectedUser(user)}
-                                    >
-                                        View
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
+                    <TableHeader headerArray={tableHeaders} />
+                    <AdminUsersTableBody
+                        pageData={pageData}
+                        setSelectedUser={handleUserSelection}
+                    />
                 </table>
 
+                {/* Integrated Reusable Component */}
+                <PageBar
+                    currentPage={currentPage}
+                    totalPages={pageData.totalPages}
+                    handlePageChange={handlePageChange}
+                />
             </div>
-
 
             {isCreateModalOpen && (
                 <CreateUserModal
                     onClose={() => setIsCreateModalOpen(false)}
-                    onUserCreated={fetchUsers}
+                    onUserCreated={() => fetchUsers(currentPage, searchTerm)}
                 />
             )}
 

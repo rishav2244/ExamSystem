@@ -1,8 +1,16 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
+import { usePopup } from "../components/popupType/usePopup";
+import { useConfirm } from "../components/popupType/useConfirm";
 import Papa from "papaparse";
+
 import { ExamQuestion } from "../components/FYIType/ExamQuestion";
 import { ExamQuestionDraft } from "../components/FYIType/ExamQuestionDraft";
+import { CandidateRow } from "../components/FYIType/CandidateRow";
+
+import { MailSendingModal } from "../components/popupType/MailSendingModal";
+
+
 import {
     getExamQuestions,
     uploadExamQuestions,
@@ -15,34 +23,56 @@ import {
 } from "../api/api";
 
 export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
+
     const { email } = useContext(AuthenticationContext);
+    const { showPopup } = usePopup();
+    const { confirmPopup } = useConfirm();
 
     const [CSVObj, setCSVObj] = useState(null);
     const [backendQuestions, setBackendQuestions] = useState([]);
     const [availableGroups, setAvailableGroups] = useState([]);
     const [selectedGroupId, setSelectedGroupId] = useState("");
     const [candidates, setCandidates] = useState([]);
+    const [cutoff, setCutoff] = useState(40);
+
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const pageSize = 5;
 
     const isPending = exam?.status === "PENDING";
-    const canPublish = exam?.status === "SAVED" && selectedGroupId !== "";
+    const [sendingMail, setSendingMail] = useState(false);
 
     useEffect(() => {
+
         if (isPending || !exam?.id) return;
 
         getExamQuestions(exam.id)
             .then((data) => {
+
                 const transformed = transformBackendQuestions(data || []);
                 setBackendQuestions(transformed);
+
             })
             .catch((err) => {
+
                 console.log("Couldn't load questions", err);
+
             });
+
     }, [exam?.id, isPending]);
+
 
     useEffect(() => {
         if (exam?.status === "SAVED") {
-            getAllUserGroups()
-                .then(data => setAvailableGroups(data))
+            getAllUserGroups(0, 100) // Fetching a larger size to fill the dropdown
+                .then(data => {
+                    // IMPORTANT: Use data.content because it's a Page object
+                    if (data && data.content) {
+                        setAvailableGroups(data.content);
+                    } else if (Array.isArray(data)) {
+                        setAvailableGroups(data);
+                    }
+                })
                 .catch(err => console.error("Failed to load groups", err));
         }
     }, [exam?.status]);
@@ -50,42 +80,79 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
     useEffect(() => {
         if (exam?.status === "PUBLISHED") {
-
-            getExamCandidates(exam.id)
-                .then(data => setCandidates(data || []))
+            getExamCandidates(exam.id, currentPage, pageSize)
+                .then(data => {
+                    setCandidates(data.content || []);
+                    setTotalPages(data.totalPages || 0);
+                })
                 .catch(err => console.error("Failed to load assigned candidates", err));
-        } else if (exam?.status === "SAVED" && selectedGroupId) {
-
-            getGroupMembers(selectedGroupId)
-                .then(data => setCandidates(data || []))
-                .catch(err => console.error("Failed to preview group", err));
-        } else {
-            setCandidates([]);
         }
-    }, [exam?.status, exam?.id, selectedGroupId]);
+        else if (exam?.status === "SAVED" && selectedGroupId) {
+            // Debugging: See what the ID is and what the API returns
+            console.log("Fetching members for group ID:", selectedGroupId);
+
+            getGroupMembers(selectedGroupId, 0, 100)
+                .then(data => {
+                    console.log("API Response for members:", data);
+                    // Spring Page object wrapper check
+                    const memberList = data.content || data;
+                    setCandidates(Array.isArray(memberList) ? memberList : []);
+                    setTotalPages(data.totalPages || 0);
+                })
+                .catch(err => {
+                    console.error("Failed to preview group", err);
+                    setCandidates([]);
+                });
+        }
+        else {
+            setCandidates([]);
+            setTotalPages(0);
+        }
+        // Ensure selectedGroupId is in the dependency array!
+    }, [exam?.status, exam?.id, selectedGroupId, currentPage]);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     const transformCSV = (rows) => {
+
         return rows.map((row) => {
+
             const result = {
                 Question: row["Question"],
                 Ans: row["Correction Option"],
                 Marks: row["Marks"],
             };
+
             let optionIndex = 1;
+
             Object.keys(row).forEach((key) => {
+
                 if (key.startsWith("Option")) {
+
                     result[optionIndex] = row[key];
                     optionIndex++;
+
                 }
+
             });
+
             return result;
+
         });
+
     };
 
+
     const validateCSVData = (data) => {
+
         if (!data || data.length === 0) return "The CSV file is empty.";
 
         for (let i = 0; i < data.length; i++) {
+
             const row = data[i];
             const questionNum = i + 1;
 
@@ -102,15 +169,22 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             }
 
             const correctAns = row["Correction Option"]?.trim();
+
             if (!options.includes(correctAns)) {
-                return `Row ${questionNum}: The "Correction Option" (${correctAns}) does not exactly match any of the provided options. Check for typos!`;
+                return `Row ${questionNum}: The "Correction Option" (${correctAns}) does not match any option.`;
             }
+
         }
+
         return null;
+
     };
 
+
     const validateDraftData = (questions) => {
+
         for (let i = 0; i < questions.length; i++) {
+
             const q = questions[i];
             const label = `Question ${i + 1}`;
 
@@ -123,161 +197,286 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             }
 
             const optionKeys = Object.keys(q).filter(key => !isNaN(key));
+
             if (optionKeys.length < 2) {
                 return `${label}: Must have at least 2 options.`;
             }
 
             const optionValues = optionKeys.map(k => q[k].trim());
+
             if (optionValues.some(val => val === "")) {
                 return `${label}: One or more options are empty.`;
             }
 
             if (!optionValues.includes(q.Ans.trim())) {
-                return `${label}: The Correct Answer does not match any of the provided options.`;
+                return `${label}: Correct Answer does not match options.`;
             }
+
         }
+
         return null;
+
     };
 
     const handleConfirmAndPublish = async () => {
+
         if (!selectedGroupId) {
-            alert("Please select a group first.");
+            showPopup("Please select a group first.", "warning");
             return;
         }
 
-        if (!window.confirm("This will assign the group and publish the exam. Students will see it immediately. Proceed?")) {
-            return;
-        }
+        const confirmed = await confirmPopup(
+            "This will assign the group and publish the exam. Students will see it immediately. Proceed?"
+        );
+
+        if (!confirmed) return;
 
         try {
-            console.log("Assigning group...");
+
+            setSendingMail(true);
+
+            await new Promise(r => setTimeout(r, 50));
+
             await assignGroupToExam(exam.id, selectedGroupId);
 
-            console.log("Publishing exam...");
             await publishExam(exam.id);
 
-            alert("Group assigned and Exam published successfully!");
+            setSendingMail(false);
+
+            showPopup("Exam published and invitations sent successfully!", "success");
+
             onQuestionsUploaded();
             onClose();
+
         } catch (err) {
-            alert("An error occurred during the publish process. Check console.");
+
+            setSendingMail(false);
+
+            showPopup("An error occurred during the publish process.", "error");
             console.error(err);
+
         }
     };
 
     const handleExamCreation = (e) => {
+
         const csvFile = e.target.files[0];
         if (!csvFile) return;
 
         Papa.parse(csvFile, {
+
             header: true,
             skipEmptyLines: true,
             transformHeader: (header) => header.trim(),
+
             complete: (resultant) => {
+
                 const validationError = validateCSVData(resultant.data);
 
                 if (validationError) {
-                    alert(`Invalid CSV: ${validationError}`);
+
+                    showPopup(`Invalid CSV: ${validationError}`, "error");
                     e.target.value = null;
                     return;
+
                 }
 
                 const transformed = transformCSV(resultant.data);
                 setCSVObj(transformed);
+
             },
+
             error: (err) => {
-                alert("Error parsing CSV: " + err.message);
+
+                showPopup("Error parsing CSV: " + err.message, "error");
+
             },
+
         });
+
     };
 
+
     const handleQuestionUpdate = (qIndex, fieldKey, newValue) => {
+
         setCSVObj((prevCSV) => {
+
             return prevCSV.map((item, index) => {
+
                 if (index === qIndex) {
                     return { ...item, [fieldKey]: newValue };
                 }
+
                 return item;
+
             });
+
         });
+
     };
 
+
     const transformBackendQuestions = (questions) => {
+
         return questions.map((q) => {
+
             const transformed = {
                 Question: q.text,
                 Marks: String(q.marks || "1"),
                 Ans: "",
             };
+
             q.options.forEach((opt) => {
+
                 const key = String(opt.optionIndex + 1);
                 transformed[key] = opt.text;
+
             });
+
             const correctOption = q.options.find(
                 (opt) => opt.optionIndex === q.correctOptionIndex
             );
+
             if (correctOption) {
+
                 transformed.Ans = correctOption.text;
+
             }
+
             return transformed;
+
         });
+
     };
+
 
     const handleDeleteExam = async () => {
-        if (!window.confirm("ARE YOU SURE? This will permanently delete the exam and all its questions, submissions, and candidate records. This cannot be undone.")) {
-            return;
-        }
+
+        const confirmed = await confirmPopup(
+            "ARE YOU SURE? This will permanently delete the exam and all its questions, submissions, and candidate records. This cannot be undone."
+        );
+
+        if (!confirmed) return;
+
         try {
+
             await deleteExam(exam.id);
-            alert("Exam deleted successfully.");
+
+            showPopup("Exam deleted successfully.", "success");
+
             if (onQuestionsUploaded) {
+
                 onQuestionsUploaded();
+
             }
+
             onClose();
+
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "An error occurred while deleting the exam.";
-            alert(`Delete Failed: ${errorMessage}`);
+
+            const errorMessage =
+                err.response?.data?.message ||
+                "An error occurred while deleting the exam.";
+
+            showPopup(`Delete Failed: ${errorMessage}`, "error");
+
             console.error(err);
+
         }
+
     };
 
+
     const handleSave = async () => {
+
         if (!CSVObj || CSVObj.length === 0) return;
 
         const error = validateDraftData(CSVObj);
+
         if (error) {
-            alert(`Validation Error:\n${error}`);
+
+            showPopup(`Validation Error: ${error}`, "error");
             return;
+
         }
 
-        if (!window.confirm("Do you want to save these questions to the exam?")) {
+        if (cutoff < 0 || cutoff > 100) {
+
+            showPopup("Cutoff percentage must be between 0 and 100.", "warning");
             return;
+
         }
+
+        const confirmed = await confirmPopup(
+            `Save questions with a ${cutoff}% passing cutoff?`
+        );
+
+        if (!confirmed) return;
 
         try {
-            await uploadExamQuestions(exam.id, CSVObj);
-            alert("Questions saved successfully!");
+
+            await uploadExamQuestions(exam.id, CSVObj, cutoff);
+
+            showPopup("Questions and Cutoff saved successfully!", "success");
+
             setCSVObj(null);
             onQuestionsUploaded();
             onClose();
+
         } catch (err) {
-            alert("Failed to save questions. Please check console for details.");
+
+            showPopup("Failed to save. Check console.", "error");
+
         }
+
     };
 
     return (
         <div className="modal-backdrop" onClick={onClose}>
-            <div className="modal-window" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-window wide-modal" onClick={(e) => e.stopPropagation()}>
+
+                {sendingMail && <MailSendingModal />}
+
                 <button className="modal-close" onClick={onClose}>✕</button>
 
                 <h2>Exam details</h2>
 
                 {exam && (
                     <div className="modal-exam-header">
-                        <h3>{exam.title}</h3>
-                        <p>Status: {exam.status}</p>
-                        <p className="exam-meta">Starts: {new Date(exam.startTime).toLocaleString()}</p>
-                        <p className="exam-meta">Ends: {new Date(exam.endTime).toLocaleString()}</p>
+                        <div className="exam-title-row">
+                            <h2 className="exam-title">{exam.title}</h2>
+                            <p className={`exam-status-text ${exam.status.toLowerCase()}`}>
+                                Status: {exam.status}
+                            </p>
+                        </div>
+
+                        <div className="exam-info-grid">
+                            <div className="exam-info-card">
+                                <span className="label">Start Time</span>
+                                <span className="value">
+                                    {new Date(exam.startTime).toLocaleString()}
+                                </span>
+                            </div>
+
+                            <div className="exam-info-card">
+                                <span className="label">End Time</span>
+                                <span className="value">
+                                    {new Date(exam.endTime).toLocaleString()}
+                                </span>
+                            </div>
+
+                            <div className="exam-info-card">
+                                <span className="label">Total Marks</span>
+                                <span className="value">{exam.totalMarks}</span>
+                            </div>
+
+                            <div className="exam-info-card">
+                                <span className="label">Cutoff Marks</span>
+                                <span className="value">
+                                    {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -285,7 +484,12 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                     {isPending ? (
                         <div className="upload-section">
                             <h3>Upload Questions (CSV)</h3>
-                            <input type="file" accept=".csv" onChange={handleExamCreation} />
+                            <input
+                                type="file"
+                                accept=".csv"
+                                onChange={handleExamCreation}
+                            />
+
                             {CSVObj && CSVObj.length > 0 && (
                                 <div className="exam-questions-container">
                                     {CSVObj.map((q, index) => (
@@ -304,10 +508,13 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                             <h3>Exam Questions</h3>
                             <div className="exam-questions-container">
                                 {backendQuestions.map((q, index) => (
-                                    <ExamQuestion key={index} question={q} index={index} />
+                                    <ExamQuestion
+                                        key={index}
+                                        question={q}
+                                        index={index}
+                                    />
                                 ))}
                             </div>
-
 
                             {exam?.status === "SAVED" && (
                                 <div className="group-assignment-section">
@@ -320,33 +527,73 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                                         >
                                             <option value="">-- Select Group to Assign --</option>
                                             {availableGroups.map((grp) => (
-                                                <option key={grp.id} value={grp.id}>{grp.name}</option>
+                                                <option key={grp.id} value={grp.id}>
+                                                    {grp.name}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>
                                 </div>
                             )}
 
-
                             {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
                                 <div className="candidate-list-container">
                                     <h5>
-                                        {exam?.status === "PUBLISHED" ? "Assigned Candidates" : "Draft Candidate List"} ({candidates.length})
+                                        {exam?.status === "PUBLISHED"
+                                            ? "Assigned Candidates"
+                                            : "Draft Candidate List"} ({candidates.length})
                                     </h5>
+
                                     <div className="candidate-scroll">
                                         {candidates.length > 0 ? (
-                                            candidates.map((c, i) => (
-                                                <div key={i} className="candidate-item">
-                                                    <span className="candidate-name">{c.name}</span>
-                                                    <span className="candidate-email">{c.email}</span>
-                                                </div>
+                                            candidates.map((c) => (
+                                                <CandidateRow
+                                                    key={c.id}
+                                                    candidate={c}
+                                                />
                                             ))
                                         ) : (
-                                            <p className="no-candidates-msg">No candidates found.</p>
+                                            <p className="no-candidates-msg">
+                                                No candidates found.
+                                            </p>
                                         )}
                                     </div>
+                                    {exam?.status === "PUBLISHED" && totalPages > 1 && (
+                                        <div className="UserPagination">
+                                            <button
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 0}
+                                            >
+                                                Previous
+                                            </button>
+
+                                            <div className="page-jump-container">
+                                                <span>Page</span>
+                                                <input
+                                                    type="number"
+                                                    className="page-input"
+                                                    value={currentPage + 1}
+                                                    onChange={(e) => {
+                                                        const val = parseInt(e.target.value);
+                                                        if (!isNaN(val)) handlePageChange(val - 1);
+                                                    }}
+                                                />
+                                                <span>of {totalPages}</span>
+                                            </div>
+
+                                            <button
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage >= totalPages - 1}
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    )}
+
                                     {exam?.status === "SAVED" && (
-                                        <p className="draft-notice">Review carefully. This list will be finalized on Publish.</p>
+                                        <p className="draft-notice">
+                                            Review carefully. This list will be finalized on Publish.
+                                        </p>
                                     )}
                                 </div>
                             )}
@@ -355,20 +602,40 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 </div>
 
                 <div className="modal-footer">
-                    <button onClick={handleDeleteExam} className="DeleteExamButton">
+                    <button
+                        onClick={handleDeleteExam}
+                        className="DeleteExamButton"
+                    >
                         Delete Exam
                     </button>
 
-
                     {isPending && CSVObj && CSVObj.length > 0 && (
-                        <button onClick={handleSave} className="QuestionsSaveButton">
-                            Save Questions to Exam
-                        </button>
+                        <div className="save-actions-container">
+                            <div className="cutoff-input-wrapper">
+                                <label>Pass Cutoff (%): </label>
+                                <input
+                                    type="number"
+                                    value={cutoff}
+                                    onChange={(e) => setCutoff(e.target.value)}
+                                    min="0"
+                                    max="100"
+                                    className="cutoff-input"
+                                />
+                            </div>
+                            <button
+                                onClick={handleSave}
+                                className="QuestionsSaveButton"
+                            >
+                                Save Questions to Exam
+                            </button>
+                        </div>
                     )}
 
-
                     {exam?.status === "SAVED" && selectedGroupId !== "" && (
-                        <button onClick={handleConfirmAndPublish} className="PublishExamButton">
+                        <button
+                            onClick={handleConfirmAndPublish}
+                            className="PublishExamButton"
+                        >
                             Confirm & Publish Exam
                         </button>
                     )}
@@ -376,4 +643,4 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
             </div>
         </div>
     );
-};
+}

@@ -3,7 +3,10 @@ import { AuthenticationContext } from "../context/AuthenticationContext";
 import { CandidateExamCard } from "../components/cardType/CandidateExamCard";
 import { CandidateHeader } from "../components/headerType/CandidateHeader";
 import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useNotification } from "../components/popupType/NotificationContext";
+
+import styles from "./css/Candidate.module.css"
 
 export const Candidate = () => {
     const { email, name } = useContext(AuthenticationContext);
@@ -12,6 +15,8 @@ export const Candidate = () => {
     const [eligibleExams, setEligibleExams] = useState({});
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         if (email) {
@@ -26,6 +31,14 @@ export const Candidate = () => {
                 });
         }
     }, [email]);
+
+    useEffect(() => {
+
+        if (location.state?.ExamSubmitted) {
+            showNotification("Exam submitted successfully.");
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [loading, location.state, showNotification, navigate]);
 
     const handleEligibilityCheck = async (examId) => {
 
@@ -55,31 +68,36 @@ export const Candidate = () => {
 
 
     if (loading) {
-        return <p className="loading-text">Loading your exams...</p>;
+        return <p className={styles.LoadingText}>Loading your exams...</p>;
     }
 
     return (
-        <div className="AdminOverall">
-            <CandidateHeader />
+        <div className={styles.CandidateDashboard}>
 
-            <div className="CandidateDashboard">
-                <h2 className="dashboard-title">Candidate Dashboard</h2>
+            <div className={styles.DashboardHeader}>
+                <h2 className={styles.DashboardTitle}>Candidate Dashboard</h2>
 
-                {exams.length === 0 && (
-                    <p className="empty-text">No exams assigned.</p>
-                )}
+                <button
+                    className={styles.ViewResultsBtn}
+                    onClick={() => navigate("/candidate/results")}
+                >
+                    View Results
+                </button>
+            </div>
 
-                <div className="candidate-exam-list">
-                    {exams.map((exam) => (
-                        <CandidateExamCard
-                            key={exam.examId}
-                            exam={exam}
-                            onJoin={handleEligibilityCheck}
-                            isEligible={eligibleExams[exam.examId]}
-                        />
-                    ))}
+            {exams.length === 0 && (
+                <p className={styles.EmptyText}>No exams assigned.</p>
+            )}
 
-                </div>
+            <div className={styles.CandidateExamList}>
+                {exams.map((exam) => (
+                    <CandidateExamCard
+                        key={exam.examId}
+                        exam={exam}
+                        onJoin={handleEligibilityCheck}
+                        isEligible={eligibleExams[exam.examId]}
+                    />
+                ))}
             </div>
         </div>
     );

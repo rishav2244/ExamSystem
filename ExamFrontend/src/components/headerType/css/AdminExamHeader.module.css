@@ -1,0 +1,33 @@
+.AdminExamHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.AdminExamHeader h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.rightItems {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+}
+
+.CreateExamBtn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.CreateExamBtn:hover {
+  background-color: #1d4ed8;
+}

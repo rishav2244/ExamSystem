@@ -21,18 +21,27 @@ public class Exam
     private String title;
 
     @Column(nullable = false)
-    private int duration;
+    private int duration; //In minutes
 
     @Column(nullable = false)
-    private Instant StartTime;
+    private Instant startTime;
 
     @Column(nullable = false)
-    private Instant EndTime;
+    private Instant endTime;
 
     @Column(nullable = false)
     private String status;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private double cutoff;
+
+    @Column(nullable = false)
+    private int totalScore;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean allowResume = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private Users createdBy;
 }

@@ -16,7 +16,7 @@ public interface SnapshotRepository extends JpaRepository<Snapshot, String> {
 //    @Query("DELETE FROM Snapshot s WHERE s.submission.id = :submissionId")
     void deleteBySubmissionId(String submissionId);
 
-    List<Snapshot> findBySubmissionId(String submissionId);
+    List<Snapshot> findBySubmissionIdOrderByCreatedAtAsc(String submissionId);
 
 //    @Query("SELECT s FROM Snapshot s JOIN FETCH s.submission WHERE s.submission.id = :submissionId")
 //    List<Snapshot> findBySubmissionId(@Param("submissionId") String submissionId);

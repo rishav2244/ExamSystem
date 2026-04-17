@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getSubmissionDetails } from "../api/api";
 
 export const SubmissionReview = () => {
@@ -10,6 +10,9 @@ export const SubmissionReview = () => {
     const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const passedFromState = location.state?.sub?.passed;
+    const isPassed = details?.passed ?? passedFromState;
 
     useEffect(() => {
         getSubmissionDetails(submissionId)
@@ -30,6 +33,11 @@ export const SubmissionReview = () => {
         return q.correct ? "correct" : "wrong";
     };
 
+    const getMaxMarks = () => {
+        if (!details || !details.questions) return 0;
+        return details.questions.reduce((sum, q) => sum + (q.marks || 0), 0);
+    };
+
 
     if (loading) {
         return <p className="page-loading">Loading submission...</p>;
@@ -38,6 +46,8 @@ export const SubmissionReview = () => {
     if (error) {
         return <p className="page-error">{error}</p>;
     }
+
+    const maxMarks = getMaxMarks();
 
     return (
         <div className="submission-review-page">
@@ -48,7 +58,7 @@ export const SubmissionReview = () => {
                     className="view-snapshots-btn"
                     onClick={() => navigate(`/admin/submissions/${submissionId}/snapshots`)}
                 >
-                    📷 View Proctoring Snapshots
+                    View Proctoring Snapshots
                 </button>
             </div>
 
@@ -67,6 +77,18 @@ export const SubmissionReview = () => {
                     <span className="summary-label">Questions</span>
                     <span>{details.questions.length}</span>
                 </div>
+
+                <div>
+                    <span className="summary-label">Final Score</span>
+                    <span className={isPassed ? "score-pass" : "score-fail"}>
+                        {details.totalScore} / {maxMarks}
+                    </span>
+                </div>
+
+                <div className={`result-banner ${isPassed ? "banner-pass" : "banner-fail"}`}>
+                    {isPassed ? "PASSED" : "FAILED"}
+                </div>
+
             </div>
 
             <div className="question-review-list">

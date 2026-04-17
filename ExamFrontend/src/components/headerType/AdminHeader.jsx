@@ -1,13 +1,36 @@
-import { useContext } from "react"
+import { useContext, useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { AuthenticationContext } from "../../context/AuthenticationContext"
+import { AuthenticationContext } from "../../context/AuthenticationContext";
+import { User } from "lucide-react";
+import {
+    FileText,
+    Users,
+    Layers,
+    BarChart3
+} from "lucide-react";
 
 export const AdminHeader = () => {
-    const { name, logout } = useContext(AuthenticationContext);
 
-    const handleLogout = (e) => {
-        logout();
-    };
+    const { name, role, logout } =
+        useContext(AuthenticationContext);
+
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     return (
         <header className="admin-header">
@@ -15,44 +38,60 @@ export const AdminHeader = () => {
             <h4 className="admin-header__welcome">
                 Welcome, <span>{name}</span>
             </h4>
-
             <nav className="admin-header__nav">
-                <NavLink
-                    to="/admin/exams"
-                    className={({ isActive }) =>
-                        isActive ? "nav-item active" : "nav-item"
-                    }
-                >
-                    Exams
+
+                <NavLink to="/admin/exams" className="nav-item">
+                    <FileText size={18} />
+                    <span className="tooltip">Exams</span>
                 </NavLink>
-                <NavLink
-                    to="/admin/users"
-                    className={({ isActive }) =>
-                        isActive ? "nav-item active" : "nav-item"
-                    }
-                >
-                    User List
+
+                <NavLink to="/admin/users" className="nav-item">
+                    <Users size={18} />
+                    <span className="tooltip">Users</span>
                 </NavLink>
-                <NavLink
-                    to="/admin/groups"
-                    className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
-                >
-                    Groups
+
+                <NavLink to="/admin/groups" className="nav-item">
+                    <Layers size={18} />
+                    <span className="tooltip">Groups</span>
                 </NavLink>
-                <NavLink
-                    to="/admin/submissions"
-                    className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
-                    Submissions
+
+                <NavLink to="/admin/submissions" className="nav-item">
+                    <BarChart3 size={18} />
+                    <span className="tooltip">Submissions</span>
                 </NavLink>
+
             </nav>
+            <div className="profile-container" ref={dropdownRef}>
 
+                <div
+                    className="profile-icon"
+                    onClick={() => setShowDropdown(!showDropdown)}
+                >
+                    <User size={20} />
+                </div>
 
-            <button
-                className="admin-header__logout"
-                onClick={handleLogout}
-            >
-                Log out
-            </button>
+                {showDropdown && (
+                    <div className="profile-dropdown">
+
+                        <p className="profile-name">
+                            {name}
+                        </p>
+
+                        <p className="profile-role">
+                            Role: {role}
+                        </p>
+
+                        <button
+                            className="logout-btn"
+                            onClick={logout}
+                        >
+                            Logout
+                        </button>
+
+                    </div>
+                )}
+            </div>
+
         </header>
     );
-}
+};

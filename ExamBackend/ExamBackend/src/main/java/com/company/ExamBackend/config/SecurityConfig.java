@@ -1,6 +1,7 @@
 package com.company.ExamBackend.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,13 +11,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final HandlerExceptionResolver resolver;
+
+    public SecurityConfig(JwtFilter jwtFilter,
+                          @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.jwtFilter = jwtFilter;
+        this.resolver = resolver;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -26,10 +34,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/user/login").permitAll()
+                        .requestMatchers("/api/user/self-register").permitAll()
+                        .requestMatchers("/api/user/verify-otp").permitAll()
+                        .requestMatchers("/api/user/resend-otp").permitAll()
+                        .requestMatchers("/api/user/refresh").permitAll()
                         .requestMatchers("/api/user/reset-password").authenticated()
+                        .requestMatchers("/api/user/logout").authenticated()
                         .requestMatchers("/api/candidateUser/**").hasRole("CANDIDATE")
                         .requestMatchers("/api/snapshots/submission/**").hasRole("ADMIN")
                         .requestMatchers("/api/snapshots/**").hasRole("CANDIDATE")
+                        .requestMatchers("/api/user/bulk-register").hasRole("ADMIN")
                         .requestMatchers("/api/user/**").hasRole("ADMIN")//Done after normal login
                         //since doing before that would override login's permitAll and thus restrict
                         //login only to admin.
@@ -37,7 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/candidate/**").hasRole("ADMIN")
                         .requestMatchers("/api/userGroups/**").hasRole("ADMIN")
                         .requestMatchers("/api/submissions/**").hasRole("ADMIN")
-                        .requestMatchers("/api/images/**").permitAll()
+                        .requestMatchers("/api/images/admin/**").hasRole("ADMIN")
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
@@ -45,6 +59,11 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            resolver.resolveException(request, response, null, accessDeniedException);
+                        })
+                )
                 .build();
     }
 
