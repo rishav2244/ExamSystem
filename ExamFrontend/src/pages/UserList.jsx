@@ -3,20 +3,23 @@ import { UserDetailsModal } from "./UserDetailsModal";
 import { CreateUserModal } from './CreateUserModal';
 import { getAllUsers, searchUsers } from "../api/api";
 import { AdminUserHeader } from '../components/headerType/AdminUserHeader';
+import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
+import { AdminUsersTableBody } from '../components/tableType/AdminUsers/AdminUsersTableBody';
+import { PageBar } from '../components/barType/PageBar';
 
 export const UserList = () => {
-    const DEBOUNCE_DELAY = 600;
     const isInitialMount = useRef(true);
 
     const [pageData, setPageData] = useState({ content: [], totalPages: 0, totalElements: 0 });
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize] = useState(5);
-
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [jumpPage, setJumpPage] = useState("");
 
+    const tableHeaders = ["Name", "Email", "Role", "Action"];
+
+    // Centralized fetch logic
     const fetchUsers = async (page, query) => {
         try {
             let data;
@@ -26,12 +29,12 @@ export const UserList = () => {
                 data = await getAllUsers(page, pageSize);
             }
             setPageData(data);
-            setJumpPage(page + 1);
         } catch (err) {
             console.error("Failed to fetch users:", err);
         }
     };
-    
+
+    // Listen for page or search changes
     useEffect(() => {
         fetchUsers(currentPage, searchTerm);
 
@@ -40,24 +43,23 @@ export const UserList = () => {
         }
     }, [currentPage, searchTerm]);
 
-    const handlePageJump = (e) => {
-        e.preventDefault();
-        const p = parseInt(jumpPage) - 1;
-        if (p >= 0 && p < pageData.totalPages) {
-            setCurrentPage(p);
-        } else {
-            setJumpPage(currentPage + 1);
-        }
+    // This function is passed to PageBar
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
     };
 
     const handleSearchChange = useCallback((query) => {
-            setSearchTerm(query);
-            setCurrentPage(0);
-        }, []);
+        setSearchTerm(query);
+        setCurrentPage(0); // Reset to first page on new search
+    }, []);
 
-    const handleCreateModalOpen = (e) => {
-        setIsCreateModalOpen(e);
-    }
+    const handleCreateModalOpen = (isOpen) => {
+        setIsCreateModalOpen(isOpen);
+    };
+
+    const handleUserSelection = (usr) => {
+        setSelectedUser(usr);
+    };
 
     return (
         <div className="UserListOverall">
@@ -69,70 +71,19 @@ export const UserList = () => {
                 />
 
                 <table className="UserTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {pageData.content.length > 0 ? (
-                            pageData.content.map((user) => (
-                                <tr key={user.id}>
-                                    <td>{user.name}</td>
-                                    <td>{user.email}</td>
-                                    <td>
-                                        <span className={`role-badge ${user.role.toLowerCase()}`}>
-                                            {user.role}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button className="ViewBtn" onClick={() => setSelectedUser(user)}>
-                                            View
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>
-                                    No users found.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
+                    <TableHeader headerArray={tableHeaders} />
+                    <AdminUsersTableBody
+                        pageData={pageData}
+                        setSelectedUser={handleUserSelection}
+                    />
                 </table>
 
-                <div className="UserPagination">
-                    <button
-                        disabled={currentPage === 0}
-                        onClick={() => setCurrentPage(prev => prev - 1)}
-                    >
-                        Prev
-                    </button>
-
-                    <form onSubmit={handlePageJump} className="page-jump-container">
-                        <span>Page</span>
-                        <input
-                            type="number"
-                            className="page-input"
-                            value={jumpPage}
-                            onChange={(e) => setJumpPage(e.target.value)}
-                            min="1"
-                            max={pageData.totalPages}
-                        />
-                        <span>of {pageData.totalPages}</span>
-                    </form>
-
-                    <button
-                        disabled={currentPage >= pageData.totalPages - 1}
-                        onClick={() => setCurrentPage(prev => prev + 1)}
-                    >
-                        Next
-                    </button>
-                </div>
+                {/* Integrated Reusable Component */}
+                <PageBar
+                    currentPage={currentPage}
+                    totalPages={pageData.totalPages}
+                    handlePageChange={handlePageChange}
+                />
             </div>
 
             {isCreateModalOpen && (
