@@ -1,0 +1,13 @@
+.headerOverall{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rightItems{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+}

@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getExams, searchExams } from '../api/api';
 import { SubmissionDetailsModal } from './SubmissionDetailsModal';
+import { SearchBar } from '../components/barType/SearchBar';
+import { AdminSubmissionsHeader } from '../components/headerType/AdminSubmissionsHeader';
 
 export const Submissions = () => {
     const [exams, setExams] = useState([]);
@@ -11,17 +13,6 @@ export const Submissions = () => {
 
     const [selectedExam, setSelectedExam] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedQuery, setDebouncedQuery] = useState('');
-
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedQuery(searchQuery.trim());
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
 
     const fetchExams = useCallback(async (page, query = '') => {
         try {
@@ -44,48 +35,25 @@ export const Submissions = () => {
     }, [pageSize]);
 
     useEffect(() => {
-        fetchExams(0, debouncedQuery);
-    }, [fetchExams, debouncedQuery]);
+        fetchExams(0, searchQuery);
+    }, [fetchExams, searchQuery]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < totalPages) {
-            fetchExams(newPage, debouncedQuery);
+            fetchExams(newPage, searchQuery);
         }
     };
 
     const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-    };
-
-    const clearSearch = () => {
-        setSearchQuery('');
+        setSearchQuery(e);
     };
 
     return (
         <div className="SubmissionsPage">
-            <h2>Exam Submissions</h2>
 
-            <div className="SearchContainer" style={{ marginBottom: '20px' }}>
-                <input
-                    type="text"
-                    className="SearchInput"
-                    placeholder="Search exams by title..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                />
-                {searchQuery && (
-                    <button className="SearchClearBtn" onClick={clearSearch}>
-                        ✕
-                    </button>
-                )}
-            </div>
-
-            <button
-                className="btn-view-overall-stats"
-                onClick={() => navigate('overall')}
-            >
-                View overall statistics
-            </button>
+            <AdminSubmissionsHeader
+                searchQuery={handleSearchChange}
+            />
 
             <table className="admin-table">
                 <thead>
