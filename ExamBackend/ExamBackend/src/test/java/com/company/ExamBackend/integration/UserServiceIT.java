@@ -1,20 +1,27 @@
 package com.company.ExamBackend.integration;
 
+import com.company.ExamBackend.dto.UserSearchDTO;
 import com.company.ExamBackend.model.Users;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserServiceIT extends BaseIntegrationTest {
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     // This runs whenever we run integration tests.
     @BeforeEach
@@ -55,5 +62,23 @@ public class UserServiceIT extends BaseIntegrationTest {
                 // Bob
                 .andExpect(jsonPath("$.totalElements", is(2))); // Should have two elements in total
                 // across all pages.
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void shouldReturnSearchedUsers() throws Exception {
+
+        UserSearchDTO searchDTO = new UserSearchDTO();
+        searchDTO.setSearchQuery("Alice");
+
+        mockMvc.perform(post("/api/user/search")
+                .param("page", "0")
+                .param("size", "5")
+                .param("sort","name,asc")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(searchDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].name", is("Alice")));
     }
 }
