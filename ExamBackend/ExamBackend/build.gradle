@@ -68,6 +68,10 @@ dependencies {
 
 	// Security Testing
 	testImplementation 'org.springframework.security:spring-security-test'
+
+	// Lombok for testing
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
