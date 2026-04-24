@@ -23,7 +23,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,31 +171,27 @@ class UserServiceTest {
         ArgumentCaptor<PendingRegistration> captor = ArgumentCaptor.forClass(PendingRegistration.class);
 
         CandidateRegisterRequestDTO candidateRegisterRequestDTO =
-                new CandidateRegisterRequestDTO();
-        candidateRegisterRequestDTO.setEmail("candidate@candidate.com");
-        candidateRegisterRequestDTO.setName("Candidate surname");
-        candidateRegisterRequestDTO.setPassword("Test password");
+                createCandidateRegisterRequestDTO(
+                        "Candidate surname",
+                        "candidate@candidate.com",
+                        "Test password"
+                );
 
         RegistrationResponseDTO registrationResponseDTO =
-                new RegistrationResponseDTO();
-        registrationResponseDTO.setMessage(
-                "OTP sent to candidate@candidate.com");
-        registrationResponseDTO.setMaxAttempts(6);
-        registrationResponseDTO.setResendSeconds(60);
-        registrationResponseDTO.setTtlSeconds(600);
+                createRegistrationResponseDTO(
+                        "OTP sent to candidate@candidate.com",
+                        6,
+                        60,
+                        600
+                );
 
-        Mockito.when(userRepository.findByEmail(Mockito.anyString()))
-                .thenReturn(Optional.empty());
-        Mockito.when(pendingRegistrationRepository.findByEmail(Mockito.anyString()))
-                .thenReturn(Optional.empty());
-        Mockito.when(passwordEncoder.encode(Mockito.anyString()))
-                .thenReturn("hashed_value");
+        registrationHappyMockHits();
 
         RegistrationResponseDTO result =
                 userService.candidateRegisterAttempt(
                         candidateRegisterRequestDTO);
 
-        assertNotNull(result); //Non null result means it went well.
+        assertNotNull(result); //Not null result means it went well.
         assertEquals(registrationResponseDTO.getMessage(), result.getMessage());
 
         Mockito.verify(emailService)
@@ -209,5 +204,87 @@ class UserServiceTest {
         assertEquals("candidate@candidate.com", captured.getEmail());
         assertEquals("hashed_value", captured.getPassword());
         assertTrue(captured.isValid());
+    }
+
+    @Test
+    void registerEmailExists()
+    {
+        String existingEmail = "candidate@gmail.com";
+
+        CandidateRegisterRequestDTO candidateRegisterRequestDTO =
+                createCandidateRegisterRequestDTO(
+                        "Candidate surname",
+                        existingEmail,
+                        "Test password"
+                );
+
+        Users existingUser = new Users();
+        existingUser.setEmail(existingEmail);
+
+        Mockito.when(userRepository.findByEmail(existingEmail))
+                .thenReturn(Optional.of(existingUser));
+
+        // We expect an EmailExistsException here
+        assertThrows(com.company.ExamBackend.exception.EmailExistsException.class, () -> {
+            userService.candidateRegisterAttempt(candidateRegisterRequestDTO);
+        });
+
+        // Verify that we never tried to save anything to the pending repository
+        Mockito.verify(pendingRegistrationRepository, Mockito.never()).save(Mockito.any());
+
+        // Verify that NO email was sent
+        Mockito.verify(emailService, Mockito.never()).sendOtp(Mockito.anyString(), Mockito.anyString());
+    }
+
+//    ==========================================Helper Methods=========================================================
+
+    private CandidateRegisterRequestDTO createCandidateRegisterRequestDTO(
+            String name,
+            String email,
+            String password
+    ) {
+        CandidateRegisterRequestDTO candidateRegisterRequestDTO =
+                new CandidateRegisterRequestDTO();
+        candidateRegisterRequestDTO.setEmail(email);
+        candidateRegisterRequestDTO.setName(name);
+        candidateRegisterRequestDTO.setPassword(password);
+        return  candidateRegisterRequestDTO;
+    }
+
+    private RegistrationResponseDTO createRegistrationResponseDTO(
+            String message,
+            int maxAttempts,
+            int resendSeconds,
+            int ttlSeconds
+    ){
+        RegistrationResponseDTO registrationResponseDTO =
+                new RegistrationResponseDTO();
+        registrationResponseDTO.setMessage(message);
+        registrationResponseDTO.setMaxAttempts(maxAttempts);
+        registrationResponseDTO.setResendSeconds(resendSeconds);
+        registrationResponseDTO.setTtlSeconds(ttlSeconds);
+        return registrationResponseDTO;
+    }
+
+    private void registrationHappyMockHits()
+    {
+        Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                .thenReturn(Optional.empty());
+        Mockito.when(pendingRegistrationRepository.findByEmail(Mockito.anyString()))
+                .thenReturn(Optional.empty());
+        Mockito.when(passwordEncoder.encode(Mockito.anyString()))
+                .thenReturn("hashed_value");
+    }
+
+    private Users createUser(
+            String name,
+            String role,
+            String password
+    ) {
+        Users user = new Users();
+        user.setName(name);
+        user.setRole(role);
+        user.setPassword(passwordEncoder.encode(password));
+        return user;
     }
 }
