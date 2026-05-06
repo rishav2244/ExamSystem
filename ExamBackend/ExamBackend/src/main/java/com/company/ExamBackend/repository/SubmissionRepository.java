@@ -44,6 +44,8 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
 
     boolean existsByExamIdAndCandidateEmail(String examId, String candidateEmail);
 
+    Optional<Submission> findByCandidateEmailAndExamId(String candidateEmail, String examId);
+
     Submission findByIdAndCandidateEmail(String submissionId, String candidateEmail);
 
     List<Submission> findByExamId(String examId);

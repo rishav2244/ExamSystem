@@ -48,8 +48,10 @@ public class CandidateController {
                     "backend will not give you that access."
     )
     @GetMapping("/exam/{examId}")
-    public ResponseEntity<CandidateExamDTO> getExamContent(@PathVariable String examId) {
-        return ResponseEntity.ok(examService.getExamForCandidate(examId));
+    public ResponseEntity<CandidateExamDTO> getExamContent(
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(examService.getExamForCandidate(userDetails.getUsername(), examId,"Start"));
     }
 
     @Operation(
@@ -154,5 +156,21 @@ public class CandidateController {
         Page<CandidateSubmissionDetailDTO> candidateSubmissionsOverview =
                 submissionService.searchCandidateResults(candidateResSearchDTO, userDetails.getUsername(), page, size);
         return ResponseEntity.ok(candidateSubmissionsOverview);
+    }
+
+    @Operation(
+            summary = "Sends back existing exam data for resumable exams",
+            description = "Checks if exam can be resumed and sends back exam data alongside existing candidate answers."
+    )
+    @PostMapping("/resume")
+    public ResponseEntity<CandidateExamDTO> resume(
+            @RequestBody ExamResumeRequestDTO examResumeRequestDTO,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(examService.getExamForCandidate(
+                userDetails.getUsername(),
+                examResumeRequestDTO.getExamId(),
+                "Resume"
+        ));
     }
 }
