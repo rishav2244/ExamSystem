@@ -54,24 +54,24 @@ public class CandidateController {
     public ResponseEntity<CandidateExamDTO> getExamContent(
             @PathVariable String examId,
             @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(examService.getExamForCandidate(userDetails.getUsername(), examId,"Start"));
+        return ResponseEntity.ok(examService.getExamForCandidate(userDetails.getUsername(), examId));
     }
-
-    @Operation(
-            summary = "Gets content of an exam CASE: Resuming exam.",
-            description = "Checks if exam can be resumed and sends back exam data alongside existing candidate answers."
-    )
-    @PostMapping("/resume")
-    public ResponseEntity<CandidateExamDTO> resume(
-            @RequestBody ExamResumeRequestDTO examResumeRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        return ResponseEntity.ok(examService.getExamForCandidate(
-                userDetails.getUsername(),
-                examResumeRequestDTO.getExamId(),
-                "Resume"
-        ));
-    }
+//
+//    @Operation(
+//            summary = "Gets content of an exam CASE: Resuming exam.",
+//            description = "Checks if exam can be resumed and sends back exam data alongside existing candidate answers."
+//    )
+//    @PostMapping("/resume")
+//    public ResponseEntity<CandidateExamDTO> resume(
+//            @RequestBody ExamResumeRequestDTO examResumeRequestDTO,
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) {
+//        return ResponseEntity.ok(examService.getExamForCandidate(
+//                userDetails.getUsername(),
+//                examResumeRequestDTO.getExamId(),
+//                "Resume"
+//        ));
+//    }
 
     @Operation(
             summary = "Checks eligibility for an exam.",

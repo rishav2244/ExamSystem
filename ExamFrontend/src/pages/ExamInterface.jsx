@@ -9,19 +9,19 @@ import { QuestionNavigation } from '../components/navType/QuestionNavigation';
 export const ExamInterface = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { examId, submissionId, duration } = location.state || {};
-    const auth = JSON.parse(sessionStorage.getItem("auth"));
+    const { examId } = location.state || {};
 
     const [examData, setExamData] = useState(null);
+    const [submissionId, setSubmissionId] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [selectedOptions, setSelectedOptions] = useState({});
-    const [timeLeft, setTimeLeft] = useState(duration * 60);
+    const [timeLeft, setTimeLeft] = useState(0);
     const [violationCount, setViolationCount] = useState(0);
     const [showWarning, setShowWarning] = useState(false);
     const [isDisqualified, setIsDisqualified] = useState(false);
 
     const triggerViolation = useCallback(() => {
-        if (isDisqualified || showWarning) return;
+        if (isDisqualified || showWarning || !submissionId) return;
         setViolationCount(prev => {
             const newCount = prev + 1;
             reportViolation(submissionId).catch(console.error);
@@ -32,12 +32,60 @@ export const ExamInterface = () => {
     }, [submissionId, isDisqualified, showWarning]);
 
     useEffect(() => {
-        if (!examId || !submissionId) return navigate('/candidate/dashboard');
-        document.documentElement.requestFullscreen().catch(console.error);
-        fetchExamContent(examId).then(setExamData);
-    }, [examId, submissionId, navigate]);
+        if (!examId) return navigate('/candidate/dashboard');
+
+        const initializeInterface = async () => {
+            try {
+                const data = await fetchExamContent(examId);
+                setExamData(data);
+                setSubmissionId(data.submissionId);
+                setViolationCount(data.violations);
+                
+                // Disqualify immediately if they resume with 3+ violations
+                if (data.violations >= 3) setIsDisqualified(true);
+
+                // 1. Map existing answers from the DTO into local state
+                const prefilled = {};
+                data.questions.forEach(q => {
+                    const chosenOption = q.options.find(opt => opt.chosen === true);
+                    if (chosenOption) {
+                        prefilled[q.id] = chosenOption.id;
+                    }
+                });
+                setSelectedOptions(prefilled);
+
+                // 2. Calculate Timer
+                if (data.startTime) {
+                    // Resume Case: Calculate remaining time
+                    const start = new Date(data.startTime).getTime();
+                    const now = new Date().getTime();
+                    const elapsedSec = Math.floor((now - start) / 1000);
+                    const remaining = (data.duration * 60) - elapsedSec;
+                    
+                    // Also consider hard endTime
+                    const hardEnd = new Date(data.endTime).getTime();
+                    const portalRemaining = Math.floor((hardEnd - now) / 1000);
+                    
+                    const actualTime = Math.min(remaining, portalRemaining);
+                    setTimeLeft(actualTime > 0 ? actualTime : 0);
+                } else {
+                    // Fresh Start Case
+                    setTimeLeft(data.duration * 60);
+                }
+
+                document.documentElement.requestFullscreen().catch(console.error);
+            } catch (err) {
+                console.error("Initialization failed", err);
+                navigate('/candidate/dashboard');
+            }
+        };
+
+        initializeInterface();
+    }, [examId, navigate]);
 
     useEffect(() => {
+        if (timeLeft <= 0 && examData) return; // Only start timer once data is loaded
+
         const timer = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
@@ -49,24 +97,15 @@ export const ExamInterface = () => {
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [timeLeft, examData]);
 
     const handleOptionSelect = async (questionId, optionId) => {
         setSelectedOptions(prev => ({ ...prev, [questionId]: optionId }));
         try {
-            await saveAnswer(submissionId, questionId, optionId);
+            // Only save if we have a submissionId (which we should after start)
+            if (submissionId) await saveAnswer(submissionId, questionId, optionId);
         } catch (err) {
             console.error("Auto-save failed", err);
-        }
-    };
-
-    const handleClearOption = async (questionId) => {
-        setSelectedOptions(prev => ({ ...prev, [questionId]: null }));
-
-        try {
-            await saveAnswer(submissionId, questionId, null);
-        } catch (err) {
-            console.error("Failed to clear answer", err);
         }
     };
 
@@ -77,25 +116,20 @@ export const ExamInterface = () => {
 
     const handleFinish = async () => {
         try {
-            await finalizeExam(submissionId);
-
-            if (document.fullscreenElement) {
-                await document.exitFullscreen();
-            }
-
+            if (submissionId) await finalizeExam(submissionId);
+            if (document.fullscreenElement) await document.exitFullscreen();
             navigate('/candidate/dashboard', { state: { ExamSubmitted: true } });
         } catch (error) {
             console.error("Submission failed", error);
         }
     };
 
-    if (!examData) return <div className="loading">Loading Exam...</div>;
+    if (!examData) return <div className="loading">Initializing Secure Environment...</div>;
 
     return (
         <div className="exam-container"
             onContextMenu={(e) => { e.preventDefault(); triggerViolation(); }}
             onCopy={(e) => { e.preventDefault(); triggerViolation(); }}>
-
 
             <ProctoringManager
                 violationCount={violationCount}
@@ -106,12 +140,13 @@ export const ExamInterface = () => {
                 onFinalize={handleFinish}
                 submissionId={submissionId}
             />
+            
             <ExamHeader
                 title={examData.title}
                 timeLeft={timeLeft}
                 violationCount={violationCount}
                 onFinish={handleFinish}
-                isDanger={timeLeft <= 30}
+                isDanger={timeLeft <= 300} // 5 minutes warning
             />
 
             <main className="exam-body">
@@ -129,8 +164,8 @@ export const ExamInterface = () => {
                         selectedOptionId={selectedOptions[examData.questions[currentIdx].id]}
                         onSelect={handleOptionSelect}
                     />
+                    
                     <div className="navigation-controls">
-                        {/* <button disabled={currentIdx === 0} onClick={() => setCurrentIdx(p => p - 1)}>Previous</button> */}
                         <button
                             className="nav-btn prev-btn"
                             disabled={currentIdx === 0}
@@ -138,12 +173,16 @@ export const ExamInterface = () => {
                         >
                             Previous
                         </button>
-                        {currentIdx < examData.questions.length - 1 && (
+                        {currentIdx < examData.questions.length - 1 ? (
                             <button
                                 className="nav-btn next-btn"
                                 onClick={() => setCurrentIdx(p => p + 1)}
                             >
                                 Next
+                            </button>
+                        ) : (
+                            <button className="nav-btn finish-btn" onClick={handleFinish}>
+                                Finish Exam
                             </button>
                         )}
                     </div>

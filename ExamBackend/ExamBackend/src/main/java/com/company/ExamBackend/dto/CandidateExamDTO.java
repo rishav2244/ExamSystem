@@ -18,4 +18,5 @@ public class CandidateExamDTO {
     private Instant endTime;   // Exam's endTime
     private List<CandidateQuestionDTO> questions;
     private String submissionId;
+    private int violations;
 }

@@ -26,6 +26,7 @@ public class CandidateExamMapper {
                 .questions(questions.stream()
                         .map(this::toQuestionDTO)
                         .collect(Collectors.toList()))
+                .violations(0)
                 .build();
     }
 
@@ -34,7 +35,8 @@ public class CandidateExamMapper {
             List<Question> questions,
             List<Answer> savedAnswers,
             Instant startedAt,
-            String submissionId) {
+            String submissionId,
+            int violations) {
         // Map of QuestionID -> SelectedOptionID
         Map<String, String> selectedOptionsMap = savedAnswers.stream()
                 .filter(a -> a.getQuestion() != null && a.getSelectedOption() != null)
@@ -53,6 +55,7 @@ public class CandidateExamMapper {
                         .map(q -> toCandidateQuestionDTO(q, selectedOptionsMap))
                         .collect(Collectors.toList()))
                 .submissionId(submissionId)
+                .violations(violations)
                 .build();
     }
 

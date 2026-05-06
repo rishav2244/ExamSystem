@@ -65,26 +65,37 @@ export const CandidateExamSetup = () => {
     // CandidateExamSetup.jsx
     const handleStartExam = async () => {
         setLoading(true);
-        try {
-            // 1. Call the backend to create the submission record
-            const resp = await startExam(
-                candidateExamId,
-                name,
-                email,
-                "Browser-Client"
-            );
 
-            // 2. Pass the submissionId and duration received from the backend
-            navigate("/candidate/exam-room", {
-                state: {
-                    examId: candidateExamId,
-                    submissionId: resp.submissionId, // From StartExamResponseDTO
-                    duration: resp.duration,         // From StartExamResponseDTO
-                    action: "START"
-                }
-            });
+        // Clear the local camera check interval
+        if (captureIntervalRef.current) clearInterval(captureIntervalRef.current);
+
+        try {
+            if (action === "RESUME") {
+                // SMART MOVE: Don't call POST /start. 
+                // Just go to the room; the room's GET /exam/{id} will handle everything.
+                navigate("/candidate/exam-room", {
+                    state: { examId: candidateExamId }
+                });
+            } else {
+                // FRESH START: We need to create the submission record via POST
+                const resp = await startExam(
+                    candidateExamId,
+                    name,
+                    email,
+                    "Browser-Client"
+                );
+
+                navigate("/candidate/exam-room", {
+                    state: {
+                        examId: candidateExamId,
+                        submissionId: resp.submissionId,
+                        duration: resp.duration
+                    }
+                });
+            }
         } catch (err) {
-            alert(err.response?.data || "Failed to start exam.");
+            // If it's a 400 because a submission already exists, we could also just force navigate
+            alert(err.response?.data || "Failed to initialize exam session.");
         } finally {
             setLoading(false);
         }

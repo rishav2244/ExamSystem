@@ -15,5 +15,5 @@ public interface ExamService {
     void updateExam(String examId, String status, String adminEmail);
     void resendInvitation(String candidateId);
     String assignGroupToExam(String examId, String groupId, String adminEmail);
-    CandidateExamDTO getExamForCandidate(String candidateEmail, String examId, String requestType);
+    CandidateExamDTO getExamForCandidate(String candidateEmail, String examId);
 }
