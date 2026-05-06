@@ -9,18 +9,17 @@ export const CandidateExamSetup = () => {
     const webcamRef = useRef(null);
     const captureIntervalRef = useRef(null);
 
-    const { candidateExamId, email, name } = location.state || {};
+    // Pull action and examId from state (passed from Candidate.jsx)
+    const { candidateExamId, submissionId, email, name, action } = location.state || {};
 
     const [cameraAllowed, setCameraAllowed] = useState(false);
     const [micAllowed, setMicAllowed] = useState(false);
     const [locationAllowed, setLocationAllowed] = useState(false);
     const [consent, setConsent] = useState(false);
-
     const [showCamera, setShowCamera] = useState(false);
     const [loading, setLoading] = useState(false);
     const [cameraCheckStarted, setCameraCheckStarted] = useState(false);
 
-    
     const allChecksPassed =
         cameraAllowed &&
         micAllowed &&
@@ -30,7 +29,6 @@ export const CandidateExamSetup = () => {
 
     useEffect(() => {
         runSystemChecks();
-
         return () => {
             if (captureIntervalRef.current) clearInterval(captureIntervalRef.current);
         };
@@ -64,11 +62,11 @@ export const CandidateExamSetup = () => {
         }, 5000);
     };
 
+    // CandidateExamSetup.jsx
     const handleStartExam = async () => {
         setLoading(true);
         try {
-            if (captureIntervalRef.current) clearInterval(captureIntervalRef.current);
-
+            // 1. Call the backend to create the submission record
             const resp = await startExam(
                 candidateExamId,
                 name,
@@ -76,11 +74,13 @@ export const CandidateExamSetup = () => {
                 "Browser-Client"
             );
 
+            // 2. Pass the submissionId and duration received from the backend
             navigate("/candidate/exam-room", {
                 state: {
                     examId: candidateExamId,
-                    submissionId: resp.submissionId,
-                    duration: resp.duration
+                    submissionId: resp.submissionId, // From StartExamResponseDTO
+                    duration: resp.duration,         // From StartExamResponseDTO
+                    action: "START"
                 }
             });
         } catch (err) {
@@ -90,7 +90,6 @@ export const CandidateExamSetup = () => {
         }
     };
 
-    
     const systemItems = [
         { id: 'cam', label: "Camera Access", status: cameraAllowed },
         { id: 'mic', label: "Microphone Access", status: micAllowed },
@@ -99,7 +98,9 @@ export const CandidateExamSetup = () => {
 
     return (
         <div className="candidate-setup-container">
-            <h2 className="setup-title">Exam Preparation</h2>
+            <h2 className="setup-title">
+                {action === "RESUME" ? "Resuming Examination" : "Exam Preparation"}
+            </h2>
 
             <div className="candidate-details">
                 <p><strong>Candidate:</strong> {name}</p>
@@ -157,7 +158,7 @@ export const CandidateExamSetup = () => {
                 disabled={!allChecksPassed || loading}
                 onClick={handleStartExam}
             >
-                {loading ? "Processing..." : "Start Examination"}
+                {loading ? "Processing..." : action === "RESUME" ? "Continue to Exam" : "Start Examination"}
             </button>
         </div>
     );

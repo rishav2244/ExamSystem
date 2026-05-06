@@ -340,6 +340,11 @@ export const fetchExamContent = async (examId) => {
     return resp.data;
 };
 
+export const resumeExam = async (examId) => {
+    const resp = await axios.post(`${API_URL}/candidateUser/resume`, { examId });
+    return resp.data;
+};
+
 export const saveAnswer = async (submissionId, questionId, optionId) => {
     await axios.post(`${API_URL}/candidateUser/answer`, {
         submissionId,

@@ -43,13 +43,12 @@ export const Candidate = () => {
         const cached = eligibilityData[examId];
 
         if (cached) {
-            // If the backend said RESUME, go straight to the exam. 
-            // If START, go to setup.
-            const route = cached.action === "RESUME" ? "/candidate/exam" : "/candidate/exam-setup";
+            const route = cached.action === "RESUME" ? "/candidate/exam-setup" : "/candidate/exam-setup";
             navigate(route, {
                 state: {
                     candidateExamId: examId,
                     submissionId: cached.submissionId,
+                    action: cached.action,
                     email: email,
                     name: name
                 }

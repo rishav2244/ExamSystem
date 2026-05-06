@@ -162,7 +162,7 @@ public class ExamServiceImpl implements ExamService {
                 findByCandidateEmailAndExamId(candidateEmail, examId).
                 orElseThrow(() -> new EmailNotFoundException("Candidate email not found"));
         List<Answer> answers = answerRepository.findBySubmissionIdWithDetails(submission.getId());
-        return candidateExamMapper.toResumeDTO(exam, questions, answers, submission.getCreatedAt());
+        return candidateExamMapper.toResumeDTO(exam, questions, answers, submission.getCreatedAt(), submission.getId());
     }
 
     @Override

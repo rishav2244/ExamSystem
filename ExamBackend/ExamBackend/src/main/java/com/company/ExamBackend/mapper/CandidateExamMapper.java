@@ -33,7 +33,8 @@ public class CandidateExamMapper {
             Exam exam,
             List<Question> questions,
             List<Answer> savedAnswers,
-            Instant startedAt) {
+            Instant startedAt,
+            String submissionId) {
         // Map of QuestionID -> SelectedOptionID
         Map<String, String> selectedOptionsMap = savedAnswers.stream()
                 .filter(a -> a.getQuestion() != null && a.getSelectedOption() != null)
@@ -51,6 +52,7 @@ public class CandidateExamMapper {
                 .questions(questions.stream()
                         .map(q -> toCandidateQuestionDTO(q, selectedOptionsMap))
                         .collect(Collectors.toList()))
+                .submissionId(submissionId)
                 .build();
     }
 

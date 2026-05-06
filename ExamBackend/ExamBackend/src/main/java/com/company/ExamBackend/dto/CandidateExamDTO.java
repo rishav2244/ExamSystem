@@ -17,4 +17,5 @@ public class CandidateExamDTO {
     private Instant startTime; // Submission's createdAt
     private Instant endTime;   // Exam's endTime
     private List<CandidateQuestionDTO> questions;
+    private String submissionId;
 }
