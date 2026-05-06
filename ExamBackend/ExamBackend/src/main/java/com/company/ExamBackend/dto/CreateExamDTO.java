@@ -43,4 +43,10 @@ public class CreateExamDTO {
             example = "50"
     )
     private int cutoff;
+
+    @Schema(
+            description = "Eligibility for resuming",
+            example = "false"
+    )
+    private boolean allowResume;
 }

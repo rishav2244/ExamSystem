@@ -102,13 +102,14 @@ export const resetPassword = async (oldPassword, newPassword) => {
     }
 };
 
-export const createExam = async (title, duration, startTime, endTime, status, createdBy) => {
+export const createExam = async (title, duration, startTime, endTime, status, allowResume) => {
     const createExamReqJSON = {
         title: title,
         duration: duration,
         startTime: startTime,
         endTime: endTime,
         status: status,
+        allowResume: allowResume
     }
     try {
         const resp = await axios.post(`${API_URL}/exams/createExam`, createExamReqJSON);

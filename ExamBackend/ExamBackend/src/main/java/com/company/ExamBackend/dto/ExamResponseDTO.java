@@ -56,4 +56,10 @@ public class ExamResponseDTO {
             example = "admin@test.com"
     )
     private String createdBy;
+
+    @Schema(
+            description = "Eligibility for resuming",
+            example = "false"
+    )
+    private boolean allowResume;
 }

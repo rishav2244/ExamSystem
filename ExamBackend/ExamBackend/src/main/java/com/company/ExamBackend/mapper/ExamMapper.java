@@ -31,6 +31,7 @@ public class ExamMapper {
         entity.setCutoff(dto.getCutoff());
         entity.setTotalScore(0);
         entity.setStatus(dto.getStatus());
+        entity.setAllowResume(dto.isAllowResume());
         return entity;
     }
 }
