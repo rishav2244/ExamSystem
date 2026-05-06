@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -241,18 +242,40 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     private void performEligibilityChecks(Exam exam, String email) {
-        if (submissionRepository.existsByExamIdAndCandidateEmail(exam.getId(), email)) {
-            throw new EligibilityException("ALREADY_STARTED_OR_COMPLETED");
-        }
-
         Instant now = Instant.now();
+
+        // Hard Gate check in case we're out of time window.
         if (now.isAfter(exam.getEndTime())) {
             throw new EligibilityException("EXAM_ALREADY_ENDED");
         }
 
-        Instant expectedFinishTime = now.plus(Duration.ofMinutes(exam.getDuration()));
-        if (expectedFinishTime.isAfter(exam.getEndTime())) {
-            throw new EligibilityException("NOT_ENOUGH_TIME_REMAINING");
+        // Check whether submission exists
+        Optional<Submission> existingSubmission = submissionRepository.findByCandidateEmailAndExamId(email, exam.getId());
+
+        if (existingSubmission.isPresent()) {
+            Submission submission = existingSubmission.get();
+
+            // Check if it's actually resumable
+            if ("IN_PROGRESS".equalsIgnoreCase(submission.getStatus())) {
+                if (!exam.isAllowResume()) {
+                    throw new EligibilityException("RESUME_NOT_ALLOWED");
+                }
+
+                // For a resume, we just need to ensure they have at least *some* time left
+                // before the global endTime. (The frontend timer will handle the specifics)
+                if (now.isAfter(exam.getEndTime())) {
+                    throw new EligibilityException("EXAM_ALREADY_ENDED");
+                }
+            } else {
+                // Status is not IN_PROGRESS
+                throw new EligibilityException("EXAM_ALREADY_SUBMITTED");
+            }
+        } else {
+            // In case no submission exists, simply check if the exam will fit in time window.
+            Instant expectedFinishTime = now.plus(Duration.ofMinutes(exam.getDuration()));
+            if (expectedFinishTime.isAfter(exam.getEndTime())) {
+                throw new EligibilityException("NOT_ENOUGH_TIME_REMAINING_TO_START");
+            }
         }
     }
 
