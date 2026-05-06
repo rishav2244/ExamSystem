@@ -314,9 +314,9 @@ export const getCandidateDashboard = async (email) => {
 export const checkCandidateEligibility = async (examId, email) => {
     try {
         const resp = await axios.get(
-            `${API_URL}/candidateUser/eligibility/${examId}/${email}`
+            `${API_URL}/candidateUser/eligibility/${examId}`
         );
-        return resp.data;
+        return resp.data; 
     } catch (err) {
         throw err;
     }

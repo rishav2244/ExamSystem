@@ -12,7 +12,7 @@ export const Candidate = () => {
     const { email, name } = useContext(AuthenticationContext);
     const [exams, setExams] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [eligibleExams, setEligibleExams] = useState({});
+    const [eligibilityData, setEligibilityData] = useState({});
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -33,7 +33,6 @@ export const Candidate = () => {
     }, [email]);
 
     useEffect(() => {
-
         if (location.state?.ExamSubmitted) {
             showNotification("Exam submitted successfully.");
             navigate(location.pathname, { replace: true, state: {} });
@@ -41,11 +40,16 @@ export const Candidate = () => {
     }, [loading, location.state, showNotification, navigate]);
 
     const handleEligibilityCheck = async (examId) => {
+        const cached = eligibilityData[examId];
 
-        if (eligibleExams[examId]) {
-            navigate("/candidate/exam-setup", {
+        if (cached) {
+            // If the backend said RESUME, go straight to the exam. 
+            // If START, go to setup.
+            const route = cached.action === "RESUME" ? "/candidate/exam" : "/candidate/exam-setup";
+            navigate(route, {
                 state: {
                     candidateExamId: examId,
+                    submissionId: cached.submissionId,
                     email: email,
                     name: name
                 }
@@ -54,18 +58,26 @@ export const Candidate = () => {
         }
 
         try {
-            await checkCandidateEligibility(examId, email);
+            const result = await checkCandidateEligibility(examId);
 
-            setEligibleExams((prev) => ({
+            setEligibilityData((prev) => ({
                 ...prev,
-                [examId]: true
+                [examId]: {
+                    action: result.action,
+                    submissionId: result.submissionId
+                }
             }));
 
         } catch (err) {
-            alert(err.response?.data || "Not eligible to start exam");
+            let errorText = "Not eligible to start exam";
+            if (err.response?.data) {
+                errorText = typeof err.response.data === 'string' 
+                    ? err.response.data 
+                    : (err.response.data.message || "Eligibility check failed");
+            }
+            showNotification(errorText, "error");
         }
     };
-
 
     if (loading) {
         return <p className={styles.LoadingText}>Loading your exams...</p>;
@@ -73,10 +85,8 @@ export const Candidate = () => {
 
     return (
         <div className={styles.CandidateDashboard}>
-
             <div className={styles.DashboardHeader}>
                 <h2 className={styles.DashboardTitle}>Candidate Dashboard</h2>
-
                 <button
                     className={styles.ViewResultsBtn}
                     onClick={() => navigate("/candidate/results")}
@@ -95,7 +105,7 @@ export const Candidate = () => {
                         key={exam.examId}
                         exam={exam}
                         onJoin={handleEligibilityCheck}
-                        isEligible={eligibleExams[exam.examId]}
+                        eligibilityAction={eligibilityData[exam.examId]?.action}
                     />
                 ))}
             </div>
