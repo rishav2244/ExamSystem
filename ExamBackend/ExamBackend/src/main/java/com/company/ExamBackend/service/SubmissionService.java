@@ -9,7 +9,7 @@ import java.util.List;
 public interface SubmissionService {
     StartExamResponseDTO startExam(StartExamRequestDTO dto, String email);
     void reportViolation(String submissionId);
-    void checkEligibility(String examId, String email);
+    EligibilityResponseDTO checkEligibility(String examId, String email);
 
     Page<SubmissionResponseDTO> getSubmissionsByExam(
             String examId,

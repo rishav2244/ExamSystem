@@ -52,9 +52,16 @@ public class SubmissionServiceImpl implements SubmissionService {
     //We also have a case where candidate tries to enter an exam with not enough duration left,
     //following which he'll fail validation again.
     @Override
-    public void checkEligibility(String examId, String email) {
+    public EligibilityResponseDTO checkEligibility(String examId, String email) {
         Exam exam = findExamById(examId);
         performEligibilityChecks(exam, email);
+        Optional<Submission> existingSubmission = submissionRepository.findByCandidateEmailAndExamId(email, exam.getId());
+
+        if (existingSubmission.isPresent() && "IN_PROGRESS".equalsIgnoreCase(existingSubmission.get().getStatus())) {
+            return new EligibilityResponseDTO(true, "RESUME", existingSubmission.get().getId());
+        }
+
+        return new EligibilityResponseDTO(true, "START", null);
     }
 
     @Override

@@ -14,5 +14,4 @@ public class CandidateQuestionDTO {
     private String text;
     private int marks;
     private List<CandidateOptionDTO> options;
-    private boolean isChosen = false;
 }

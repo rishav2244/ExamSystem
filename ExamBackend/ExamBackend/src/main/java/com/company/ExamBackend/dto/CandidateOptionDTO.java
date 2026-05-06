@@ -11,4 +11,5 @@ public class CandidateOptionDTO {
     private String id;
     private String text;
     private int optionIndex;
+    private boolean chosen;
 }
