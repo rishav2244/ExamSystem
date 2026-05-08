@@ -55,7 +55,7 @@ public class UserController {
             summary = "Verify OTP",
             description = "Verifies the OTP and promotes the candidate to a full user."
     )
-    @PostMapping("/verify-otp")
+    @PostMapping("/verify-registration-otp")
     public ResponseEntity<UserResponseDTO> verifyOtp(@Valid @RequestBody VerifyOtpRequestDTO verifyRequestDTO) {
         UserResponseDTO response = userService.verifyRegistration(verifyRequestDTO);
         return ResponseEntity.status(201).body(response);
@@ -65,7 +65,7 @@ public class UserController {
             summary = "Resend OTP",
             description = "Generates a new OTP if the resend-delay has passed."
     )
-    @PostMapping("/resend-otp")
+    @PostMapping("/resend-registration-otp")
     public ResponseEntity<ResendResponseDTO> resendOtp(@RequestParam String email) {
         ResendResponseDTO response = userService.resendOtp(email);
         return ResponseEntity.ok(response);

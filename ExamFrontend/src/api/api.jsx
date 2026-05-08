@@ -51,7 +51,7 @@ export const registerCandidate = async (name, email, password) => {
     }
 };
 
-export const verifyOtp = async (email, otp) => {
+export const verifyRegistrationOtp = async (email, otp) => {
 
     const payload = {
         email,
@@ -60,7 +60,7 @@ export const verifyOtp = async (email, otp) => {
 
     try {
         const resp = await axios.post(
-            `${API_URL}/user/verify-otp`,
+            `${API_URL}/user/verify-registration-otp`,
             payload
         );
 
@@ -71,9 +71,9 @@ export const verifyOtp = async (email, otp) => {
     }
 };
 
-export const resendOtp = async (email) => {
+export const resendRegistrationOtp = async (email) => {
     try {
-        const resp = await axios.post(`${API_URL}/user/resend-otp`, null, {
+        const resp = await axios.post(`${API_URL}/user/resend-registration-otp`, null, {
             params: { email }
         });
         return resp.data;

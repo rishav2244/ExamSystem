@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerCandidate, verifyOtp } from "../api/api";
+import { registerCandidate, verifyRegistrationOtp } from "../api/api";
 import { RegistrationForm } from "../components/formType/RegistrationForm";
 import { OtpVerification } from "../components/formType/OTPVerification";
 
@@ -38,7 +38,7 @@ export const Register = () => {
         setLoading(true);
         setMessage("");
         try {
-            await verifyOtp(email, otp);
+            await verifyRegistrationOtp(email, otp);
             setMessage("Registration successful! Redirecting to login in "+(loginRedirectTime/1000)+" seconds...");
             setTimeout(() => navigate("/login"), loginRedirectTime);
         } catch (err) {
