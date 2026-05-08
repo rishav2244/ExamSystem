@@ -74,7 +74,10 @@ export const CandidateExamSetup = () => {
                 // SMART MOVE: Don't call POST /start. 
                 // Just go to the room; the room's GET /exam/{id} will handle everything.
                 navigate("/candidate/exam-room", {
-                    state: { examId: candidateExamId }
+                    state: {
+                        examId: candidateExamId,
+                        resumed: true
+                    }
                 });
             } else {
                 // FRESH START: We need to create the submission record via POST
@@ -88,8 +91,7 @@ export const CandidateExamSetup = () => {
                 navigate("/candidate/exam-room", {
                     state: {
                         examId: candidateExamId,
-                        submissionId: resp.submissionId,
-                        duration: resp.duration
+                        resumed: false
                     }
                 });
             }

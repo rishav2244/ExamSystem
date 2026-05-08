@@ -9,7 +9,7 @@ import { QuestionNavigation } from '../components/navType/QuestionNavigation';
 export const ExamInterface = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { examId } = location.state || {};
+    const { examId, resumed } = location.state || {};
 
     const [examData, setExamData] = useState(null);
     const [submissionId, setSubmissionId] = useState(null);
@@ -40,7 +40,7 @@ export const ExamInterface = () => {
                 setExamData(data);
                 setSubmissionId(data.submissionId);
                 setViolationCount(data.violations);
-                
+
                 // Disqualify immediately if they resume with 3+ violations
                 if (data.violations >= 3) setIsDisqualified(true);
 
@@ -61,11 +61,11 @@ export const ExamInterface = () => {
                     const now = new Date().getTime();
                     const elapsedSec = Math.floor((now - start) / 1000);
                     const remaining = (data.duration * 60) - elapsedSec;
-                    
+
                     // Also consider hard endTime
                     const hardEnd = new Date(data.endTime).getTime();
                     const portalRemaining = Math.floor((hardEnd - now) / 1000);
-                    
+
                     const actualTime = Math.min(remaining, portalRemaining);
                     setTimeLeft(actualTime > 0 ? actualTime : 0);
                 } else {
@@ -74,6 +74,14 @@ export const ExamInterface = () => {
                 }
 
                 document.documentElement.requestFullscreen().catch(console.error);
+
+                if (resumed) {
+                    setTimeout(() => {
+                        triggerViolation();
+                    }, 500);
+                }
+
+                if (data.violations >= 3) setIsDisqualified(true);
             } catch (err) {
                 console.error("Initialization failed", err);
                 navigate('/candidate/dashboard');
@@ -140,7 +148,7 @@ export const ExamInterface = () => {
                 onFinalize={handleFinish}
                 submissionId={submissionId}
             />
-            
+
             <ExamHeader
                 title={examData.title}
                 timeLeft={timeLeft}
@@ -164,7 +172,7 @@ export const ExamInterface = () => {
                         selectedOptionId={selectedOptions[examData.questions[currentIdx].id]}
                         onSelect={handleOptionSelect}
                     />
-                    
+
                     <div className="navigation-controls">
                         <button
                             className="nav-btn prev-btn"

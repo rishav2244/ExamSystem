@@ -165,9 +165,7 @@ public class ExamServiceImpl implements ExamService {
                             submission.getViolations()
                     );
                 })
-                .orElseGet(() -> {
-                    return candidateExamMapper.toDTO(exam, questions);
-                });
+                .orElseGet(() -> candidateExamMapper.toDTO(exam, questions));
     }
 
     @Override
