@@ -19,6 +19,7 @@ public class ExamMapper {
         dto.setCreatedBy(entity.getCreatedBy().getEmail());
         dto.setCutoff(entity.getCutoff());
         dto.setTotalMarks(entity.getTotalScore());
+        dto.setAllowResume(entity.isAllowResume());
         return dto;
     }
 
