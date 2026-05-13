@@ -60,7 +60,7 @@ public class EmailServiceImpl implements EmailService {
         String expiryInMinutes = String.valueOf(minutes);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
-        message.setSubject("Examination Portal forgot password OTH");
+        message.setSubject("Examination Portal forgot password OTP");
         message.setText("Your OTP is: " + otp +
                 ". This code is valid for " + expiryInMinutes +
                 " minutes.");
