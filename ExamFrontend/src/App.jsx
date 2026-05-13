@@ -25,6 +25,7 @@ import { Register } from "./pages/Register";
 import "./App.css";
 
 import { CandidateResults } from "./pages/CandidateResults";
+import { ForgotPassword } from "./pages/ForgotPassword";
 function App() {
   return (
     <AuthenticationContextProvider>
@@ -34,6 +35,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           {/* <Route path="/login" element={<Login />} /> */}
           <Route path="/register" element={<Register />} />
+
+          <Route path="/forgot" element={<ForgotPassword />} />
 
           <Route element={<ProtectedRoute />}>
 

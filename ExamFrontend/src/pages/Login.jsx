@@ -54,10 +54,17 @@ export const Login = () => {
             />
 
             <button onClick={handleLogin}>Login</button>
+
             <p className="switch-auth">
                 Don't have an account?{" "}
                 <span onClick={() => navigate("/register")}>
                     Register here
+                </span>
+            </p>
+
+            <p className="switch-auth">
+                <span onClick={() => navigate("/forgot")}>
+                    Forgot password?
                 </span>
             </p>
             {message && <p>{message}</p>}

@@ -102,6 +102,46 @@ export const resetPassword = async (oldPassword, newPassword) => {
     }
 };
 
+/**
+ * Triggers the forgot password flow.
+ * Backend returns a 200 OK regardless of email existence (Enumeration Protection).
+ */
+export const requestForgotPassword = async (email) => {
+    const payload = { email: email.toLowerCase().trim() };
+    try {
+        const resp = await axios.post(`${API_URL}/user/forgot-password`, payload);
+        // Backend returns: ResponseEntity.ok("Requested password reset.")
+        return resp.data;
+    } catch (err) {
+        throw err;
+    }
+};
+
+/**
+ * Verifies the OTP and updates the password in a single step.
+ * Returns ResetAttemptResponseDTO: { success: boolean, attemptsLeft: number }
+ */
+export const verifyAndResetPassword = async (email, otp, password) => {
+    const payload = {
+        email: email.toLowerCase().trim(),
+        otp,
+        password
+    };
+
+    try {
+        const resp = await axios.post(
+            `${API_URL}/user/verify-reset-password`,
+            payload
+        );
+        // resp.data will be the ResetAttemptResponseDTO
+        return resp.data;
+    } catch (err) {
+        // This will catch 400 errors (Expired OTP or Locked account)
+        console.error("Password reset failed:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
 export const createExam = async (title, duration, startTime, endTime, status, allowResume) => {
     const createExamReqJSON = {
         title: title,
@@ -316,7 +356,7 @@ export const checkCandidateEligibility = async (examId, email) => {
         const resp = await axios.get(
             `${API_URL}/candidateUser/eligibility/${examId}`
         );
-        return resp.data; 
+        return resp.data;
     } catch (err) {
         throw err;
     }
