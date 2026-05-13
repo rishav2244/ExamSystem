@@ -104,15 +104,17 @@ export const resetPassword = async (oldPassword, newPassword) => {
 
 /**
  * Triggers the forgot password flow.
- * Backend returns a 200 OK regardless of email existence (Enumeration Protection).
+ * Handles the RegistrationResponseDTO containing timers and attempt counts.
+ * Returns: { message: string, ttlSeconds: number, resendSeconds: number, maxAttempts: number }
  */
 export const requestForgotPassword = async (email) => {
     const payload = { email: email.toLowerCase().trim() };
     try {
         const resp = await axios.post(`${API_URL}/user/forgot-password`, payload);
-        // Backend returns: ResponseEntity.ok("Requested password reset.")
+        // resp.data now matches RegistrationResponseDTO structure
         return resp.data;
     } catch (err) {
+        console.error("Forgot password request failed:", err.response?.data || err.message);
         throw err;
     }
 };
@@ -138,6 +140,23 @@ export const verifyAndResetPassword = async (email, otp, password) => {
     } catch (err) {
         // This will catch 400 errors (Expired OTP or Locked account)
         console.error("Password reset failed:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
+/**
+ * Resends the forgot password OTP.
+ * Backend returns generic success even if email doesn't exist (Enumeration Protection).
+ * Returns: { success: boolean, message: string, resendDelaySeconds: number }
+ */
+export const resendForgotPassword = async (email) => {
+    const payload = { email: email.toLowerCase().trim() };
+    try {
+        const resp = await axios.post(`${API_URL}/user/resend-forgot-password`, payload);
+        return resp.data;
+    } catch (err) {
+        // This will catch 400 errors (like clicking resend too fast)
+        console.error("Resend forgot password failed:", err.response?.data || err.message);
         throw err;
     }
 };

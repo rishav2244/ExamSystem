@@ -173,6 +173,58 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
+    public ResendResponseDTO resendForgotPasswordOtp(ForgotPasswordDTO dto) {
+        String email = dto.getEmail().toLowerCase().trim();
+        log.info("Resend password OTP requested for: {}", email);
+
+        // 1. Check if user exists (to prevent sending emails to non-existent users)
+        Optional<Users> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            // 2. Find existing token
+            Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByEmail(email);
+
+            if (tokenOpt.isPresent()) {
+                PasswordResetToken token = tokenOpt.get();
+
+                // 3. Check Cooldown (Lockout from too many wrong guesses)
+                if (token.getCooldownUntil() != null && token.getCooldownUntil().isAfter(Instant.now())) {
+                    log.warn("Resend blocked: User {} is currently locked out.", email);
+                    return new ResendResponseDTO(true, "If an account exists, a new OTP has been sent.", resendDelay / 1000);
+                }
+
+                // 4. Rate Limit (Preventing button spamming)
+                Instant lastGenerated = token.getExpiryDate().minusMillis(otpTtl);
+                long millisSinceLast = java.time.Duration.between(lastGenerated, Instant.now()).toMillis();
+
+                if (millisSinceLast < resendDelay) {
+                    // We can throw an exception here because "Too many requests" doesn't leak
+                    // account existence (it just says "Stop clicking so fast")
+                    long remainingSeconds = (resendDelay - millisSinceLast) / 1000;
+                    throw new InvalidActionException("Please wait " + remainingSeconds + " seconds.");
+                }
+
+                // 5. Refresh and Send
+                String newOtp = generateNumericOtp();
+                token.setOtp(passwordEncoder.encode(newOtp));
+                token.setExpiryDate(Instant.now().plusMillis(otpTtl));
+                passwordResetTokenRepository.save(token);
+
+                emailService.sendForgotPasswordOtp(email, newOtp);
+            } else {
+                // No token found? Treat as a fresh forgot-password request
+                forgotPassword(dto);
+            }
+        } else {
+            log.info("Resend requested for non-existent email: {}. Ignored silently.", email);
+        }
+
+        // Always return success to the UI
+        return new ResendResponseDTO(true, "If an account exists, a new OTP has been sent.", resendDelay / 1000);
+    }
+
+    @Transactional
+    @Override
     public LoginResponseDTO loginAttempt(LoginRequestDTO loginRequestDTO) {
         Users user = findUserByEmail(loginRequestDTO.getEmail());
         verifyCurrentPassword(loginRequestDTO.getPassword(), user.getPassword());
@@ -195,12 +247,11 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void forgotPassword(ForgotPasswordDTO forgotPasswordDTO) {
+    public RegistrationResponseDTO forgotPassword(ForgotPasswordDTO forgotPasswordDTO) {
         String email = forgotPasswordDTO.getEmail().toLowerCase().trim();
         log.info("Password reset requested for email: {}", email);
 
-        // 1. Find the user.
-        // We do NOT throw an exception if missing to avoid "Leaky Business".
+        // 1. Find the user
         Optional<Users> userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isPresent()) {
@@ -210,12 +261,12 @@ public class UserServiceImpl implements UserService {
             PasswordResetToken existingToken = passwordResetTokenRepository.findByEmail(user.getEmail()).orElse(null);
 
             if (existingToken != null) {
-                // Validate Cooldown (Reuse logic style from validateCoolDown)
+                // Check Cooldown
                 if (existingToken.getCooldownUntil() != null &&
                         existingToken.getCooldownUntil().isAfter(Instant.now())) {
                     log.warn("Reset blocked by cooldown for user: {}", email);
-                    // Even if blocked, we don't throw an error to the user to prevent enumeration
-                    return;
+                    // Return generic DTO even if blocked to prevent enumeration
+                    return buildResetResponse(email);
                 }
                 // Clear old token to issue a fresh one
                 passwordResetTokenRepository.delete(existingToken);
@@ -225,7 +276,7 @@ public class UserServiceImpl implements UserService {
             String rawOtp = generateNumericOtp();
             PasswordResetToken newToken = new PasswordResetToken();
             newToken.setEmail(user.getEmail());
-            newToken.setOtp(passwordEncoder.encode(rawOtp)); // Hashing OTP for security
+            newToken.setOtp(passwordEncoder.encode(rawOtp));
             newToken.setExpiryDate(Instant.now().plusMillis(otpTtl));
             newToken.setAttempts(0);
             newToken.setUsed(false);
@@ -236,9 +287,11 @@ public class UserServiceImpl implements UserService {
             emailService.sendForgotPasswordOtp(email, rawOtp);
             log.info("Password reset OTP sent to existing user: {}", email);
         } else {
-            // Log internally, but do nothing. The FE will still show the OTP page.
             log.info("Password reset requested for non-existent email: {}. No action taken.", email);
         }
+
+        // Always return the DTO with generic message
+        return buildResetResponse(email);
     }
 
     @Transactional(noRollbackFor = {PasswordMismatchException.class, InvalidActionException.class})
@@ -602,4 +655,13 @@ public class UserServiceImpl implements UserService {
 
         passwordResetTokenRepository.save(token);
     }
+    private RegistrationResponseDTO buildResetResponse(String email) {
+        return new RegistrationResponseDTO(
+                "If an account exists, an OTP has been sent to " + email,
+                otpTtl / 1000,
+                resendDelay / 1000,
+                forgotPwMaxAttempts
+        );
+    }
+
 }

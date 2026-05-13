@@ -1,5 +1,6 @@
 package com.company.ExamBackend.scheduler;
 
+import com.company.ExamBackend.repository.PasswordResetTokenRepository;
 import com.company.ExamBackend.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.time.Instant;
 public class TokenCleanupScheduler {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Transactional
     @Scheduled(fixedRateString = "${app.schedulers.token-cleanup-rate:3600000}")

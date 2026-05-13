@@ -116,14 +116,14 @@ public class UserController {
 
     @Operation(
             summary = "Forgot password",
-            description = "Used by any type of user to reset their password in case they forgot it."
+            description = "Used by any type of user to reset their password in case they forgot it. " +
+                    "Returns generic info to prevent email enumeration."
     )
     @PostMapping("forgot-password")
-    public ResponseEntity<?> forgotPassword(
+    public ResponseEntity<RegistrationResponseDTO> forgotPassword(
             @RequestBody ForgotPasswordDTO forgotPasswordDTO
     ) {
-        userService.forgotPassword(forgotPasswordDTO);
-        return ResponseEntity.ok("Requested password reset.");
+        return ResponseEntity.ok(userService.forgotPassword(forgotPasswordDTO));
     }
 
     @Operation(
@@ -136,7 +136,16 @@ public class UserController {
             @RequestBody ResetPasswordVerifyDTO resetPasswordVerifyDTO
     ) {
         return ResponseEntity.ok(userService.verifyAndResetPassword(resetPasswordVerifyDTO));
-//        return ResponseEntity.ok("Password has been successfully reset.");
+    }
+
+    @Operation(
+            summary = "Resend OTP (Forgot password)"
+    )
+    @PostMapping("/resend-forgot-password")
+    public ResponseEntity<ResendResponseDTO> resendForgotPassword(
+            @RequestBody ForgotPasswordDTO forgotPasswordDTO
+    ) {
+        return ResponseEntity.ok(userService.resendForgotPasswordOtp(forgotPasswordDTO));
     }
 
     @Operation(
