@@ -27,4 +27,16 @@ public class TokenCleanupScheduler {
             log.error("Failed to purge expired tokens: {}", e.getMessage());
         }
     }
+
+    @Transactional
+    @Scheduled(fixedRateString = "${app.schedulers.reset-token-cleanup-rate:3600000}")
+    public void purgeOrphanedPasswordResets() {
+        log.info("Starting orphaned password reset token cleanup...");
+        try {
+            passwordResetTokenRepository.purgeInvalidTokens(Instant.now());
+            log.info("Cleanup cycle for password reset tokens completed.");
+        } catch (Exception e) {
+            log.error("Failed to purge password reset tokens: {}", e.getMessage());
+        }
+    }
 }
