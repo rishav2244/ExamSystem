@@ -132,11 +132,11 @@ public class UserController {
                     "Applies rate limiting based on the email provided."
     )
     @PostMapping("/verify-reset-password")
-    public ResponseEntity<?> verifyAndResetPassword(
+    public ResponseEntity<ResetAttemptResponseDTO> verifyAndResetPassword(
             @RequestBody ResetPasswordVerifyDTO resetPasswordVerifyDTO
     ) {
-        userService.verifyAndResetPassword(resetPasswordVerifyDTO);
-        return ResponseEntity.ok("Password has been successfully reset.");
+        return ResponseEntity.ok(userService.verifyAndResetPassword(resetPasswordVerifyDTO));
+//        return ResponseEntity.ok("Password has been successfully reset.");
     }
 
     @Operation(

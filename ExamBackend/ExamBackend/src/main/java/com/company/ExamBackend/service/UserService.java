@@ -1,13 +1,8 @@
 package com.company.ExamBackend.service;
 
 import com.company.ExamBackend.dto.*;
-import com.company.ExamBackend.exception.InvalidActionException;
-import com.company.ExamBackend.exception.PasswordMismatchException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 public interface UserService
 {
@@ -17,7 +12,7 @@ public interface UserService
     UserResponseDTO verifyRegistration(VerifyOtpRequestDTO dto);
     ResendResponseDTO resendOtp(String email);
     BulkRegistrationSummaryDTO adminRegisterAttempt(AdminRegisterRequestDTO adminRegisterRequestDTO);
-    void verifyAndResetPassword(ResetPasswordVerifyDTO dto);
+    ResetAttemptResponseDTO verifyAndResetPassword(ResetPasswordVerifyDTO dto);
 
     Page<UserHeavyDTO> getCandidates(Pageable pageable);
     Page<UserHeavyDTO> getUsers(Pageable pageable);

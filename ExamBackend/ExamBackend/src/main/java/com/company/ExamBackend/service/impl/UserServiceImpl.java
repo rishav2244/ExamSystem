@@ -243,7 +243,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(noRollbackFor = {PasswordMismatchException.class, InvalidActionException.class})
     @Override
-    public void verifyAndResetPassword(ResetPasswordVerifyDTO dto) {
+    public ResetAttemptResponseDTO verifyAndResetPassword(ResetPasswordVerifyDTO dto) {
         String email = dto.getEmail().toLowerCase().trim();
         log.info("Attempting password reset verification for: {}", email);
 
@@ -257,8 +257,11 @@ public class UserServiceImpl implements UserService {
         // 3. Verify OTP
         if (!passwordEncoder.matches(dto.getOtp(), token.getOtp())) {
             handleFailedResetAttempt(token);
-            // This is where we throw the error that the user sees
-            throw new PasswordMismatchException("Invalid OTP.");
+            // This is where we return the DTO that the user sees
+//            throw new PasswordMismatchException("Invalid OTP.");
+            return userMapper.toResetAttemptResponse(
+                    false,
+                    Math.max(0,(forgotPwMaxAttempts - token.getAttempts())));
         }
 
         // 4. OTP is correct - Now check if the user actually exists to perform the update
@@ -279,6 +282,7 @@ public class UserServiceImpl implements UserService {
 
         // 5. Cleanup
         passwordResetTokenRepository.delete(token);
+        return userMapper.toResetAttemptResponse(true,0);
     }
 
     @Override
