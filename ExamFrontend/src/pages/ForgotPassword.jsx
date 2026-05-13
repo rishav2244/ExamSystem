@@ -7,14 +7,14 @@ import styles from "./css/ForgotPassword.module.css";
 
 export const ForgotPassword = () => {
     const navigate = useNavigate();
-    
+
     // State Management
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState("");
     const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    
+
     const [attemptsLeft, setAttemptsLeft] = useState(null);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
@@ -38,7 +38,7 @@ export const ForgotPassword = () => {
 
     const handleResetPassword = async (e) => {
         e.preventDefault();
-        
+
         if (newPassword !== confirmPassword) {
             setMessage("Passwords do not match.");
             return;
@@ -59,10 +59,10 @@ export const ForgotPassword = () => {
         } catch (err) {
             const errorMsg = err.response?.data || "Reset failed.";
             setMessage(errorMsg);
-            
+
             // Handle account lockout scenario
-            if (err.response?.status === 400 && 
-               (errorMsg.toLowerCase().includes("locked") || errorMsg.toLowerCase().includes("limit"))) {
+            if (err.response?.status === 400 &&
+                (errorMsg.toLowerCase().includes("locked") || errorMsg.toLowerCase().includes("limit"))) {
                 setAttemptsLeft(0);
             }
         } finally {
@@ -73,19 +73,17 @@ export const ForgotPassword = () => {
     return (
         <div className={styles.authContainer}>
             <div className={styles.authCard}>
-                <h2 className={styles.title}>
-                    {step === 1 ? "Forgot Password" : "Reset Password"}
-                </h2>
+                <h2>{step === 1 ? "Forgot Password" : "Reset Password"}</h2>
 
                 {step === 1 ? (
-                    <EmailEntryForm 
-                        email={email} 
-                        setEmail={setEmail} 
-                        onSubmit={handleRequestOtp} 
-                        loading={loading} 
+                    <EmailEntryForm
+                        email={email}
+                        setEmail={setEmail}
+                        onSubmit={handleRequestOtp}
+                        loading={loading}
                     />
                 ) : (
-                    <PasswordResetForm 
+                    <PasswordResetForm
                         email={email}
                         otp={otp} setOtp={setOtp}
                         newPassword={newPassword} setNewPassword={setNewPassword}
@@ -101,9 +99,7 @@ export const ForgotPassword = () => {
                         {message}
                     </p>
                 )}
-
                 <p className={styles.switchAuth}>
-                    Remembered?{" "}
                     <span onClick={() => navigate("/login")} className={styles.link}>
                         Back to Login
                     </span>
