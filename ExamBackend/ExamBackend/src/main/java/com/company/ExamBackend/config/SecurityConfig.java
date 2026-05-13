@@ -37,6 +37,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/self-register").permitAll()
                         .requestMatchers("/api/user/verify-registration-otp").permitAll()
                         .requestMatchers("/api/user/resend-registration-otp").permitAll()
+                        .requestMatchers("/api/user/forgot-password").permitAll()
+                        .requestMatchers("/api/user/verify-reset-password").permitAll()
                         .requestMatchers("/api/user/refresh").permitAll()
                         .requestMatchers("/api/user/reset-password").authenticated()
                         .requestMatchers("/api/user/logout").authenticated()

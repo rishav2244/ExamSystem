@@ -44,6 +44,8 @@ app:
     cooldown-duration: ${CANDIDATE_REGISTRATION_COOLDOWN_IN_MS}
     lockout-message: ${CANDIDATE_REGISTRATION_LOCKOUT_MESSAGE}
     resend-delay: ${RESEND_OTP_DELAY_MS:60000}
+  forgot-password:
+    max-attempts: ${MAX_OTP_ATTEMPTS}
   schedulers:
     otp-cleanup-rate: ${OTP_CLEANUP_RATE_IN_MS:60000}
     orphan-exam-cleanup-rate: ${ORPHAN_EXAMS_CLEANUP_RATE_IN_MS:60000}

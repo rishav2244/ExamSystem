@@ -115,6 +115,31 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Forgot password",
+            description = "Used by any type of user to reset their password in case they forgot it."
+    )
+    @PostMapping("forgot-password")
+    public ResponseEntity<?> forgotPassword(
+            @RequestBody ForgotPasswordDTO forgotPasswordDTO
+    ) {
+        userService.forgotPassword(forgotPasswordDTO);
+        return ResponseEntity.ok("Requested password reset.");
+    }
+
+    @Operation(
+            summary = "Verify OTP and Reset Password",
+            description = "Consumes the OTP and updates the user's password in a single step. " +
+                    "Applies rate limiting based on the email provided."
+    )
+    @PostMapping("/verify-reset-password")
+    public ResponseEntity<?> verifyAndResetPassword(
+            @RequestBody ResetPasswordVerifyDTO resetPasswordVerifyDTO
+    ) {
+        userService.verifyAndResetPassword(resetPasswordVerifyDTO);
+        return ResponseEntity.ok("Password has been successfully reset.");
+    }
+
+    @Operation(
             summary = "List all candidates",
             description = "Fetches all users with the role CANDIDATE. Admin access required.")
     @GetMapping("/candidates")

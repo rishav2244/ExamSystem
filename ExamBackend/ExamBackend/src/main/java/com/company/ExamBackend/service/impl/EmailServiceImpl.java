@@ -42,13 +42,26 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendOtp(String to, String otp) {
+    public void sendRegistrationOtp(String to, String otp) {
         long minutes = Long.parseLong(expiryTime) / 60000;
         String expiryInMinutes = String.valueOf(minutes);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("Your Examination Portal Verification Code");
         message.setText("Your OTP for registration is: " + otp +
+                ". This code is valid for " + expiryInMinutes +
+                " minutes.");
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendForgotPasswordOtp(String to, String otp) {
+        long minutes = Long.parseLong(expiryTime) / 60000;
+        String expiryInMinutes = String.valueOf(minutes);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Examination Portal forgot password OTH");
+        message.setText("Your OTP is: " + otp +
                 ". This code is valid for " + expiryInMinutes +
                 " minutes.");
         mailSender.send(message);

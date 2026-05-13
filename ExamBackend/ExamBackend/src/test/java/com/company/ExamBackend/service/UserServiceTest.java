@@ -181,7 +181,7 @@ class UserServiceTest {
         assertEquals(registrationResponseDTO.getMessage(), result.getMessage());
 
         Mockito.verify(emailService)
-                .sendOtp(Mockito
+                .sendRegistrationOtp(Mockito
                         .eq("candidate@candidate.com"), Mockito.anyString());
         Mockito.verify(pendingRegistrationRepository).save(captor.capture());
 
@@ -219,7 +219,7 @@ class UserServiceTest {
         Mockito.verify(pendingRegistrationRepository, Mockito.never()).save(Mockito.any());
 
         // Verify that NO email was sent
-        Mockito.verify(emailService, Mockito.never()).sendOtp(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(emailService, Mockito.never()).sendRegistrationOtp(Mockito.anyString(), Mockito.anyString());
     }
 
     @Test
@@ -251,7 +251,7 @@ class UserServiceTest {
         });
 
         // Ensure we didn't generate a new OTP or save any updates
-        Mockito.verify(emailService, Mockito.never()).sendOtp(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(emailService, Mockito.never()).sendRegistrationOtp(Mockito.anyString(), Mockito.anyString());
         // The only interaction with pendingRegistrationRepository should have been the findByEmail
         Mockito.verify(pendingRegistrationRepository, Mockito.never()).save(Mockito.any());
     }
