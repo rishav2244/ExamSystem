@@ -1,17 +1,26 @@
+import React from "react";
 import { CandidateRow } from "./CandidateRow";
 
 export const ExamCandidatePanel = ({
+    examId,
     examStatus,
     availableGroups,
     selectedGroupId,
     onGroupChange,
     candidates,
+    setCandidates,
     currentPage,
     totalPages,
     onPageChange
 }) => {
-    // Determine if we should show the list at all
     const shouldShowList = (examStatus === "SAVED" && selectedGroupId) || examStatus === "PUBLISHED";
+
+    // Callback used by CandidateRow to update this component's state
+    const handleLocalRevoke = (email) => {
+        if (setCandidates) {
+            setCandidates(prev => prev.filter(c => c.email !== email));
+        }
+    };
 
     if (!shouldShowList && examStatus !== "SAVED") return null;
 
@@ -48,14 +57,18 @@ export const ExamCandidatePanel = ({
                     <div className="candidate-scroll">
                         {candidates.length > 0 ? (
                             candidates.map((c) => (
-                                <CandidateRow key={c.id} candidate={c} />
+                                <CandidateRow 
+                                    key={c.id || c.email} 
+                                    candidate={c} 
+                                    examId={examId}
+                                    onRevokeSuccess={handleLocalRevoke}
+                                />
                             ))
                         ) : (
                             <p className="no-candidates-msg">No candidates found.</p>
                         )}
                     </div>
 
-                    {/* Pagination - Only shown in Published mode per original logic */}
                     {examStatus === "PUBLISHED" && totalPages > 1 && (
                         <div className="UserPagination">
                             <button

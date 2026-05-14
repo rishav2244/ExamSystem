@@ -256,12 +256,30 @@ export const publishExam = async (examId) => {
         throw err;
     }
 };
+
 export const resendInvitation = async (candidateId) => {
     try {
         const resp = await axios.post(`${API_URL}/exams/candidates/resend-invitation/${candidateId}`);
         return resp.data;
     } catch (err) {
         console.error("Failed to resend invitation:", err);
+        throw err;
+    }
+};
+
+/**
+ * Removes a candidate from an exam.
+ * payload: { examId: string, email: string }
+ */
+export const removeCandidateFromExam = async (examId, email) => {
+    try {
+        const payload = { examId, email };
+        const resp = await axios.delete(`${API_URL}/candidate/remove`, {
+            data: payload
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error removing candidate:", err.response?.data || err.message);
         throw err;
     }
 };

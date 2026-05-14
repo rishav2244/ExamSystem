@@ -5122,3 +5122,22 @@ button:hover {
   color: white;
   cursor: not-allowed;
 }
+
+.status-badge.revocable {
+    transition: all 0.2s ease;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Style for when hovering to revoke */
+.status-badge.revocable:hover {
+    background-color: #e74c3c !important; /* Red for danger */
+    color: white !important;
+    border-color: #c0392b;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Optional: Subtle pulse or change to indicate it is clickable */
+.status-badge.INVITED, .status-badge.UNINVITED {
+    cursor: pointer;
+}

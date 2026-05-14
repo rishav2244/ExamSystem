@@ -112,4 +112,14 @@ public class EmailServiceImpl implements EmailService {
                 " You will be mailed your results and will be able to see the same in your dashboard.");
         mailSender.send(message);
     }
+
+    @Override
+    public void sendInviteRevoke(String to, String examTitle)
+    {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Invite Revoked for exam "+examTitle);
+        message.setText("Your invite for the exam "+examTitle+" has been revoked.");
+        mailSender.send(message);
+    }
 }

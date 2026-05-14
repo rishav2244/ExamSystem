@@ -7,6 +7,7 @@ import com.company.ExamBackend.exception.InvalidActionException;
 import com.company.ExamBackend.mapper.CandidateMapper;
 import com.company.ExamBackend.model.ExamCandidate;
 import com.company.ExamBackend.repository.ExamCandidateRepo;
+import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.ExamCandidateService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,8 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
     private final ExamCandidateRepo examCandidateRepo;
 
     private final CandidateMapper candidateMapper;
+
+    private final EmailService emailService;
 
     //Lists all candidates for respective exam.
     @Override
@@ -51,8 +54,11 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
             throw new ExamCandidateNotFoundException("ExamCandidate of email "+email+" not found");
         }
 
-        if(!checkDeletionValidity(reqCandidate)) {
+        if(checkDeletionValidity(reqCandidate) == 0) {
             throw new InvalidActionException("Candidate of status "+reqCandidate.getStatus()+" cannot be deleted.");
+        }
+        else if(checkDeletionValidity(reqCandidate) == 1) {
+            emailService.sendInviteRevoke(reqCandidate.getEmail(),reqCandidate.getExam().getTitle());
         }
 
         examCandidateRepo.deleteByExamIdAndEmail(examId, email);
@@ -83,11 +89,13 @@ public class ExamCandidateServiceImpl implements ExamCandidateService {
         return !latestPossibleFinish.isAfter(end);
     }
 
-    private boolean checkDeletionValidity(ExamCandidate candidate) {
-        return (
-                candidate.getStatus().equals("INVITED")
-                || candidate.getStatus().equals("UNINVITED")
-        );
+    private int checkDeletionValidity(ExamCandidate candidate) {
+
+        return switch (candidate.getStatus()) {
+            case "INVITED" -> 1;
+            case "UNINVITED" -> 2;
+            default -> 0;
+        };
     }
 
     private ExamCandidate getExamCandidate(String examId, String email) {

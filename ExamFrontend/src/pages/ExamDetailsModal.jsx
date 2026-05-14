@@ -173,7 +173,7 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                 <ExamOverviewPlate exam={exam} />
 
                 <div className="modal-body">
-                    <QuestionWorkbench 
+                    <QuestionWorkbench
                         isPending={isPending}
                         onCSVUpload={handleCSVUpload}
                         csvQuestions={CSVObj}
@@ -185,19 +185,21 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                         backendQuestions={backendQuestions}
                     />
 
-                    <ExamCandidatePanel 
+                    <ExamCandidatePanel
+                        examId={exam.id}
                         examStatus={exam?.status}
                         availableGroups={availableGroups}
                         selectedGroupId={selectedGroupId}
                         onGroupChange={setSelectedGroupId}
                         candidates={candidates}
+                        setCandidates={setCandidates} // IMPORTANT: used to remove the row from UI
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={setCurrentPage}
                     />
                 </div>
 
-                <ExamActionTray 
+                <ExamActionTray
                     examStatus={exam?.status}
                     isPending={isPending}
                     csvQuestionsExist={!!CSVObj}
