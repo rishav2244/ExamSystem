@@ -1,9 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getExams, searchExams } from '../api/api';
 import { SubmissionDetailsModal } from './SubmissionDetailsModal';
-import { SearchBar } from '../components/barType/SearchBar';
+
+// Importing the shared structural components
 import { AdminSubmissionsHeader } from '../components/headerType/AdminSubmissionsHeader';
+import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
+import { AdminSubmissionsTableBody } from '../components/tableType/AdminSubmissions/AdminSubmissionsTableBody';
+import { PageBar } from '../components/barType/PageBar';
+
+import styles from './css/SubmissionsDashboard.module.css'; // Isolated modular layout styles
 
 export const Submissions = () => {
     const [exams, setExams] = useState([]);
@@ -14,10 +19,11 @@ export const Submissions = () => {
     const [selectedExam, setSelectedExam] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
 
+    const tableHeaders = ["Exam Title", "Status", "Duration", "Action"];
+
     const fetchExams = useCallback(async (page, query = '') => {
         try {
             let data;
-
             if (query) {
                 data = await searchExams(query, page, pageSize);
             } else {
@@ -44,68 +50,44 @@ export const Submissions = () => {
         }
     };
 
-    const handleSearchChange = (e) => {
-        setSearchQuery(e);
-    };
+    const handleSearchChange = useCallback((query) => {
+        setSearchQuery(query);
+    }, []);
 
     return (
-        <div className="SubmissionsPage">
+        <div className={styles.dashboardContainer}>
+            <div className={styles.submissionsSectionCard}>
+                
+                {/* Modular Header Section */}
+                <div className={styles.sectionHeaderWrapper}>
+                    <AdminSubmissionsHeader
+                        searchQuery={handleSearchChange}
+                    />
+                </div>
 
-            <AdminSubmissionsHeader
-                searchQuery={handleSearchChange}
-            />
+                {/* Fluid Responsive Table Container */}
+                <div className={styles.tableResponsiveContainer}>
+                    <table className={styles.submissionsTable}>
+                        <TableHeader headerArray={tableHeaders} />
+                        <AdminSubmissionsTableBody
+                            exams={exams}
+                            searchQuery={searchQuery}
+                            setSelectedExam={setSelectedExam}
+                        />
+                    </table>
+                </div>
 
-            <table className="admin-table">
-                <thead>
-                    <tr>
-                        <th>Exam Title</th>
-                        <th>Status</th>
-                        <th>Duration</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {exams.length > 0 ? (
-                        exams.map(exam => (
-                            <tr key={exam.id}>
-                                <td>{exam.title}</td>
-                                <td>{exam.status}</td>
-                                <td>{exam.duration} mins</td>
-                                <td>
-                                    <button onClick={() => setSelectedExam(exam)}>View Results</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="4" style={{ textAlign: 'center' }}>
-                                {searchQuery ? 'No exams found matching your search.' : 'No exams found.'}
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-
-            <div className="pagination-wrapper" style={{ marginTop: '20px', textAlign: 'center' }}>
-                <button
-                    disabled={currentPage === 0}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                >
-                    Prev
-                </button>
-
-                <span style={{ margin: '0 15px' }}>
-                    Page {currentPage + 1} of {totalPages}
-                </span>
-
-                <button
-                    disabled={currentPage === totalPages - 1 || totalPages === 0}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                >
-                    Next
-                </button>
+                {/* Standardized Modular Pagination Bar */}
+                <div className={styles.paginationFooterWrapper}>
+                    <PageBar
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        handlePageChange={handlePageChange}
+                    />
+                </div>
             </div>
 
+            {/* State Protected Modal */}
             {selectedExam && (
                 <SubmissionDetailsModal
                     exam={selectedExam}
