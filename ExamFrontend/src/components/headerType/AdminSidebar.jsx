@@ -2,6 +2,7 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { AuthenticationContext } from "../../context/AuthenticationContext";
 import { 
+    LayoutDashboard,
     User,
     FileText,
     Users,
@@ -46,6 +47,16 @@ export const AdminSidebar = () => {
 
             {/* Navigation Links with Icon + Text */}
             <nav className={styles.sidebarNav}>
+                {/* Dashboard / Overall Performance Landing Link */}
+                <NavLink 
+                    to="/admin" 
+                    end
+                    className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}
+                >
+                    <LayoutDashboard size={20} />
+                    <span className={styles.navText}>Dashboard</span>
+                </NavLink>
+
                 <NavLink 
                     to="/admin/exams" 
                     className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}
