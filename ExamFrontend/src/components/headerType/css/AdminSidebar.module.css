@@ -21,6 +21,23 @@
     border-bottom: 1px solid #e2e8f0;
 }
 
+/* Logo layout wrappers to constrain the imported PNG horizontally */
+.logoContainer {
+    width: 100%;
+    max-height: 60px; /* Caps the vertical footprint to protect layout flow */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 16px; /* Clean breathing room between logo and welcome text */
+    overflow: hidden;
+}
+
+.brandImage {
+    max-width: 100%; /* Prevents the image from expanding past the sidebar bounding box */
+    height: auto;     /* Maintains standard scale proportions smoothly */
+    object-fit: contain;
+}
+
 .welcomeText {
     margin: 0;
     font-size: 0.85rem;

@@ -11,7 +11,8 @@ import {
     ChevronUp,
     ChevronDown
 } from "lucide-react";
-import styles from "./css/AdminSidebar.module.css"
+import styles from "./css/AdminSidebar.module.css";
+import brandLogo from "../../assets/Exavalu.png"; // Importing the PNG from assets directory
 
 export const AdminSidebar = () => {
     const { name, role, logout } = useContext(AuthenticationContext);
@@ -33,6 +34,11 @@ export const AdminSidebar = () => {
         <aside className={styles.sidebar}>
             {/* Top Branding / Welcome Section */}
             <div className={styles.sidebarBrand}>
+                {/* Logo container inserted directly on top */}
+                <div className={styles.logoContainer}>
+                    <img src={brandLogo} alt="Brand Logo" className={styles.brandImage} />
+                </div>
+                
                 <h4 className={styles.welcomeText}>
                     Welcome, <span>{name}</span>
                 </h4>
