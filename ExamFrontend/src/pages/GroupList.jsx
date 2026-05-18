@@ -1,28 +1,35 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { getAllUserGroups, searchGroups } from "../api/api";
 import { CreateGroupModal } from './CreateGroupModal';
 import { GroupDetailsModal } from './GroupDetailsModal';
 
+// Importing the shared structural components
+import { AdminGroupHeader } from '../components/headerType/AdminGroupHeader';
+import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
+import { AdminGroupsTableBody } from '../components/tableType/AdminGroups/AdminGroupsTableBody';
+import { PageBar } from '../components/barType/PageBar';
+
+import styles from './css/GroupDashboard.module.css'; // Cleaner, isolated modular styling
+
 export const GroupList = () => {
+    const isInitialMount = useRef(true);
+
     const [groups, setGroups] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [pageSize] = useState(5);
+    
+    const [searchTerm, setSearchTerm] = useState("");
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState(null);
 
-    const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const [pageSize] = useState(5);
+    const tableHeaders = ["Group Name", "Action"];
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const isFirstRender = useRef(true);
-
-    const [jumpPage, setJumpPage] = useState("1");
-
-    const fetchGroups = async (page = 0, query = searchQuery) => {
-        if (page < 0 || page >= totalPages && totalPages !== 0) return;
-
+    const fetchGroups = async (page, query) => {
         try {
             let data;
-            if (query.trim() !== "") {
+            if (query && query.trim() !== "") {
                 data = await searchGroups(query, page, pageSize);
             } else {
                 data = await getAllUserGroups(page, pageSize);
@@ -30,143 +37,69 @@ export const GroupList = () => {
 
             setGroups(data.content || []);
             setTotalPages(data.totalPages || 0);
-            setCurrentPage(page);
-            setJumpPage((page + 1).toString());
+            setTotalElements(data.totalElements || 0);
         } catch (err) {
             console.error("Failed to fetch groups:", err);
         }
     };
 
+    // Synchronized pagination and search triggers matching UserList logic
     useEffect(() => {
-        fetchGroups(0, "");
+        fetchGroups(currentPage, searchTerm);
+
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+        }
+    }, [currentPage, searchTerm]);
+
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const handleSearchChange = useCallback((query) => {
+        setSearchTerm(query);
+        setCurrentPage(0); // Reset instantly to first page on new queries
     }, []);
 
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
-            return;
-        }
-
-        const handler = setTimeout(() => {
-            fetchGroups(0, searchQuery);
-        }, 500);
-
-        return () => clearTimeout(handler);
-    }, [searchQuery]);
-
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-    };
-
-    const clearSearch = () => {
-        setSearchQuery("");
-    };
-
-    const handleJumpPage = (e) => {
-        if (e.key === 'Enter') {
-            const pageNum = parseInt(jumpPage) - 1;
-            if (!isNaN(pageNum) && pageNum >= 0 && pageNum < totalPages) {
-                fetchGroups(pageNum, searchQuery);
-            } else {
-                setJumpPage((currentPage + 1).toString());
-            }
-        }
-    };
-
     return (
-        <div className="UserListOverall">
-            <div className="AdminGroupSection">
-                <div className="AdminGroupHeader">
-                    <h2>Groups</h2>
-
-                    <div className="SearchContainer">
-                        <input
-                            type="text"
-                            className="SearchInput"
-                            placeholder="Search groups..."
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                        />
-                        {searchQuery && (
-                            <button className="SearchClearBtn" onClick={clearSearch}>
-                                &times;
-                            </button>
-                        )}
-                    </div>
-
-                    <button className="CreateGroupBtn" onClick={() => setIsCreateOpen(true)}>
-                        + Create Group
-                    </button>
+        <div className={styles.dashboardContainer}>
+            <div className={styles.groupSectionCard}>
+                
+                {/* Modular Header Section */}
+                <div className={styles.sectionHeaderWrapper}>
+                    <AdminGroupHeader
+                        searchBar={handleSearchChange}
+                        setIsCreateModalOpen={setIsCreateOpen}
+                        groupCount={totalElements}
+                    />
                 </div>
 
-                <table className="GroupTable">
-                    <thead>
-                        <tr>
-                            <th>Group Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {groups.length > 0 ? (
-                            groups.map(group => (
-                                <tr key={group.id}>
-                                    <td>{group.name}</td>
-                                    <td>
-                                        <button
-                                            className="ViewBtn"
-                                            onClick={() => setSelectedGroup(group)}
-                                        >
-                                            View
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="2" style={{ textAlign: 'center', padding: '20px' }}>
-                                    No groups found.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-                {totalPages > 0 && (
-                    <div className="GrpList-Pagination-Container">
-                        <button
-                            className="GrpList-Pagination-Nav"
-                            onClick={() => fetchGroups(currentPage - 1, searchQuery)}
-                            disabled={currentPage === 0}
-                        >
-                            Prev
-                        </button>
+                {/* Fluid Responsive Table Container */}
+                <div className={styles.tableResponsiveContainer}>
+                    <table className={styles.groupTable}>
+                        <TableHeader headerArray={tableHeaders} />
+                        <AdminGroupsTableBody
+                            groups={groups}
+                            setSelectedGroup={setSelectedGroup}
+                        />
+                    </table>
+                </div>
 
-                        <div className="GrpList-Jump-Container">
-                            <span>Page</span>
-                            <input
-                                type="text"
-                                className="GrpList-Jump-Input"
-                                value={jumpPage}
-                                onChange={(e) => setJumpPage(e.target.value)}
-                                onKeyDown={handleJumpPage}
-                            />
-                            <span>of {totalPages}</span>
-                        </div>
-
-                        <button
-                            className="GrpList-Pagination-Nav"
-                            onClick={() => fetchGroups(currentPage + 1, searchQuery)}
-                            disabled={currentPage === totalPages - 1}
-                        >
-                            Next
-                        </button>
-                    </div>
-                )}
+                {/* Reused Modular Pagination Bar */}
+                <div className={styles.paginationFooterWrapper}>
+                    <PageBar
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        handlePageChange={handlePageChange}
+                    />
+                </div>
             </div>
 
+            {/* State Protected Modals */}
             {isCreateOpen && (
                 <CreateGroupModal
                     onClose={() => setIsCreateOpen(false)}
-                    onGroupCreated={() => fetchGroups(0)}
+                    onGroupCreated={() => fetchGroups(currentPage, searchTerm)}
                 />
             )}
 
@@ -174,7 +107,7 @@ export const GroupList = () => {
                 <GroupDetailsModal
                     group={selectedGroup}
                     onClose={() => setSelectedGroup(null)}
-                    onGroupDeleted={() => fetchGroups(0)}
+                    onGroupDeleted={() => fetchGroups(0, searchTerm)}
                 />
             )}
         </div>
