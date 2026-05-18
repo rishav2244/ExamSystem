@@ -1,81 +1,87 @@
-import { useContext, useState, useRef, useEffect } from "react";
+import { useContext, useState } from "react";
 import { AuthenticationContext } from "../../context/AuthenticationContext";
 import { ResetPasswordModal } from "../../pages/ResetPasswordModal";
-import { User } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { User, KeyRound, LogOut, Award, LayoutDashboard } from "lucide-react";
+import brandLogo from "../../assets/Exavalu.png"; // Integrating corporate logo
+import styles from "./css/CandidateHeader.module.css";
+
 export const CandidateHeader = () => {
-
-    const { name, email, role, logout } =
-        useContext(AuthenticationContext);
-
-    const [showDropdown, setShowDropdown] = useState(false);
+    const { name, email, role, logout } = useContext(AuthenticationContext);
     const [showResetModal, setShowResetModal] = useState(false);
+    
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const dropdownRef = useRef();
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
-            ) {
-                setShowDropdown(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () =>
-            document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    // Active state tracking utilities
+    const isDashboardActive = location.pathname === "/candidate" || location.pathname === "/candidate/dashboard";
+    const isResultsActive = location.pathname === "/candidate/results";
 
     return (
-        <header className="admin-header">
-
-            <h4 className="admin-header__welcome">
-                Welcome, <span>{name}</span>
-            </h4>
-
-            <div className="profile-container" ref={dropdownRef}>
-                 <div
-                    className="profile-icon"
-                    onClick={() => setShowDropdown(!showDropdown)}
-                >
-                    <User size={20} />
+        <header className={styles.headerContainer}>
+            {/* Top Navigation & Profile Links Area */}
+            <div className={styles.topNavigationBlock}>
+                
+                {/* Brand Logo Wrapper */}
+                <div className={styles.brandWrapper}>
+                    <img 
+                        src={brandLogo} 
+                        alt="Company Logo" 
+                        className={styles.logoImage} 
+                    />
                 </div>
 
-
-                {showDropdown && (
-                    <div className="profile-dropdown">
-
-                        <p className="profile-name">
-                            {name}
-                        </p>
-
-                        <p className="profile-role">
-                            Role: {role}
-                        </p>
-
-                        <button
-                            onClick={() =>
-                                setShowResetModal(true)
-                            }
-                        >
-                            Change Password
-                        </button>
-
-                        <button className="logout-btn" onClick={logout}>
-                            Logout
-                        </button>
-
+                {/* Clean Typography Identity Greeting */}
+                <div className={styles.identitySection}>
+                    <div className={styles.avatarIcon}>
+                        <User size={18} />
                     </div>
-                )}
+                    <div className={styles.metaText}>
+                        <h4 className={styles.welcomeMessage}>Welcome, <span>{name}</span></h4>
+                        <p className={styles.roleLabel}>{role}</p>
+                    </div>
+                </div>
+
+                {/* Main Sidebar Links Stack */}
+                <nav className={styles.navStack}>
+                    <button 
+                        className={`${styles.navLink} ${isDashboardActive ? styles.active : ''}`}
+                        onClick={() => navigate("/candidate/dashboard")}
+                    >
+                        <LayoutDashboard size={18} />
+                        <span>Dashboard</span>
+                    </button>
+
+                    <button 
+                        className={`${styles.navLink} ${isResultsActive ? styles.active : ''}`}
+                        onClick={() => navigate("/candidate/results")}
+                    >
+                        <Award size={18} />
+                        <span>View Results</span>
+                    </button>
+
+                    <button 
+                        className={styles.navLink}
+                        onClick={() => setShowResetModal(true)}
+                    >
+                        <KeyRound size={18} />
+                        <span>Change Password</span>
+                    </button>
+                </nav>
+            </div>
+
+            {/* Bottom Stationary Sticky Section */}
+            <div className={styles.bottomStickyBlock}>
+                <button className={styles.logoutBtn} onClick={logout}>
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                </button>
             </div>
 
             {showResetModal && (
                 <ResetPasswordModal
                     email={email}
-                    onClose={() =>
-                        setShowResetModal(false)
-                    }
+                    onClose={() => setShowResetModal(false)}
                 />
             )}
         </header>

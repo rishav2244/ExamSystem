@@ -1,12 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 import { CandidateExamCard } from "../components/cardType/CandidateExamCard";
-import { CandidateHeader } from "../components/headerType/CandidateHeader";
 import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useNotification } from "../components/popupType/NotificationContext";
 
-import styles from "./css/Candidate.module.css"
+import styles from "./css/Candidate.module.css";
 
 export const Candidate = () => {
     const { email, name } = useContext(AuthenticationContext);
@@ -43,8 +42,7 @@ export const Candidate = () => {
         const cached = eligibilityData[examId];
 
         if (cached) {
-            const route = cached.action === "RESUME" ? "/candidate/exam-setup" : "/candidate/exam-setup";
-            navigate(route, {
+            navigate("/candidate/exam-setup", {
                 state: {
                     candidateExamId: examId,
                     submissionId: cached.submissionId,
@@ -85,17 +83,11 @@ export const Candidate = () => {
     return (
         <div className={styles.CandidateDashboard}>
             <div className={styles.DashboardHeader}>
-                <h2 className={styles.DashboardTitle}>Candidate Dashboard</h2>
-                <button
-                    className={styles.ViewResultsBtn}
-                    onClick={() => navigate("/candidate/results")}
-                >
-                    View Results
-                </button>
+                <h2 className={styles.DashboardTitle}>Available Assessments</h2>
             </div>
 
             {exams.length === 0 && (
-                <p className={styles.EmptyText}>No exams assigned.</p>
+                <p className={styles.EmptyText}>No exams currently assigned to your account.</p>
             )}
 
             <div className={styles.CandidateExamList}>
