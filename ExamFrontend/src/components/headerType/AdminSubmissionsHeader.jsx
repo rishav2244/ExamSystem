@@ -30,12 +30,6 @@ export const AdminSubmissionsHeader = ({ searchQuery }) => {
                     placeholderText={"Search for exam"}
                     searchBar={searchTerm} 
                 />
-                <button
-                    className="btn-view-overall-stats"
-                    onClick={() => navigate('overall')}
-                >
-                    View overall statistics
-                </button>
             </div>
         </div>
     );

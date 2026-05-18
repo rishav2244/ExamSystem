@@ -31,8 +31,40 @@ export const ExamInterface = () => {
         });
     }, [submissionId, isDisqualified, showWarning]);
 
+    // ==========================================
+    // ANTI-NAVIGATION LOCKDOWN SYSTEM
+    // ==========================================
     useEffect(() => {
-        if (!examId) return navigate('/candidate/dashboard');
+        if (!examData) return;
+
+        // 1. Block Hardware / Browser Back & Forward actions
+        const blockBrowserNavigation = () => {
+            window.history.pushState(null, document.title, window.location.href);
+            // Optional: Treat attempts to navigate away using browser arrows as a full proctoring violation
+            triggerViolation();
+        };
+
+        // Push initial state to trap the current history slot
+        window.history.pushState(null, document.title, window.location.href);
+        window.addEventListener('popstate', blockBrowserNavigation);
+
+        // 2. Block Page Reloads, Closing Tab, or Typing another URL
+        const blockTabActions = (e) => {
+            e.preventDefault();
+            e.returnValue = "Warning: Leaving this page will disrupt your exam state. Do you want to leave?";
+            return e.returnValue;
+        };
+        window.addEventListener('beforeunload', blockTabActions);
+
+        return () => {
+            window.removeEventListener('popstate', blockBrowserNavigation);
+            window.removeEventListener('beforeunload', blockTabActions);
+        };
+    }, [examData, triggerViolation]);
+    // ==========================================
+
+    useEffect(() => {
+        if (!examId) return navigate('/candidate/dashboard', { replace: true });
 
         const initializeInterface = async () => {
             try {
@@ -41,10 +73,8 @@ export const ExamInterface = () => {
                 setSubmissionId(data.submissionId);
                 setViolationCount(data.violations);
 
-                // Disqualify immediately if they resume with 3+ violations
                 if (data.violations >= 3) setIsDisqualified(true);
 
-                // 1. Map existing answers from the DTO into local state
                 const prefilled = {};
                 data.questions.forEach(q => {
                     const chosenOption = q.options.find(opt => opt.chosen === true);
@@ -54,22 +84,18 @@ export const ExamInterface = () => {
                 });
                 setSelectedOptions(prefilled);
 
-                // 2. Calculate Timer
                 if (data.startTime) {
-                    // Resume Case: Calculate remaining time
                     const start = new Date(data.startTime).getTime();
                     const now = new Date().getTime();
                     const elapsedSec = Math.floor((now - start) / 1000);
                     const remaining = (data.duration * 60) - elapsedSec;
 
-                    // Also consider hard endTime
                     const hardEnd = new Date(data.endTime).getTime();
                     const portalRemaining = Math.floor((hardEnd - now) / 1000);
 
                     const actualTime = Math.min(remaining, portalRemaining);
                     setTimeLeft(actualTime > 0 ? actualTime : 0);
                 } else {
-                    // Fresh Start Case
                     setTimeLeft(data.duration * 60);
                 }
 
@@ -80,19 +106,17 @@ export const ExamInterface = () => {
                         triggerViolation();
                     }, 500);
                 }
-
-                if (data.violations >= 3) setIsDisqualified(true);
             } catch (err) {
                 console.error("Initialization failed", err);
-                navigate('/candidate/dashboard');
+                navigate('/candidate/dashboard', { replace: true });
             }
         };
 
         initializeInterface();
-    }, [examId, navigate]);
+    }, [examId, navigate, resumed, triggerViolation]);
 
     useEffect(() => {
-        if (timeLeft <= 0 && examData) return; // Only start timer once data is loaded
+        if (timeLeft <= 0 && examData) return;
 
         const timer = setInterval(() => {
             setTimeLeft(prev => {
@@ -110,7 +134,6 @@ export const ExamInterface = () => {
     const handleOptionSelect = async (questionId, optionId) => {
         setSelectedOptions(prev => ({ ...prev, [questionId]: optionId }));
         try {
-            // Only save if we have a submissionId (which we should after start)
             if (submissionId) await saveAnswer(submissionId, questionId, optionId);
         } catch (err) {
             console.error("Auto-save failed", err);
@@ -126,7 +149,12 @@ export const ExamInterface = () => {
         try {
             if (submissionId) await finalizeExam(submissionId);
             if (document.fullscreenElement) await document.exitFullscreen();
-            navigate('/candidate/dashboard', { state: { ExamSubmitted: true } });
+            
+            // Re-route with explicit cleanup state context
+            navigate('/candidate/dashboard', { 
+                replace: true, 
+                state: { ExamSubmitted: true } 
+            });
         } catch (error) {
             console.error("Submission failed", error);
         }
@@ -154,7 +182,7 @@ export const ExamInterface = () => {
                 timeLeft={timeLeft}
                 violationCount={violationCount}
                 onFinish={handleFinish}
-                isDanger={timeLeft <= 300} // 5 minutes warning
+                isDanger={timeLeft <= 300}
             />
 
             <main className="exam-body">

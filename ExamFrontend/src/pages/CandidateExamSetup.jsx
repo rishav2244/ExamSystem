@@ -20,6 +20,31 @@ export const CandidateExamSetup = () => {
     const [loading, setLoading] = useState(false);
     const [cameraCheckStarted, setCameraCheckStarted] = useState(false);
 
+    // ==========================================
+    // STATE VALIDATION & BACK-BUTTON LOCKDOWN
+    // ==========================================
+    useEffect(() => {
+        // Guard clause: If a user clicks "Back" after finishing an exam,
+        // history.state will be empty or missing critical identifiers.
+        if (!candidateExamId || !email) {
+            navigate("/candidate/dashboard", { replace: true });
+            return;
+        }
+
+        // Trap the user on this page so they can't casually press back/forward
+        const lockSetupHistory = () => {
+            window.history.pushState(null, document.title, window.location.href);
+        };
+
+        window.history.pushState(null, document.title, window.location.href);
+        window.addEventListener('popstate', lockSetupHistory);
+
+        return () => {
+            window.removeEventListener('popstate', lockSetupHistory);
+        };
+    }, [candidateExamId, email, navigate]);
+    // ==========================================
+
     const allChecksPassed =
         cameraAllowed &&
         micAllowed &&
@@ -28,11 +53,13 @@ export const CandidateExamSetup = () => {
         cameraCheckStarted;
 
     useEffect(() => {
-        runSystemChecks();
+        if (candidateExamId && email) {
+            runSystemChecks();
+        }
         return () => {
             if (captureIntervalRef.current) clearInterval(captureIntervalRef.current);
         };
-    }, []);
+    }, [candidateExamId, email]);
 
     const runSystemChecks = () => {
         navigator.mediaDevices
@@ -62,25 +89,22 @@ export const CandidateExamSetup = () => {
         }, 5000);
     };
 
-    // CandidateExamSetup.jsx
     const handleStartExam = async () => {
         setLoading(true);
 
-        // Clear the local camera check interval
         if (captureIntervalRef.current) clearInterval(captureIntervalRef.current);
 
         try {
             if (action === "RESUME") {
-                // SMART MOVE: Don't call POST /start. 
-                // Just go to the room; the room's GET /exam/{id} will handle everything.
+                // Using replace: true so the setup page is cleared from history
                 navigate("/candidate/exam-room", {
+                    replace: true,
                     state: {
                         examId: candidateExamId,
                         resumed: true
                     }
                 });
             } else {
-                // FRESH START: We need to create the submission record via POST
                 const resp = await startExam(
                     candidateExamId,
                     name,
@@ -88,7 +112,9 @@ export const CandidateExamSetup = () => {
                     "Browser-Client"
                 );
 
+                // Using replace: true so the setup page is cleared from history
                 navigate("/candidate/exam-room", {
+                    replace: true,
                     state: {
                         examId: candidateExamId,
                         resumed: false
@@ -96,8 +122,9 @@ export const CandidateExamSetup = () => {
                 });
             }
         } catch (err) {
-            // If it's a 400 because a submission already exists, we could also just force navigate
             alert(err.response?.data || "Failed to initialize exam session.");
+            // Send them back to safe territory if backend rejects initialization
+            navigate("/candidate/dashboard", { replace: true });
         } finally {
             setLoading(false);
         }
@@ -108,6 +135,9 @@ export const CandidateExamSetup = () => {
         { id: 'mic', label: "Microphone Access", status: micAllowed },
         { id: 'loc', label: "Location Services", status: locationAllowed },
     ];
+
+    // Render nothing if safety checks push the user away
+    if (!candidateExamId || !email) return null;
 
     return (
         <div className="candidate-setup-container">
