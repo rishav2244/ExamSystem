@@ -6,6 +6,7 @@ import { AdminUserHeader } from '../components/headerType/AdminUserHeader';
 import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
 import { AdminUsersTableBody } from '../components/tableType/AdminUsers/AdminUsersTableBody';
 import { PageBar } from '../components/barType/PageBar';
+import styles from './css/UserDashboard.module.css'; // Importing clean, isolated styles
 
 export const UserList = () => {
     const isInitialMount = useRef(true);
@@ -59,29 +60,39 @@ export const UserList = () => {
     };
 
     return (
-        <div className="UserListOverall">
-            <div className="AdminUserSection">
-                <AdminUserHeader
-                    searchBar={handleSearchChange}
-                    setIsCreateModalOpen={handleCreateModalOpen}
-                    userCount={pageData.totalElements}
-                />
-
-                <table className="UserTable">
-                    <TableHeader headerArray={tableHeaders} />
-                    <AdminUsersTableBody
-                        pageData={pageData}
-                        setSelectedUser={handleUserSelection}
+        <div className={styles.dashboardContainer}>
+            <div className={styles.userSectionCard}>
+                {/* Search & Action bar wrapper */}
+                <div className={styles.sectionHeaderWrapper}>
+                    <AdminUserHeader
+                        searchBar={handleSearchChange}
+                        setIsCreateModalOpen={handleCreateModalOpen}
+                        userCount={pageData.totalElements}
                     />
-                </table>
+                </div>
 
-                <PageBar
-                    currentPage={currentPage}
-                    totalPages={pageData.totalPages}
-                    handlePageChange={handlePageChange}
-                />
+                {/* Fluid Table Responsive Viewport */}
+                <div className={styles.tableResponsiveContainer}>
+                    <table className={styles.userTable}>
+                        <TableHeader headerArray={tableHeaders} />
+                        <AdminUsersTableBody
+                            pageData={pageData}
+                            setSelectedUser={handleUserSelection}
+                        />
+                    </table>
+                </div>
+
+                {/* Pagination Controls Footer Container */}
+                <div className={styles.paginationFooterWrapper}>
+                    <PageBar
+                        currentPage={currentPage}
+                        totalPages={pageData.totalPages}
+                        handlePageChange={handlePageChange}
+                    />
+                </div>
             </div>
 
+            {/* Modals remain structurally untouched to protect functionality */}
             {isCreateModalOpen && (
                 <CreateUserModal
                     onClose={() => setIsCreateModalOpen(false)}
