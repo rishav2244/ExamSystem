@@ -1,0 +1,214 @@
+/* Sidebar Container */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background-color: #1e293b; /* Modern dark slate color */
+    color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+/* Top Branding / Welcome Section */
+.sidebarBrand {
+    padding: 24px 20px;
+    border-bottom: 1px solid #334155;
+}
+
+.welcomeText {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.welcomeText span {
+    color: #f8fafc;
+    font-weight: 600;
+    display: block;
+    margin-top: 4px;
+    font-size: 1.1rem;
+}
+
+/* Navigation Menu */
+.sidebarNav {
+    flex: 1;
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+/* Nav Items */
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    color: #94a3b8;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.navItem:hover {
+    background-color: #334155;
+    color: #f8fafc;
+}
+
+/* React Router Active State */
+.active {
+    background-color: #3b82f6; /* Accent blue */
+    color: #ffffff;
+}
+
+.active:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.navText {
+    font-size: 0.95rem;
+}
+
+/* Profile Section (Sticky Bottom) */
+.profileContainer {
+    position: relative;
+    padding: 16px;
+    border-top: 1px solid #334155;
+    background-color: #0f172a; /* Slightly darker shade for contrast */
+}
+
+.profileToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.profileToggle:hover {
+    background-color: #1e293b;
+}
+
+.profileInfoSummary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 80%;
+}
+
+.profileIcon {
+    background-color: #334155;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    flex-shrink: 0;
+}
+
+.profileMetaText {
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+.truncatedName {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.roleText {
+    margin: 4px 0 0 0;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: capitalize;
+}
+
+/* Profile Dropup Menu */
+.profileDropdown {
+    position: absolute;
+    bottom: calc(100% + 10px); /* Pushes the menu up above the profile strip */
+    left: 16px;
+    right: 16px;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownHeader {
+    padding-bottom: 4px;
+}
+
+.profileName {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #f8fafc;
+}
+
+.profileRole {
+    margin: 4px 0 0 0;
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid #334155;
+    margin: 10px 0;
+}
+
+/* Logout Button */
+.logoutBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    color: #ef4444; /* Alert red */
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-align: left;
+}
+
+.logoutBtn:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
