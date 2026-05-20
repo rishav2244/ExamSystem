@@ -1,0 +1,255 @@
+.CandidateSetupContainer {
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  color: #1e293b;
+}
+
+/* Transitions */
+.StepFadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typography */
+.SetupTitle {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  text-align: center;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+}
+
+.InstructionsSub {
+  text-align: center;
+  color: #64748b;
+  margin-bottom: 32px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Rules Component Grid */
+.RulesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 35px;
+}
+
+.RuleItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.RuleIcon {
+  font-size: 24px;
+  background: white;
+  padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+
+.RuleItem strong {
+  display: block;
+  font-size: 15px;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.RuleItem p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Integrity Checklist */
+.IntegrityChecklist {
+  margin-bottom: 32px;
+}
+
+.ChecklistRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ItemLabel {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+/* Status Tags */
+.StatusTag {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.Ready {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.Denied {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.Pending {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+/* Permission Fix Box */
+.PermissionErrorBox {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: #fff1f2;
+  border-radius: 12px;
+  border: 1px solid #fecdd3;
+}
+
+.ErrorText {
+  color: #991b1b;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.RetryBtn {
+  padding: 8px 16px;
+  background: #be123c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.FixHintContainer {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #475569;
+  border-top: 1px solid #fecdd3;
+  padding-top: 12px;
+}
+
+.FixHintContainer h4 {
+  margin-bottom: 4px;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+/* Camera Section */
+.CameraVerification {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.VerificationTrigger {
+  width: 100%;
+  padding: 14px;
+  background: white;
+  border: 2px dashed #cbd5e1;
+  color: #2563eb;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.WebcamPreview {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 4px solid #f1f5f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  line-height: 0;
+}
+
+/* Consent Wrapper */
+.ConsentWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: #fffbeb;
+  border-radius: 12px;
+  border: 1px solid #fef3c7;
+  margin-bottom: 32px;
+}
+
+.ConsentWrapper input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #2563eb;
+}
+
+.ConsentWrapper label {
+  font-size: 14px;
+  color: #92400e;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Action Buttons */
+.ActionRow {
+  display: flex;
+  gap: 12px;
+}
+
+.FinalStartButton {
+  flex: 1;
+  padding: 18px;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  background: #2563eb;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.FinalStartButton:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.FinalStartButton:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.SecondaryBtn {
+  padding: 0 24px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
