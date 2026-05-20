@@ -14,7 +14,8 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
         startTime: "",
         endTime: "",
         status: "",
-        createdBy: ""
+        createdBy: "",
+        allowResume: false
     });
 
     useEffect(() => {
@@ -26,11 +27,12 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
     }, [email]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
 
         setExamData(prev => ({
             ...prev,
-            [name]: value
+            // If the input type is checkbox, use 'checked' (boolean), else use 'value'
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
 
@@ -80,6 +82,7 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                 endTime: new Date(examData.endTime).toISOString(),
                 status: examData.status,
                 createdBy: examData.createdBy,
+                allowResume: examData.allowResume,
             };
 
             console.log("Submitting exam:", examDetailsJSON);
@@ -90,7 +93,7 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                 examDetailsJSON.startTime,
                 examDetailsJSON.endTime,
                 examDetailsJSON.status,
-                examDetailsJSON.createdBy
+                examDetailsJSON.allowResume
             );
 
             showPopup("Exam created successfully!", "success");
@@ -159,6 +162,17 @@ export const CreateExamModal = ({ onClose, onExamCreated }) => {
                                 id="endTime"
                                 value={examData.endTime}
                                 onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group checkbox-group">
+                            <label htmlFor="allowResume">Allow resume?</label>
+                            <input
+                                type="checkbox"
+                                name="allowResume"
+                                id="allowResume"
+                                checked={examData.allowResume}
+                                onChange={handleChange}
+                            />
                         </div>
 
                         <button

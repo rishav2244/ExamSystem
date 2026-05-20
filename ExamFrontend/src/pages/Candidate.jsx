@@ -1,18 +1,17 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthenticationContext } from "../context/AuthenticationContext";
 import { CandidateExamCard } from "../components/cardType/CandidateExamCard";
-import { CandidateHeader } from "../components/headerType/CandidateHeader";
 import { getCandidateDashboard, checkCandidateEligibility } from "../api/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useNotification } from "../components/popupType/NotificationContext";
 
-import styles from "./css/Candidate.module.css"
+import styles from "./css/Candidate.module.css";
 
 export const Candidate = () => {
     const { email, name } = useContext(AuthenticationContext);
     const [exams, setExams] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [eligibleExams, setEligibleExams] = useState({});
+    const [eligibilityData, setEligibilityData] = useState({});
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -33,7 +32,6 @@ export const Candidate = () => {
     }, [email]);
 
     useEffect(() => {
-
         if (location.state?.ExamSubmitted) {
             showNotification("Exam submitted successfully.");
             navigate(location.pathname, { replace: true, state: {} });
@@ -41,11 +39,14 @@ export const Candidate = () => {
     }, [loading, location.state, showNotification, navigate]);
 
     const handleEligibilityCheck = async (examId) => {
+        const cached = eligibilityData[examId];
 
-        if (eligibleExams[examId]) {
+        if (cached) {
             navigate("/candidate/exam-setup", {
                 state: {
                     candidateExamId: examId,
+                    submissionId: cached.submissionId,
+                    action: cached.action,
                     email: email,
                     name: name
                 }
@@ -54,18 +55,26 @@ export const Candidate = () => {
         }
 
         try {
-            await checkCandidateEligibility(examId, email);
+            const result = await checkCandidateEligibility(examId);
 
-            setEligibleExams((prev) => ({
+            setEligibilityData((prev) => ({
                 ...prev,
-                [examId]: true
+                [examId]: {
+                    action: result.action,
+                    submissionId: result.submissionId
+                }
             }));
 
         } catch (err) {
-            alert(err.response?.data || "Not eligible to start exam");
+            let errorText = "Not eligible to start exam";
+            if (err.response?.data) {
+                errorText = typeof err.response.data === 'string' 
+                    ? err.response.data 
+                    : (err.response.data.message || "Eligibility check failed");
+            }
+            showNotification(errorText, "error");
         }
     };
-
 
     if (loading) {
         return <p className={styles.LoadingText}>Loading your exams...</p>;
@@ -73,20 +82,12 @@ export const Candidate = () => {
 
     return (
         <div className={styles.CandidateDashboard}>
-
             <div className={styles.DashboardHeader}>
-                <h2 className={styles.DashboardTitle}>Candidate Dashboard</h2>
-
-                <button
-                    className={styles.ViewResultsBtn}
-                    onClick={() => navigate("/candidate/results")}
-                >
-                    View Results
-                </button>
+                <h2 className={styles.DashboardTitle}>Available Assessments</h2>
             </div>
 
             {exams.length === 0 && (
-                <p className={styles.EmptyText}>No exams assigned.</p>
+                <p className={styles.EmptyText}>No exams currently assigned to your account.</p>
             )}
 
             <div className={styles.CandidateExamList}>
@@ -95,7 +96,7 @@ export const Candidate = () => {
                         key={exam.examId}
                         exam={exam}
                         onJoin={handleEligibilityCheck}
-                        isEligible={eligibleExams[exam.examId]}
+                        eligibilityAction={eligibilityData[exam.examId]?.action}
                     />
                 ))}
             </div>

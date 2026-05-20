@@ -4,9 +4,11 @@ import com.company.ExamBackend.config.JwtUtils;
 import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.exception.*;
 import com.company.ExamBackend.mapper.UserMapper;
+import com.company.ExamBackend.model.PasswordResetToken;
 import com.company.ExamBackend.model.PendingRegistration;
 import com.company.ExamBackend.model.RefreshToken;
 import com.company.ExamBackend.model.Users;
+import com.company.ExamBackend.repository.PasswordResetTokenRepository;
 import com.company.ExamBackend.repository.PendingRegistrationRepository;
 import com.company.ExamBackend.repository.RefreshTokenRepository;
 import com.company.ExamBackend.repository.UserRepository;
@@ -14,7 +16,6 @@ import com.company.ExamBackend.service.EmailService;
 import com.company.ExamBackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PendingRegistrationRepository pendingRegistrationRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     private final UserMapper userMapper;
     private final EmailService emailService;
@@ -49,7 +52,10 @@ public class UserServiceImpl implements UserService {
     private int passwordMaxLength;
 
     @Value("${app.registration.max-attempts:6}")
-    private int maxAttempts;
+    private int registrationMaxAttempts;
+
+    @Value("${app.forgot-password.max-attempts:6}")
+    private int forgotPwMaxAttempts;
 
     @Value("${app.registration.lockout-message:Account locked due to too many attempts.}")
     private String lockoutMessage;
@@ -77,13 +83,13 @@ public class UserServiceImpl implements UserService {
         updatePendingDetails(pending, dto, rawOtp);
 
         pendingRegistrationRepository.save(pending);
-        emailService.sendOtp(email, rawOtp);
+        emailService.sendRegistrationOtp(email, rawOtp);
 
         return new RegistrationResponseDTO(
                 "OTP sent to " + email,
                 otpTtl / 1000,   // Expiry timer for FE
                 resendDelay / 1000, // Resend button delay for FE
-                maxAttempts
+                registrationMaxAttempts
         );
     }
 
@@ -160,9 +166,61 @@ public class UserServiceImpl implements UserService {
         // We do NOT reset attempts here to prevent brute force resetting
 
         pendingRegistrationRepository.save(pending);
-        emailService.sendOtp(normalizedEmail, newOtp);
+        emailService.sendRegistrationOtp(normalizedEmail, newOtp);
 
         return new ResendResponseDTO(true, "A new OTP has been sent.", resendDelay / 1000);
+    }
+
+    @Transactional
+    @Override
+    public ResendResponseDTO resendForgotPasswordOtp(ForgotPasswordDTO dto) {
+        String email = dto.getEmail().toLowerCase().trim();
+        log.info("Resend password OTP requested for: {}", email);
+
+        // 1. Check if user exists (to prevent sending emails to non-existent users)
+        Optional<Users> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            // 2. Find existing token
+            Optional<PasswordResetToken> tokenOpt = passwordResetTokenRepository.findByEmail(email);
+
+            if (tokenOpt.isPresent()) {
+                PasswordResetToken token = tokenOpt.get();
+
+                // 3. Check Cooldown (Lockout from too many wrong guesses)
+                if (token.getCooldownUntil() != null && token.getCooldownUntil().isAfter(Instant.now())) {
+                    log.warn("Resend blocked: User {} is currently locked out.", email);
+                    return new ResendResponseDTO(true, "If an account exists, a new OTP has been sent.", resendDelay / 1000);
+                }
+
+                // 4. Rate Limit (Preventing button spamming)
+                Instant lastGenerated = token.getExpiryDate().minusMillis(otpTtl);
+                long millisSinceLast = java.time.Duration.between(lastGenerated, Instant.now()).toMillis();
+
+                if (millisSinceLast < resendDelay) {
+                    // We can throw an exception here because "Too many requests" doesn't leak
+                    // account existence (it just says "Stop clicking so fast")
+                    long remainingSeconds = (resendDelay - millisSinceLast) / 1000;
+                    throw new InvalidActionException("Please wait " + remainingSeconds + " seconds.");
+                }
+
+                // 5. Refresh and Send
+                String newOtp = generateNumericOtp();
+                token.setOtp(passwordEncoder.encode(newOtp));
+                token.setExpiryDate(Instant.now().plusMillis(otpTtl));
+                passwordResetTokenRepository.save(token);
+
+                emailService.sendForgotPasswordOtp(email, newOtp);
+            } else {
+                // No token found? Treat as a fresh forgot-password request
+                forgotPassword(dto);
+            }
+        } else {
+            log.info("Resend requested for non-existent email: {}. Ignored silently.", email);
+        }
+
+        // Always return success to the UI
+        return new ResendResponseDTO(true, "If an account exists, a new OTP has been sent.", resendDelay / 1000);
     }
 
     @Transactional
@@ -185,6 +243,99 @@ public class UserServiceImpl implements UserService {
         verifyCurrentPassword(passwordResetDTO.getOldPassword(), user.getPassword());
         user.setPassword(passwordEncoder.encode(passwordResetDTO.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public RegistrationResponseDTO forgotPassword(ForgotPasswordDTO forgotPasswordDTO) {
+        String email = forgotPasswordDTO.getEmail().toLowerCase().trim();
+        log.info("Password reset requested for email: {}", email);
+
+        // 1. Find the user
+        Optional<Users> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            Users user = userOpt.get();
+
+            // 2. Reuse logic to check if they are currently locked out
+            PasswordResetToken existingToken = passwordResetTokenRepository.findByEmail(user.getEmail()).orElse(null);
+
+            if (existingToken != null) {
+                // Check Cooldown
+                if (existingToken.getCooldownUntil() != null &&
+                        existingToken.getCooldownUntil().isAfter(Instant.now())) {
+                    log.warn("Reset blocked by cooldown for user: {}", email);
+                    // Return generic DTO even if blocked to prevent enumeration
+                    return buildResetResponse(email);
+                }
+                // Clear old token to issue a fresh one
+                passwordResetTokenRepository.delete(existingToken);
+            }
+
+            // 3. Generate and Save new Token
+            String rawOtp = generateNumericOtp();
+            PasswordResetToken newToken = new PasswordResetToken();
+            newToken.setEmail(user.getEmail());
+            newToken.setOtp(passwordEncoder.encode(rawOtp));
+            newToken.setExpiryDate(Instant.now().plusMillis(otpTtl));
+            newToken.setAttempts(0);
+            newToken.setUsed(false);
+
+            passwordResetTokenRepository.save(newToken);
+
+            // 4. Send Email
+            emailService.sendForgotPasswordOtp(email, rawOtp);
+            log.info("Password reset OTP sent to existing user: {}", email);
+        } else {
+            log.info("Password reset requested for non-existent email: {}. No action taken.", email);
+        }
+
+        // Always return the DTO with generic message
+        return buildResetResponse(email);
+    }
+
+    @Transactional(noRollbackFor = {PasswordMismatchException.class, InvalidActionException.class})
+    @Override
+    public ResetAttemptResponseDTO verifyAndResetPassword(ResetPasswordVerifyDTO dto) {
+        String email = dto.getEmail().toLowerCase().trim();
+        log.info("Attempting password reset verification for: {}", email);
+
+        // 1. Find the token by email string
+        PasswordResetToken token = passwordResetTokenRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidActionException("Invalid request or OTP expired."));
+
+        // 2. Validate state (Expiry & Cooldown)
+        validateResetTokenState(token);
+
+        // 3. Verify OTP
+        if (!passwordEncoder.matches(dto.getOtp(), token.getOtp())) {
+            handleFailedResetAttempt(token);
+            // This is where we return the DTO that the user sees
+//            throw new PasswordMismatchException("Invalid OTP.");
+            return userMapper.toResetAttemptResponse(
+                    false,
+                    Math.max(0,(forgotPwMaxAttempts - token.getAttempts())));
+        }
+
+        // 4. OTP is correct - Now check if the user actually exists to perform the update
+        Optional<Users> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isPresent()) {
+            Users user = userOpt.get();
+            validatePasswordLength(dto.getPassword());
+
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+            user.setTokenLastRefreshed(Instant.now()); // Invalidate existing sessions
+            userRepository.save(user);
+            log.info("Password successfully reset for user: {}", email);
+        } else {
+            // If user doesn't exist, we do nothing but we DON'T tell the frontend.
+            log.warn("Valid OTP submitted for non-existent email: {}. No update performed.", email);
+        }
+
+        // 5. Cleanup
+        passwordResetTokenRepository.delete(token);
+        return userMapper.toResetAttemptResponse(true,0);
     }
 
     @Override
@@ -357,7 +508,7 @@ public class UserServiceImpl implements UserService {
 
             log.warn("Incorrect OTP attempt #{} for {}", currentAttempts, pending.getEmail());
 
-            if (currentAttempts >= maxAttempts) {
+            if (currentAttempts >= registrationMaxAttempts) {
                 log.error("User {} reached max attempts. Locking account.", pending.getEmail());
                 lockOutUser(pending);
                 throw new InvalidActionException(lockoutMessage);
@@ -365,7 +516,7 @@ public class UserServiceImpl implements UserService {
 
             pendingRegistrationRepository.save(pending);
             throw new PasswordMismatchException(
-                    String.format("Invalid OTP. Attempts remaining: %d", (maxAttempts - currentAttempts))
+                    String.format("Invalid OTP. Attempts remaining: %d", (registrationMaxAttempts - currentAttempts))
             );
         }
         log.info("OTP match confirmed for {}", pending.getEmail());
@@ -479,4 +630,38 @@ public class UserServiceImpl implements UserService {
         String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email == null || !email.matches(regex);
     }
+
+    private void validateResetTokenState(PasswordResetToken token) {
+        Instant now = Instant.now();
+
+        if (token.getCooldownUntil() != null && token.getCooldownUntil().isAfter(now)) {
+            throw new InvalidActionException("Too many failed attempts. Please try again later.");
+        }
+
+        if (token.getExpiryDate().isBefore(now)) {
+            passwordResetTokenRepository.delete(token);
+            throw new InvalidActionException("OTP has expired. Please request a new one.");
+        }
+    }
+
+    private void handleFailedResetAttempt(PasswordResetToken token) {
+        int currentAttempts = token.getAttempts() + 1;
+        token.setAttempts(currentAttempts);
+
+        if (currentAttempts >= forgotPwMaxAttempts) {
+            token.setCooldownUntil(Instant.now().plusMillis(cooldownDuration));
+            log.warn("Email {} locked out of password reset due to max attempts.", token.getEmail());
+        }
+
+        passwordResetTokenRepository.save(token);
+    }
+    private RegistrationResponseDTO buildResetResponse(String email) {
+        return new RegistrationResponseDTO(
+                "If an account exists, an OTP has been sent to " + email,
+                otpTtl / 1000,
+                resendDelay / 1000,
+                forgotPwMaxAttempts
+        );
+    }
+
 }

@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: ExamBackend
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false #Apparently it helps with debugging. Set to false now that I have logger.
+
+server:
+  port: ${SERVER_PORT}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
+    access-expiration: ${JWT_ACCESS_EXPIRATION:900000}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+  security:
+    default-admin-name: ${DEFAULT_ADMIN_NAME}
+    default-admin-email: ${DEFAULT_ADMIN_EMAIL}
+    default-admin-password: ${DEFAULT_ADMIN_PASSWORD}
+    default-candidate-password: ${DEFAULT_CANDIDATE_PASSWORD}
+    candidate-password-max-length: ${CANDIDATE_PASSWORD_MAX_LENGTH}
+  registration:
+    max-attempts: ${MAX_OTP_ATTEMPTS}
+    otp-ttl: ${OTP_TTL_IN_MS}
+    cooldown-duration: ${CANDIDATE_REGISTRATION_COOLDOWN_IN_MS}
+    lockout-message: ${CANDIDATE_REGISTRATION_LOCKOUT_MESSAGE}
+    resend-delay: ${RESEND_OTP_DELAY_MS:60000}
+  forgot-password:
+    max-attempts: ${MAX_OTP_ATTEMPTS}
+  schedulers:
+    otp-cleanup-rate: ${OTP_CLEANUP_RATE_IN_MS:60000}
+    orphan-exam-cleanup-rate: ${ORPHAN_EXAMS_CLEANUP_RATE_IN_MS:60000}
+    token-cleanup-rate: ${TOKEN_CLEANUP_RATE_IN_MS:3600000}
+
+logging:
+  level:
+    root: ${LOGGER_ROOT}
+    com.company.ExamBackend: ${APPLICATION_LOGGER_TYPE}
+    org.hibernate.SQL: ${HIBERNATE_LOGGER_TYPE}

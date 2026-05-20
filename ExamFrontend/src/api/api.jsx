@@ -51,7 +51,7 @@ export const registerCandidate = async (name, email, password) => {
     }
 };
 
-export const verifyOtp = async (email, otp) => {
+export const verifyRegistrationOtp = async (email, otp) => {
 
     const payload = {
         email,
@@ -60,7 +60,7 @@ export const verifyOtp = async (email, otp) => {
 
     try {
         const resp = await axios.post(
-            `${API_URL}/user/verify-otp`,
+            `${API_URL}/user/verify-registration-otp`,
             payload
         );
 
@@ -71,9 +71,9 @@ export const verifyOtp = async (email, otp) => {
     }
 };
 
-export const resendOtp = async (email) => {
+export const resendRegistrationOtp = async (email) => {
     try {
-        const resp = await axios.post(`${API_URL}/user/resend-otp`, null, {
+        const resp = await axios.post(`${API_URL}/user/resend-registration-otp`, null, {
             params: { email }
         });
         return resp.data;
@@ -102,13 +102,73 @@ export const resetPassword = async (oldPassword, newPassword) => {
     }
 };
 
-export const createExam = async (title, duration, startTime, endTime, status, createdBy) => {
+/**
+ * Triggers the forgot password flow.
+ * Handles the RegistrationResponseDTO containing timers and attempt counts.
+ * Returns: { message: string, ttlSeconds: number, resendSeconds: number, maxAttempts: number }
+ */
+export const requestForgotPassword = async (email) => {
+    const payload = { email: email.toLowerCase().trim() };
+    try {
+        const resp = await axios.post(`${API_URL}/user/forgot-password`, payload);
+        // resp.data now matches RegistrationResponseDTO structure
+        return resp.data;
+    } catch (err) {
+        console.error("Forgot password request failed:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
+/**
+ * Verifies the OTP and updates the password in a single step.
+ * Returns ResetAttemptResponseDTO: { success: boolean, attemptsLeft: number }
+ */
+export const verifyAndResetPassword = async (email, otp, password) => {
+    const payload = {
+        email: email.toLowerCase().trim(),
+        otp,
+        password
+    };
+
+    try {
+        const resp = await axios.post(
+            `${API_URL}/user/verify-reset-password`,
+            payload
+        );
+        // resp.data will be the ResetAttemptResponseDTO
+        return resp.data;
+    } catch (err) {
+        // This will catch 400 errors (Expired OTP or Locked account)
+        console.error("Password reset failed:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
+/**
+ * Resends the forgot password OTP.
+ * Backend returns generic success even if email doesn't exist (Enumeration Protection).
+ * Returns: { success: boolean, message: string, resendDelaySeconds: number }
+ */
+export const resendForgotPassword = async (email) => {
+    const payload = { email: email.toLowerCase().trim() };
+    try {
+        const resp = await axios.post(`${API_URL}/user/resend-forgot-password`, payload);
+        return resp.data;
+    } catch (err) {
+        // This will catch 400 errors (like clicking resend too fast)
+        console.error("Resend forgot password failed:", err.response?.data || err.message);
+        throw err;
+    }
+};
+
+export const createExam = async (title, duration, startTime, endTime, status, allowResume) => {
     const createExamReqJSON = {
         title: title,
         duration: duration,
         startTime: startTime,
         endTime: endTime,
         status: status,
+        allowResume: allowResume
     }
     try {
         const resp = await axios.post(`${API_URL}/exams/createExam`, createExamReqJSON);
@@ -196,12 +256,30 @@ export const publishExam = async (examId) => {
         throw err;
     }
 };
+
 export const resendInvitation = async (candidateId) => {
     try {
         const resp = await axios.post(`${API_URL}/exams/candidates/resend-invitation/${candidateId}`);
         return resp.data;
     } catch (err) {
         console.error("Failed to resend invitation:", err);
+        throw err;
+    }
+};
+
+/**
+ * Removes a candidate from an exam.
+ * payload: { examId: string, email: string }
+ */
+export const removeCandidateFromExam = async (examId, email) => {
+    try {
+        const payload = { examId, email };
+        const resp = await axios.delete(`${API_URL}/candidate/remove`, {
+            data: payload
+        });
+        return resp.data;
+    } catch (err) {
+        console.error("Error removing candidate:", err.response?.data || err.message);
         throw err;
     }
 };
@@ -313,7 +391,7 @@ export const getCandidateDashboard = async (email) => {
 export const checkCandidateEligibility = async (examId, email) => {
     try {
         const resp = await axios.get(
-            `${API_URL}/candidateUser/eligibility/${examId}/${email}`
+            `${API_URL}/candidateUser/eligibility/${examId}`
         );
         return resp.data;
     } catch (err) {
@@ -336,6 +414,11 @@ export const startExam = async (examId, name, email, location) => {
 
 export const fetchExamContent = async (examId) => {
     const resp = await axios.get(`${API_URL}/candidateUser/exam/${examId}`);
+    return resp.data;
+};
+
+export const resumeExam = async (examId) => {
+    const resp = await axios.post(`${API_URL}/candidateUser/resume`, { examId });
     return resp.data;
 };
 

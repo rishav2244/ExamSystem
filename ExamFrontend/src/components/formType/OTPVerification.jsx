@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { resendOtp } from "../../api/api";
+import { resendRegistrationOtp } from "../../api/api";
 
 export const OtpVerification = ({ email, otp, setOtp, onSubmit, loading, initialResendDelay, setMessage }) => {
     const [secondsLeft, setSecondsLeft] = useState(initialResendDelay);
@@ -14,7 +14,7 @@ export const OtpVerification = ({ email, otp, setOtp, onSubmit, loading, initial
 
     const handleResend = async () => {
         try {
-            const data = await resendOtp(email);
+            const data = await resendRegistrationOtp(email);
             console.log(data);
             setSecondsLeft(data.waitTimeSeconds);
             setMessage(data.message);

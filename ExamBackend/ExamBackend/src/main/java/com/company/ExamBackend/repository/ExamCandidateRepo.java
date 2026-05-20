@@ -61,9 +61,13 @@ public interface ExamCandidateRepo extends JpaRepository<ExamCandidate,String> {
             "FROM ExamCandidate ec " +
             "JOIN ec.exam e " +
             "WHERE ec.email = :email " +
-            "AND (ec.status = 'INVITED' " +
-            "OR (ec.status = 'ATTEMPTED' " +
-            "AND e.allowResume = TRUE)) " +
-            "AND :now BETWEEN e.startTime AND e.endTime")
+            "AND :now BETWEEN e.startTime AND e.endTime " +
+            "AND ec.status != 'COMPLETED' " + // Use a terminal status
+            "AND NOT EXISTS (" +
+            "  SELECT s FROM Submission s " +
+            "  WHERE s.candidateEmail = :email " +
+            "  AND s.exam.id = e.id " +
+            "  AND s.status = 'COMPLETED'" + // Or whatever your final status is
+            ")")
     List<ExamCandidate> findActiveDashboardExams(String email, Instant now);
 }

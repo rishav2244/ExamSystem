@@ -6,6 +6,7 @@ import { AdminExamHeader } from '../components/headerType/AdminExamHeader';
 import { TableHeader } from '../components/tableType/CandidateResultsTableHeader';
 import { AdminExamsTableBody } from '../components/tableType/AdminExams/AdminExamsTableBody';
 import { PageBar } from '../components/barType/PageBar';
+import styles from './css/AdminDashboard.module.css'; // Using isolated styling
 
 export const Admin = () => {
     const [listExams, setListExams] = useState([]);
@@ -20,7 +21,7 @@ export const Admin = () => {
         "Exam name",
         "Status",
         "Actions"
-    ]
+    ];
 
     const fetchExams = useCallback(async (page, query = searchTerm) => {
         try {
@@ -47,52 +48,62 @@ export const Admin = () => {
 
     const searchChange = (searchQuery) => {
         setSearchTerm(searchQuery);
-    }
+    };
 
     const onExamSelected = (exam) => {
         setSelectedExam(exam);
-    }
+    };
 
     useEffect(() => {
         fetchExams(0);
     }, [searchTerm, fetchExams]);
 
     return (
-        <div className="AdminOverall">
-            <div className="AdminExamSection">
-                <AdminExamHeader
-                    debouncedSearchTerm={searchChange}
-                    setIsCreateModalOpen={setIsCreateModalOpen}
-                />
-
-                <table className="ExamTable">
-                    <TableHeader
-                        headerArray={tableHeader}
+        <div className={styles.dashboardContainer}>
+            <div className={styles.examSectionCard}>
+                {/* Search & Action bar wrapper */}
+                <div className={styles.sectionHeaderWrapper}>
+                    <AdminExamHeader
+                        debouncedSearchTerm={searchChange}
+                        setIsCreateModalOpen={setIsCreateModalOpen}
                     />
-                    <AdminExamsTableBody
-                        examSelected={onExamSelected}
-                        listExams={listExams}
-                    />
-                </table>
+                </div>
 
-                <PageBar
-                    currentPage={currentPage}
-                    handlePageChange={handlePageChange}
-                    totalPages={totalPages}
-                />
+                {/* Fluid Table Responsive Viewport */}
+                <div className={styles.tableResponsiveContainer}>
+                    <table className={styles.examTable}>
+                        <TableHeader headerArray={tableHeader} />
+                        <AdminExamsTableBody
+                            examSelected={onExamSelected}
+                            listExams={listExams}
+                        />
+                    </table>
+                </div>
+
+                {/* Pagination Controls Footer Container */}
+                <div className={styles.paginationFooterWrapper}>
+                    <PageBar
+                        currentPage={currentPage}
+                        handlePageChange={handlePageChange}
+                        totalPages={totalPages}
+                    />
+                </div>
             </div>
 
+            {/* Modals remain structurally untouched to protect functionality */}
             {isCreateModalOpen && (
                 <CreateExamModal
                     onClose={() => setIsCreateModalOpen(false)}
-                    onExamCreated={() => fetchExams(currentPage)} />
+                    onExamCreated={() => fetchExams(currentPage)} 
+                />
             )}
 
             {SelectedExam && (
                 <ExamDetailsModal
                     exam={SelectedExam}
                     onClose={() => setSelectedExam(null)}
-                    onQuestionsUploaded={() => fetchExams(currentPage)} />
+                    onQuestionsUploaded={() => fetchExams(currentPage)} 
+                />
             )}
         </div>
     );

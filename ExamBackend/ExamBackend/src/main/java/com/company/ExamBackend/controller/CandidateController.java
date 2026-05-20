@@ -1,6 +1,7 @@
 package com.company.ExamBackend.controller;
 
 import com.company.ExamBackend.dto.*;
+import com.company.ExamBackend.exception.EligibilityException;
 import com.company.ExamBackend.service.AnswerService;
 import com.company.ExamBackend.service.ExamCandidateService;
 import com.company.ExamBackend.service.ExamService;
@@ -9,9 +10,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,31 +45,48 @@ public class CandidateController {
     }
 
     @Operation(
-            summary = "Gets content of an exam.",
+            summary = "Gets content of an exam CASE: Fresh exam.",
             description = "Gets all questions, options, etc of an exam that the user has chosen to appear for." +
                     "Naturally, it does not send info about which option is correct. Do not search for that, " +
                     "backend will not give you that access."
     )
     @GetMapping("/exam/{examId}")
-    public ResponseEntity<CandidateExamDTO> getExamContent(@PathVariable String examId) {
-        return ResponseEntity.ok(examService.getExamForCandidate(examId));
+    public ResponseEntity<CandidateExamDTO> getExamContent(
+            @PathVariable String examId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(examService.getExamForCandidate(userDetails.getUsername(), examId));
     }
+//
+//    @Operation(
+//            summary = "Gets content of an exam CASE: Resuming exam.",
+//            description = "Checks if exam can be resumed and sends back exam data alongside existing candidate answers."
+//    )
+//    @PostMapping("/resume")
+//    public ResponseEntity<CandidateExamDTO> resume(
+//            @RequestBody ExamResumeRequestDTO examResumeRequestDTO,
+//            @AuthenticationPrincipal UserDetails userDetails
+//    ) {
+//        return ResponseEntity.ok(examService.getExamForCandidate(
+//                userDetails.getUsername(),
+//                examResumeRequestDTO.getExamId(),
+//                "Resume"
+//        ));
+//    }
 
     @Operation(
             summary = "Checks eligibility for an exam.",
             description = "Checks if candidate is eligible for the exam. Mainly used to ensure candidates don't" +
                     "do a lot of usual sneaky stuff."
     )
-    @GetMapping("/eligibility/{examId}/{email}")
+    @GetMapping("/eligibility/{examId}")
     public ResponseEntity<?> checkEligibility(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable String examId,
-            @PathVariable(required = false) String email) {
+            @PathVariable String examId) {
         try {
-            submissionService.checkEligibility(examId, email);
-            return ResponseEntity.ok("Eligible to start.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
+            EligibilityResponseDTO response = submissionService.checkEligibility(examId, userDetails.getUsername());
+            return ResponseEntity.ok(response);
+        } catch (EligibilityException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Not eligible.");
         }
     }
 

@@ -1,5 +1,6 @@
 package com.company.ExamBackend.scheduler;
 
+import com.company.ExamBackend.repository.PasswordResetTokenRepository;
 import com.company.ExamBackend.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.time.Instant;
 public class TokenCleanupScheduler {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Transactional
     @Scheduled(fixedRateString = "${app.schedulers.token-cleanup-rate:3600000}")
@@ -25,6 +27,18 @@ public class TokenCleanupScheduler {
             log.info("Cleanup cycle for expired tokens completed.");
         } catch (Exception e) {
             log.error("Failed to purge expired tokens: {}", e.getMessage());
+        }
+    }
+
+    @Transactional
+    @Scheduled(fixedRateString = "${app.schedulers.reset-token-cleanup-rate:3600000}")
+    public void purgeOrphanedPasswordResets() {
+        log.info("Starting orphaned password reset token cleanup...");
+        try {
+            passwordResetTokenRepository.purgeInvalidTokens(Instant.now());
+            log.info("Cleanup cycle for password reset tokens completed.");
+        } catch (Exception e) {
+            log.error("Failed to purge password reset tokens: {}", e.getMessage());
         }
     }
 }

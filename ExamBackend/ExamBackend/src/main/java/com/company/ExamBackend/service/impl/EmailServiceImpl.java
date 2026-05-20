@@ -11,7 +11,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -42,13 +41,26 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendOtp(String to, String otp) {
+    public void sendRegistrationOtp(String to, String otp) {
         long minutes = Long.parseLong(expiryTime) / 60000;
         String expiryInMinutes = String.valueOf(minutes);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("Your Examination Portal Verification Code");
         message.setText("Your OTP for registration is: " + otp +
+                ". This code is valid for " + expiryInMinutes +
+                " minutes.");
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendForgotPasswordOtp(String to, String otp) {
+        long minutes = Long.parseLong(expiryTime) / 60000;
+        String expiryInMinutes = String.valueOf(minutes);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Examination Portal forgot password OTP");
+        message.setText("Your OTP is: " + otp +
                 ". This code is valid for " + expiryInMinutes +
                 " minutes.");
         mailSender.send(message);
@@ -98,6 +110,16 @@ public class EmailServiceImpl implements EmailService {
         message.setSubject("Exam Completion Confirmation");
         message.setText("Your submission for the exam "+examTitle+" has been successfully received." +
                 " You will be mailed your results and will be able to see the same in your dashboard.");
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendInviteRevoke(String to, String examTitle)
+    {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Invite Revoked for exam "+examTitle);
+        message.setText("Your invite for the exam "+examTitle+" has been revoked.");
         mailSender.send(message);
     }
 }

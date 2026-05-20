@@ -149,10 +149,23 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
-    public CandidateExamDTO getExamForCandidate(String examId) {
+    public CandidateExamDTO getExamForCandidate(String candidateEmail, String examId) {
         Exam exam = findExamById(examId);
         List<Question> questions = questionRepository.findByParentExamId(examId);
-        return candidateExamMapper.toDTO(exam, questions);
+
+        return submissionRepository.findByCandidateEmailAndExamId(candidateEmail, examId)
+                .map(submission -> {
+                    List<Answer> answers = answerRepository.findBySubmissionIdWithDetails(submission.getId());
+                    return candidateExamMapper.toResumeDTO(
+                            exam,
+                            questions,
+                            answers,
+                            submission.getCreatedAt(),
+                            submission.getId(),
+                            submission.getViolations()
+                    );
+                })
+                .orElseGet(() -> candidateExamMapper.toDTO(exam, questions));
     }
 
     @Override

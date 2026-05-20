@@ -55,7 +55,7 @@ public class UserController {
             summary = "Verify OTP",
             description = "Verifies the OTP and promotes the candidate to a full user."
     )
-    @PostMapping("/verify-otp")
+    @PostMapping("/verify-registration-otp")
     public ResponseEntity<UserResponseDTO> verifyOtp(@Valid @RequestBody VerifyOtpRequestDTO verifyRequestDTO) {
         UserResponseDTO response = userService.verifyRegistration(verifyRequestDTO);
         return ResponseEntity.status(201).body(response);
@@ -65,7 +65,7 @@ public class UserController {
             summary = "Resend OTP",
             description = "Generates a new OTP if the resend-delay has passed."
     )
-    @PostMapping("/resend-otp")
+    @PostMapping("/resend-registration-otp")
     public ResponseEntity<ResendResponseDTO> resendOtp(@RequestParam String email) {
         ResendResponseDTO response = userService.resendOtp(email);
         return ResponseEntity.ok(response);
@@ -112,6 +112,40 @@ public class UserController {
     ) {
         userService.resetPassword(userDetails.getUsername(), passwordResetDTO);
         return ResponseEntity.ok("Password updated successfully.");
+    }
+
+    @Operation(
+            summary = "Forgot password",
+            description = "Used by any type of user to reset their password in case they forgot it. " +
+                    "Returns generic info to prevent email enumeration."
+    )
+    @PostMapping("forgot-password")
+    public ResponseEntity<RegistrationResponseDTO> forgotPassword(
+            @RequestBody ForgotPasswordDTO forgotPasswordDTO
+    ) {
+        return ResponseEntity.ok(userService.forgotPassword(forgotPasswordDTO));
+    }
+
+    @Operation(
+            summary = "Verify OTP and Reset Password",
+            description = "Consumes the OTP and updates the user's password in a single step. " +
+                    "Applies rate limiting based on the email provided."
+    )
+    @PostMapping("/verify-reset-password")
+    public ResponseEntity<ResetAttemptResponseDTO> verifyAndResetPassword(
+            @RequestBody ResetPasswordVerifyDTO resetPasswordVerifyDTO
+    ) {
+        return ResponseEntity.ok(userService.verifyAndResetPassword(resetPasswordVerifyDTO));
+    }
+
+    @Operation(
+            summary = "Resend OTP (Forgot password)"
+    )
+    @PostMapping("/resend-forgot-password")
+    public ResponseEntity<ResendResponseDTO> resendForgotPassword(
+            @RequestBody ForgotPasswordDTO forgotPasswordDTO
+    ) {
+        return ResponseEntity.ok(userService.resendForgotPasswordOtp(forgotPasswordDTO));
     }
 
     @Operation(

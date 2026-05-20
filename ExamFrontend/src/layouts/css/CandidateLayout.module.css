@@ -1,6 +1,16 @@
 .CandidateOverall {
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: row; /* 1) Swapped column to row to align sidebar and content side-by-side */
+    overflow: hidden;
+    background-color: #f8fafc; /* Standardized soft canvas background color */
+}
+
+.mainContentArea {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto; /* Content inside pages scrolls independently of the sidebar */
+    padding-top: 32px; /* Breathing space at the top matching admin margins */
+    box-sizing: border-box;
 }

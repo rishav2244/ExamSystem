@@ -4,13 +4,14 @@ import { usePopup } from "../components/popupType/usePopup";
 import { useConfirm } from "../components/popupType/useConfirm";
 import Papa from "papaparse";
 
-import { ExamQuestion } from "../components/FYIType/ExamQuestion";
-import { ExamQuestionDraft } from "../components/FYIType/ExamQuestionDraft";
-import { CandidateRow } from "../components/FYIType/CandidateRow";
-
+// Sub-components
+import { ExamOverviewPlate } from "../components/headerType/ExamOverviewPlate";
+import { QuestionWorkbench } from "../components/FYIType/QuestionWorkbench";
+import { ExamCandidatePanel } from "../components/FYIType/ExamCandidatePanel";
+import { ExamActionTray } from "../components/footerType/ExamActionTray";
 import { MailSendingModal } from "../components/popupType/MailSendingModal";
 
-
+// API
 import {
     getExamQuestions,
     uploadExamQuestions,
@@ -23,8 +24,6 @@ import {
 } from "../api/api";
 
 export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
-
-    const { email } = useContext(AuthenticationContext);
     const { showPopup } = usePopup();
     const { confirmPopup } = useConfirm();
 
@@ -37,46 +36,27 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
 
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const pageSize = 5;
-
-    const isPending = exam?.status === "PENDING";
     const [sendingMail, setSendingMail] = useState(false);
 
+    const pageSize = 5;
+    const isPending = exam?.status === "PENDING";
+
+    // --- Data Fetching Logic ---
+
     useEffect(() => {
-
         if (isPending || !exam?.id) return;
-
         getExamQuestions(exam.id)
-            .then((data) => {
-
-                const transformed = transformBackendQuestions(data || []);
-                setBackendQuestions(transformed);
-
-            })
-            .catch((err) => {
-
-                console.log("Couldn't load questions", err);
-
-            });
-
+            .then((data) => setBackendQuestions(transformBackendQuestions(data || [])))
+            .catch((err) => console.log("Couldn't load questions", err));
     }, [exam?.id, isPending]);
-
 
     useEffect(() => {
         if (exam?.status === "SAVED") {
-            getAllUserGroups(0, 100) // Fetching a larger size to fill the dropdown
-                .then(data => {
-                    // IMPORTANT: Use data.content because it's a Page object
-                    if (data && data.content) {
-                        setAvailableGroups(data.content);
-                    } else if (Array.isArray(data)) {
-                        setAvailableGroups(data);
-                    }
-                })
+            getAllUserGroups(0, 100)
+                .then(data => setAvailableGroups(data.content || data))
                 .catch(err => console.error("Failed to load groups", err));
         }
     }, [exam?.status]);
-
 
     useEffect(() => {
         if (exam?.status === "PUBLISHED") {
@@ -86,15 +66,9 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                     setTotalPages(data.totalPages || 0);
                 })
                 .catch(err => console.error("Failed to load assigned candidates", err));
-        }
-        else if (exam?.status === "SAVED" && selectedGroupId) {
-            // Debugging: See what the ID is and what the API returns
-            console.log("Fetching members for group ID:", selectedGroupId);
-
+        } else if (exam?.status === "SAVED" && selectedGroupId) {
             getGroupMembers(selectedGroupId, 0, 100)
                 .then(data => {
-                    console.log("API Response for members:", data);
-                    // Spring Page object wrapper check
                     const memberList = data.content || data;
                     setCandidates(Array.isArray(memberList) ? memberList : []);
                     setTotalPages(data.totalPages || 0);
@@ -103,544 +77,140 @@ export const ExamDetailsModal = ({ exam, onClose, onQuestionsUploaded }) => {
                     console.error("Failed to preview group", err);
                     setCandidates([]);
                 });
-        }
-        else {
+        } else {
             setCandidates([]);
             setTotalPages(0);
         }
-        // Ensure selectedGroupId is in the dependency array!
     }, [exam?.status, exam?.id, selectedGroupId, currentPage]);
 
-    const handlePageChange = (newPage) => {
-        if (newPage >= 0 && newPage < totalPages) {
-            setCurrentPage(newPage);
-        }
-    };
+    // --- Handlers & Helpers ---
 
-    const transformCSV = (rows) => {
-
-        return rows.map((row) => {
-
-            const result = {
-                Question: row["Question"],
-                Ans: row["Correction Option"],
-                Marks: row["Marks"],
-            };
-
-            let optionIndex = 1;
-
-            Object.keys(row).forEach((key) => {
-
-                if (key.startsWith("Option")) {
-
-                    result[optionIndex] = row[key];
-                    optionIndex++;
-
-                }
-
-            });
-
-            return result;
-
+    const transformCSV = (rows) => rows.map((row) => {
+        const result = { Question: row["Question"], Ans: row["Correction Option"], Marks: row["Marks"] };
+        let optionIndex = 1;
+        Object.keys(row).forEach((key) => {
+            if (key.startsWith("Option")) { result[optionIndex] = row[key]; optionIndex++; }
         });
+        return result;
+    });
 
+    const transformBackendQuestions = (questions) => questions.map((q) => {
+        const transformed = { Question: q.text, Marks: String(q.marks || "1"), Ans: "" };
+        q.options.forEach((opt) => { transformed[String(opt.optionIndex + 1)] = opt.text; });
+        const correctOption = q.options.find((opt) => opt.optionIndex === q.correctOptionIndex);
+        if (correctOption) transformed.Ans = correctOption.text;
+        return transformed;
+    });
+
+    const handleCSVUpload = (e) => {
+        const csvFile = e.target.files[0];
+        if (!csvFile) return;
+        Papa.parse(csvFile, {
+            header: true,
+            skipEmptyLines: true,
+            transformHeader: (h) => h.trim(),
+            complete: (res) => {
+                const err = validateCSVData(res.data);
+                if (err) { showPopup(`Invalid CSV: ${err}`, "error"); e.target.value = null; return; }
+                setCSVObj(transformCSV(res.data));
+            }
+        });
     };
-
 
     const validateCSVData = (data) => {
-
         if (!data || data.length === 0) return "The CSV file is empty.";
-
         for (let i = 0; i < data.length; i++) {
-
             const row = data[i];
-            const questionNum = i + 1;
-
-            if (isNaN(row["Marks"]) || row["Marks"].trim() === "") {
-                return `Row ${questionNum}: "Marks" must be a number.`;
-            }
-
-            const options = Object.keys(row)
-                .filter(key => key.startsWith("Option") && row[key]?.trim() !== "")
-                .map(key => row[key].trim());
-
-            if (options.length < 2) {
-                return `Row ${questionNum}: Must have at least 2 non-empty options.`;
-            }
-
-            const correctAns = row["Correction Option"]?.trim();
-
-            if (!options.includes(correctAns)) {
-                return `Row ${questionNum}: The "Correction Option" (${correctAns}) does not match any option.`;
-            }
-
+            if (isNaN(row["Marks"]) || row["Marks"].trim() === "") return `Row ${i + 1}: Marks must be a number.`;
+            const options = Object.keys(row).filter(k => k.startsWith("Option") && row[k]?.trim() !== "");
+            if (options.length < 2) return `Row ${i + 1}: Must have at least 2 options.`;
+            if (!options.map(k => row[k].trim()).includes(row["Correction Option"]?.trim())) return `Row ${i + 1}: Answer mismatch.`;
         }
-
         return null;
-
-    };
-
-
-    const validateDraftData = (questions) => {
-
-        for (let i = 0; i < questions.length; i++) {
-
-            const q = questions[i];
-            const label = `Question ${i + 1}`;
-
-            if (!q.Question || q.Question.trim() === "") {
-                return `${label}: Question text cannot be empty.`;
-            }
-
-            if (q.Marks === "" || isNaN(q.Marks) || Number(q.Marks) < 0) {
-                return `${label}: Marks must be a positive number.`;
-            }
-
-            const optionKeys = Object.keys(q).filter(key => !isNaN(key));
-
-            if (optionKeys.length < 2) {
-                return `${label}: Must have at least 2 options.`;
-            }
-
-            const optionValues = optionKeys.map(k => q[k].trim());
-
-            if (optionValues.some(val => val === "")) {
-                return `${label}: One or more options are empty.`;
-            }
-
-            if (!optionValues.includes(q.Ans.trim())) {
-                return `${label}: Correct Answer does not match options.`;
-            }
-
-        }
-
-        return null;
-
     };
 
     const handleConfirmAndPublish = async () => {
-
-        if (!selectedGroupId) {
-            showPopup("Please select a group first.", "warning");
-            return;
-        }
-
-        const confirmed = await confirmPopup(
-            "This will assign the group and publish the exam. Students will see it immediately. Proceed?"
-        );
-
-        if (!confirmed) return;
-
+        if (!selectedGroupId) return showPopup("Please select a group.", "warning");
+        if (!(await confirmPopup("Assign group and publish exam?"))) return;
         try {
-
             setSendingMail(true);
-
-            await new Promise(r => setTimeout(r, 50));
-
             await assignGroupToExam(exam.id, selectedGroupId);
-
             await publishExam(exam.id);
-
             setSendingMail(false);
-
-            showPopup("Exam published and invitations sent successfully!", "success");
-
-            onQuestionsUploaded();
-            onClose();
-
-        } catch (err) {
-
-            setSendingMail(false);
-
-            showPopup("An error occurred during the publish process.", "error");
-            console.error(err);
-
-        }
+            showPopup("Published!", "success");
+            onQuestionsUploaded(); onClose();
+        } catch { setSendingMail(false); showPopup("Error publishing.", "error"); }
     };
 
-    const handleExamCreation = (e) => {
-
-        const csvFile = e.target.files[0];
-        if (!csvFile) return;
-
-        Papa.parse(csvFile, {
-
-            header: true,
-            skipEmptyLines: true,
-            transformHeader: (header) => header.trim(),
-
-            complete: (resultant) => {
-
-                const validationError = validateCSVData(resultant.data);
-
-                if (validationError) {
-
-                    showPopup(`Invalid CSV: ${validationError}`, "error");
-                    e.target.value = null;
-                    return;
-
-                }
-
-                const transformed = transformCSV(resultant.data);
-                setCSVObj(transformed);
-
-            },
-
-            error: (err) => {
-
-                showPopup("Error parsing CSV: " + err.message, "error");
-
-            },
-
-        });
-
-    };
-
-
-    const handleQuestionUpdate = (qIndex, fieldKey, newValue) => {
-
-        setCSVObj((prevCSV) => {
-
-            return prevCSV.map((item, index) => {
-
-                if (index === qIndex) {
-                    return { ...item, [fieldKey]: newValue };
-                }
-
-                return item;
-
-            });
-
-        });
-
-    };
-
-
-    const transformBackendQuestions = (questions) => {
-
-        return questions.map((q) => {
-
-            const transformed = {
-                Question: q.text,
-                Marks: String(q.marks || "1"),
-                Ans: "",
-            };
-
-            q.options.forEach((opt) => {
-
-                const key = String(opt.optionIndex + 1);
-                transformed[key] = opt.text;
-
-            });
-
-            const correctOption = q.options.find(
-                (opt) => opt.optionIndex === q.correctOptionIndex
-            );
-
-            if (correctOption) {
-
-                transformed.Ans = correctOption.text;
-
-            }
-
-            return transformed;
-
-        });
-
-    };
-
-
-    const handleDeleteExam = async () => {
-
-        const confirmed = await confirmPopup(
-            "ARE YOU SURE? This will permanently delete the exam and all its questions, submissions, and candidate records. This cannot be undone."
-        );
-
-        if (!confirmed) return;
-
+    const handleDelete = async () => {
+        if (!(await confirmPopup("Permanently delete this exam?"))) return;
         try {
-
             await deleteExam(exam.id);
-
-            showPopup("Exam deleted successfully.", "success");
-
-            if (onQuestionsUploaded) {
-
-                onQuestionsUploaded();
-
-            }
-
-            onClose();
-
-        } catch (err) {
-
-            const errorMessage =
-                err.response?.data?.message ||
-                "An error occurred while deleting the exam.";
-
-            showPopup(`Delete Failed: ${errorMessage}`, "error");
-
-            console.error(err);
-
-        }
-
+            showPopup("Deleted.", "success");
+            onQuestionsUploaded(); onClose();
+        } catch (err) { showPopup("Delete failed.", "error"); }
     };
 
-
-    const handleSave = async () => {
-
-        if (!CSVObj || CSVObj.length === 0) return;
-
-        const error = validateDraftData(CSVObj);
-
-        if (error) {
-
-            showPopup(`Validation Error: ${error}`, "error");
-            return;
-
-        }
-
-        if (cutoff < 0 || cutoff > 100) {
-
-            showPopup("Cutoff percentage must be between 0 and 100.", "warning");
-            return;
-
-        }
-
-        const confirmed = await confirmPopup(
-            `Save questions with a ${cutoff}% passing cutoff?`
-        );
-
-        if (!confirmed) return;
-
+    const handleSaveQuestions = async () => {
+        if (!CSVObj) return;
+        if (cutoff < 0 || cutoff > 100) return showPopup("Invalid cutoff.", "warning");
+        if (!(await confirmPopup(`Save questions with ${cutoff}% cutoff?`))) return;
         try {
-
             await uploadExamQuestions(exam.id, CSVObj, cutoff);
-
-            showPopup("Questions and Cutoff saved successfully!", "success");
-
-            setCSVObj(null);
-            onQuestionsUploaded();
-            onClose();
-
-        } catch (err) {
-
-            showPopup("Failed to save. Check console.", "error");
-
-        }
-
+            showPopup("Saved!", "success");
+            onQuestionsUploaded(); onClose();
+        } catch { showPopup("Save failed.", "error"); }
     };
 
     return (
         <div className="modal-backdrop" onClick={onClose}>
             <div className="modal-window wide-modal" onClick={(e) => e.stopPropagation()}>
-
                 {sendingMail && <MailSendingModal />}
-
                 <button className="modal-close" onClick={onClose}>✕</button>
 
                 <h2>Exam details</h2>
 
-                {exam && (
-                    <div className="modal-exam-header">
-                        <div className="exam-title-row">
-                            <h2 className="exam-title">{exam.title}</h2>
-                            <p className={`exam-status-text ${exam.status.toLowerCase()}`}>
-                                Status: {exam.status}
-                            </p>
-                        </div>
-
-                        <div className="exam-info-grid">
-                            <div className="exam-info-card">
-                                <span className="label">Start Time</span>
-                                <span className="value">
-                                    {new Date(exam.startTime).toLocaleString()}
-                                </span>
-                            </div>
-
-                            <div className="exam-info-card">
-                                <span className="label">End Time</span>
-                                <span className="value">
-                                    {new Date(exam.endTime).toLocaleString()}
-                                </span>
-                            </div>
-
-                            <div className="exam-info-card">
-                                <span className="label">Total Marks</span>
-                                <span className="value">{exam.totalMarks}</span>
-                            </div>
-
-                            <div className="exam-info-card">
-                                <span className="label">Cutoff Marks</span>
-                                <span className="value">
-                                    {((exam.totalMarks * exam.cutoff) / 100).toFixed(2)}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <ExamOverviewPlate exam={exam} />
 
                 <div className="modal-body">
-                    {isPending ? (
-                        <div className="upload-section">
-                            <h3>Upload Questions (CSV)</h3>
-                            <input
-                                type="file"
-                                accept=".csv"
-                                onChange={handleExamCreation}
-                            />
+                    <QuestionWorkbench
+                        isPending={isPending}
+                        onCSVUpload={handleCSVUpload}
+                        csvQuestions={CSVObj}
+                        onDraftChange={(idx, key, val) => {
+                            const newCSV = [...CSVObj];
+                            newCSV[idx][key] = val;
+                            setCSVObj(newCSV);
+                        }}
+                        backendQuestions={backendQuestions}
+                    />
 
-                            {CSVObj && CSVObj.length > 0 && (
-                                <div className="exam-questions-container">
-                                    {CSVObj.map((q, index) => (
-                                        <ExamQuestionDraft
-                                            key={index}
-                                            question={q}
-                                            index={index}
-                                            onChange={handleQuestionUpdate}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="view-section">
-                            <h3>Exam Questions</h3>
-                            <div className="exam-questions-container">
-                                {backendQuestions.map((q, index) => (
-                                    <ExamQuestion
-                                        key={index}
-                                        question={q}
-                                        index={index}
-                                    />
-                                ))}
-                            </div>
-
-                            {exam?.status === "SAVED" && (
-                                <div className="group-assignment-section">
-                                    <h4>Select Candidate Group</h4>
-                                    <div className="group-input-group">
-                                        <select
-                                            value={selectedGroupId}
-                                            onChange={(e) => setSelectedGroupId(e.target.value)}
-                                            className="group-dropdown"
-                                        >
-                                            <option value="">-- Select Group to Assign --</option>
-                                            {availableGroups.map((grp) => (
-                                                <option key={grp.id} value={grp.id}>
-                                                    {grp.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                            )}
-
-                            {((exam?.status === "SAVED" && selectedGroupId) || exam?.status === "PUBLISHED") && (
-                                <div className="candidate-list-container">
-                                    <h5>
-                                        {exam?.status === "PUBLISHED"
-                                            ? "Assigned Candidates"
-                                            : "Draft Candidate List"} ({candidates.length})
-                                    </h5>
-
-                                    <div className="candidate-scroll">
-                                        {candidates.length > 0 ? (
-                                            candidates.map((c) => (
-                                                <CandidateRow
-                                                    key={c.id}
-                                                    candidate={c}
-                                                />
-                                            ))
-                                        ) : (
-                                            <p className="no-candidates-msg">
-                                                No candidates found.
-                                            </p>
-                                        )}
-                                    </div>
-                                    {exam?.status === "PUBLISHED" && totalPages > 1 && (
-                                        <div className="UserPagination">
-                                            <button
-                                                onClick={() => handlePageChange(currentPage - 1)}
-                                                disabled={currentPage === 0}
-                                            >
-                                                Previous
-                                            </button>
-
-                                            <div className="page-jump-container">
-                                                <span>Page</span>
-                                                <input
-                                                    type="number"
-                                                    className="page-input"
-                                                    value={currentPage + 1}
-                                                    onChange={(e) => {
-                                                        const val = parseInt(e.target.value);
-                                                        if (!isNaN(val)) handlePageChange(val - 1);
-                                                    }}
-                                                />
-                                                <span>of {totalPages}</span>
-                                            </div>
-
-                                            <button
-                                                onClick={() => handlePageChange(currentPage + 1)}
-                                                disabled={currentPage >= totalPages - 1}
-                                            >
-                                                Next
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {exam?.status === "SAVED" && (
-                                        <p className="draft-notice">
-                                            Review carefully. This list will be finalized on Publish.
-                                        </p>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                    <ExamCandidatePanel
+                        examId={exam.id}
+                        examStatus={exam?.status}
+                        availableGroups={availableGroups}
+                        selectedGroupId={selectedGroupId}
+                        onGroupChange={setSelectedGroupId}
+                        candidates={candidates}
+                        setCandidates={setCandidates} // IMPORTANT: used to remove the row from UI
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
 
-                <div className="modal-footer">
-                    <button
-                        onClick={handleDeleteExam}
-                        className="DeleteExamButton"
-                    >
-                        Delete Exam
-                    </button>
-
-                    {isPending && CSVObj && CSVObj.length > 0 && (
-                        <div className="save-actions-container">
-                            <div className="cutoff-input-wrapper">
-                                <label>Pass Cutoff (%): </label>
-                                <input
-                                    type="number"
-                                    value={cutoff}
-                                    onChange={(e) => setCutoff(e.target.value)}
-                                    min="0"
-                                    max="100"
-                                    className="cutoff-input"
-                                />
-                            </div>
-                            <button
-                                onClick={handleSave}
-                                className="QuestionsSaveButton"
-                            >
-                                Save Questions to Exam
-                            </button>
-                        </div>
-                    )}
-
-                    {exam?.status === "SAVED" && selectedGroupId !== "" && (
-                        <button
-                            onClick={handleConfirmAndPublish}
-                            className="PublishExamButton"
-                        >
-                            Confirm & Publish Exam
-                        </button>
-                    )}
-                </div>
+                <ExamActionTray
+                    examStatus={exam?.status}
+                    isPending={isPending}
+                    csvQuestionsExist={!!CSVObj}
+                    cutoff={cutoff}
+                    setCutoff={setCutoff}
+                    selectedGroupId={selectedGroupId}
+                    onDelete={handleDelete}
+                    onSaveQuestions={handleSaveQuestions}
+                    onPublish={handleConfirmAndPublish}
+                />
             </div>
         </div>
     );
-}
+};

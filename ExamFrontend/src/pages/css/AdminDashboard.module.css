@@ -1,0 +1,78 @@
+/* Main Layout Container */
+.dashboardContainer {
+    width: 100%;
+    max-width: 1400px; /* Prevents rows from stretching too wide on ultra-wide monitors */
+    margin: 0 auto;
+    /* 1) Fade in removed for snappy, instant navigation */
+}
+
+/* Card Wrapper for the Exam Component Section */
+.examSectionCard {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    overflow: hidden; /* Keeps internal components clipped nicely to the border radius */
+    display: flex;
+    flex-direction: column;
+    
+    /* 2) Added gap against left and right for the table/content structure */
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+/* Section Header Bar Wrap */
+.sectionHeaderWrapper {
+    padding: 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #ffffff;
+}
+
+/* Responsive Table Shell Container */
+.tableResponsiveContainer {
+    width: 100%;
+    overflow-x: auto; /* Gracefully handles horizontal overflowing on smaller displays */
+    background-color: #ffffff;
+}
+
+/* Modernized Fluid Table Layout */
+.examTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.examTable th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 14px 24px;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.examTable td {
+    padding: 16px 24px;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+    transition: background-color 0.15s ease;
+}
+
+/* Row Hover Interaction effects */
+.examTable tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* Pagination Control Footer Wrapper */
+.paginationFooterWrapper {
+    padding: 16px 24px;
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}

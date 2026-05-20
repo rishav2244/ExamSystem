@@ -1,9 +1,6 @@
 package com.company.ExamBackend.mapper;
 
-import com.company.ExamBackend.dto.LoginResponseDTO;
-import com.company.ExamBackend.dto.TokenResponseDTO;
-import com.company.ExamBackend.dto.UserHeavyDTO;
-import com.company.ExamBackend.dto.UserResponseDTO;
+import com.company.ExamBackend.dto.*;
 import com.company.ExamBackend.model.PendingRegistration;
 import com.company.ExamBackend.model.Users;
 import org.springframework.stereotype.Component;
@@ -43,6 +40,16 @@ public class UserMapper
         return LoginResponseDTO.builder()
                 .user(toUserResponse(user))
                 .tokens(tokens)
+                .build();
+    }
+
+    public ResetAttemptResponseDTO  toResetAttemptResponse(
+            boolean success,
+            int attemptsLeft
+            ) {
+        return ResetAttemptResponseDTO.builder()
+                .success(success)
+                .attemptsLeft(attemptsLeft)
                 .build();
     }
 }
